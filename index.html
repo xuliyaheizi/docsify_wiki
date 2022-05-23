@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div id="app">🏃‍🏃‍🏃‍💨 加载中...</div>
+  <div id="app"></div>
   <script>
     window.$docsify = {
       name: '<h3>Sunspot</h3>',
@@ -36,13 +36,27 @@
               + editHtml_end
           })
         }
+        ,
+        function (hook) {
+          var footer = [
+            '<hr/>',
+            '<footer>',
+            '<span><a href="https://github.com/xuliyaheizi">ZhuLin</a> &copy;2022.</span>',
+            '<span>宣椿并茂，棠棣同馨</span>',
+            '</footer>'
+          ].join('');
+
+          hook.afterEach(function (html) {
+            return html + footer;
+          });
+        }
       ],//编辑按钮
       themeColor: '#2185d5', // 主题颜色
       coverpage: true,//封面
       // loadSidebar: true,// 加载 _sidebar.md
       onlyCover: true,//只在访问主页时加载封面。
       // subMaxLevel: 3,//侧边栏展现目录
-      maxLevel: 3,//最大的内容表级别
+      maxLevel: 2,//最大的内容表级别
       mergeNavbar: true,//Navbar将在小屏幕上与侧边栏合并
       loadNavbar: true,//导航栏
       auto2top: true,  //当路线改变时,滚动到屏幕的顶部
