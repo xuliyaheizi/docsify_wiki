@@ -3,109 +3,25 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>黑子的Wiki</title>
+  <title>Sunspot's Wiki</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/vue.css">
-  <link rel="icon" href="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/favicon.ico">
+  <link rel="icon" href="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/favicon%20%281%29.ico">
+  <link rel="stylesheet" href="/_media.css">
+  <!-- alert -->
+  <link rel="stylesheet" href="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert.min.css"
+    type='text/css' media='all' />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_3423038_173rjp3i1ei.css">
 </head>
-<style>
-  /* 侧边栏*/
-  .sidebar {
-    padding-top: 6px;
-  }
-
-  aside.sidebar ul li {
-    margin: 0;
-    position: relative;
-  }
-
-  aside.sidebar ul li ul {
-    margin: 6px 0;
-  }
-
-  aside.sidebar ul li p {
-    padding-left: 22px;
-    font-size: 18px;
-    font-weight: normal;
-  }
-
-  aside.sidebar ul li a {
-    line-height: 35px;
-    font-size: 14px;
-    padding: 3px 0 3px 22px;
-  }
-
-  aside.sidebar ul li.active>a {
-    font-size: 16px !important;
-  }
-
-  aside.sidebar ul li.active>a:before {
-    content: '' !important;
-    position: absolute !important;
-    margin: 0 !important;
-    width: 10px !important;
-    height: 10px !important;
-    top: 15px !important;
-    left: 0px !important;
-    border-radius: 50% !important;
-    background-color: #fed24a !important;
-    box-shadow: 0 0 0 3px rgba(254, 210, 74, 0.4) !important;
-  }
-
-  /*以上调侧边栏 */
-
-  h1 span {
-    display: inline-block;
-    background: rgb(66, 185, 131);
-    color: #ffffff;
-    padding: 10px 16px;
-    border-radius: 5px;
-    box-shadow: 1px 1px 3px black;
-  }
-
-
-  /*滚动条样式 start*/
-  /* 滚动条宽度 */
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  /* 滚动条颜色 */
-  ::-webkit-scrollbar-thumb {
-    background: #33a9dc;
-    background-image: linear-gradient(#6ecd56, #33a9dc, #cb6196, #c16290);
-    border-radius: 2em;
-  }
-
-  /* 导航栏 */
-  .app-nav {
-    position: fixed;
-    margin: 0;
-    /*padding: 10px 50px 10px 0;*/
-    padding: 10px 60px 10px 0;
-    /*上、右、下、左*/
-    width: calc(100% - 325px);
-    background-color: #fff;
-    height: 50px;
-    border-bottom: 1px solid #eee;
-  }
-
-  ol,
-  ul,
-  li {
-    line-height: 27px !important;
-    font-size: 16px !important;
-  }
-</style>
 
 <body>
   <div id="app">🏃‍🏃‍🏃‍💨 加载中...</div>
   <script>
     window.$docsify = {
-      name: '<h3>黑子</h3>',
-      nameLink: '#/README',
+      name: '<h3>Sunspot</h3>',
+      nameLink: '/',
       formatUpdated: '{YYYY}/{MM}/{DD} {HH}:{mm}',
       plugins: [
         function (hook, vm) {
@@ -121,7 +37,7 @@
           })
         }
       ],//编辑按钮
-      // themeColor: '#3498db', // 主题颜色
+      themeColor: '#2185d5', // 主题颜色
       coverpage: true,//封面
       // loadSidebar: true,// 加载 _sidebar.md
       onlyCover: true,//只在访问主页时加载封面。
@@ -129,6 +45,8 @@
       maxLevel: 3,//最大的内容表级别
       mergeNavbar: true,//Navbar将在小屏幕上与侧边栏合并
       loadNavbar: true,//导航栏
+      auto2top: true,  //当路线改变时,滚动到屏幕的顶部
+      topMargin: 60,//调整top
       count: {
         countable: true,
         fontsize: '0.9em',
@@ -137,8 +55,8 @@
       },//字数统计
       search: {
         paths: 'auto',
-        placeholder: '搜索',
-        noData: '找不到结果',
+        placeholder: '🔍search',
+        noData: 'No Result',
         // Headline depth, 1 - 6
         depth: 6,
         maxAge: 86400000, // 过期时间，单位毫秒，默认一天
@@ -163,6 +81,33 @@
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify-pagination.min.js"></script>
   <!-- 搜索 -->
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/search.min.js"></script>
+
+  <!-- 回到顶部 -->
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/jquery.js"></script>
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/jquery.goup.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $.goup({
+        trigger: 100,
+        bottomOffset: 52,
+        locationOffset: 25,
+        //title: 'TOP',
+        titleAsText: true
+      });
+    });
+  </script>
+
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/emoji.min.js"></script>
+
+  <!-- 复制提醒 -->
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert.min.js"></script>
+  <script>
+    document.body.oncopy = function () {
+      swal("复制成功 🎉",
+        "若要转载或引用请务必保留原文链接，并申明来源。如果你觉得本仓库不错，那就来 GitHub 给个 Star 吧 😊   - by Sunspot",
+        "success");
+    };
+  </script>
 </body>
 
 </html>

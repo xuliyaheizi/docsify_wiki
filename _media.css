@@ -1,0 +1,117 @@
+/* 侧边栏*/
+.sidebar {
+    padding-top: 6px;
+}
+
+aside.sidebar ul li {
+    margin: 0;
+    position: relative;
+}
+
+aside.sidebar ul li ul {
+    margin: 6px 0;
+}
+
+aside.sidebar ul li p {
+    padding-left: 22px;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+aside.sidebar ul li a {
+    line-height: 35px;
+    font-size: 14px;
+    padding: 3px 0 3px 22px;
+}
+
+aside.sidebar ul li.active>a {
+    font-size: 16px !important;
+}
+
+aside.sidebar ul li.active>a:before {
+    content: '' !important;
+    position: absolute !important;
+    margin: 0 !important;
+    width: 10px !important;
+    height: 10px !important;
+    top: 15px !important;
+    left: 0px !important;
+    border-radius: 50% !important;
+    background-color: #fed24a !important;
+    box-shadow: 0 0 0 3px rgba(254, 210, 74, 0.4) !important;
+}
+
+/*以上调侧边栏 */
+
+h1 span {
+    display: inline-block;
+    background: #1fab89;
+    color: #ffffff;
+    padding: 5px 25px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px black;
+}
+
+
+/*滚动条样式 start*/
+/* 滚动条宽度 */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* 滚动条颜色 */
+::-webkit-scrollbar-thumb {
+    background: #33a9dc;
+    background-image: linear-gradient(#6ecd56, #33a9dc, #cb6196, #c16290);
+    border-radius: 2em;
+}
+
+
+/* 导航栏 */
+.app-nav {
+    position: fixed;
+    margin: 0;
+    padding: 10px 10rem 10px 0;
+    width: calc(100% - 21rem);
+    background-color: #fff;
+    height: 50px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+/* 首页背景 */
+section.cover.has-mask .mask {
+    background-color: #f9f7f7;
+    opacity: 0.3;
+}
+
+ol,
+ul,
+li {
+    line-height: 27px !important;
+    font-size: 16px !important;
+}
+
+/* 引用 */
+.markdown-section p.tip {
+    background-color: #f8f8f8;
+    border-bottom-right-radius: 2px;
+    border-left: 4px solid #f66;
+    border-top-right-radius: 2px;
+    margin: 2em 0;
+    padding: 12px 24px 12px 30px;
+    position: relative;
+}
+
+.markdown-section p.tip,
+.markdown-section tr:nth-child(1n) {
+    font-size: 16px !important;
+}
+
+.markdown-section a:not(:hover) {
+    text-decoration: none;
+}
+
+.markdown-section a {
+    color: var(--theme-color, #42b983);
+    font-weight: 600;
+}
