@@ -3,6 +3,6 @@
     * [Java进阶](/README.md?id=java进阶)
     * [SpringCloud](/README.md?id=springcloud)
     * [数据库中间件](/README.md?id=数据库中间件)
-* [<i class="iconfont icon-zongjie"></i>每日一结](/%E6%AF%8F%E6%97%A5%E4%B8%80%E7%BB%93/README.md)
+* [<i class="iconfont icon-zongjie"></i>每日一结](/每日一结/README.md)
 * [<i class="iconfont icon-kebiao"></i>课表](/课表)
-* [<i class="iconfont icon-zuozhe"></i>关于作者](/%E7%AE%80%E5%8E%86.md)
+* [<i class="iconfont icon-zuozhe"></i>关于作者](/简历.md)
