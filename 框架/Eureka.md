@@ -2,33 +2,33 @@
 
 ## 一、概念
 
-Eureka是Netflix公司开源的一款提供服务注册和发现的产品，是一种基于REST的服务，主要用于AWS云，Eureka提供了完整的Service Registry和Service Discovery实现，也是SpringCloud体系中最重要最核心的组件之一。
+  Eureka是Netflix公司开源的一款提供服务注册和发现的产品，是一种基于REST的服务，主要用于AWS云，Eureka提供了完整的Service Registry和Service Discovery实现，也是SpringCloud体系中最重要最核心的组件之一。
 
-Eureka由两个组件组成：**Eureka服务端**和**Eureka客户端**。Eureka服务端就是注册中心。Eureka客户端是一个java客户端，用来简化与服务端的交互、作为轮询负载均衡器，并提供服务的故障切换支持。
+  Eureka由两个组件组成：**Eureka服务端**和**Eureka客户端**。Eureka服务端就是注册中心。Eureka客户端是一个java客户端，用来简化与服务端的交互、作为轮询负载均衡器，并提供服务的故障切换支持。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647951210909-03423fe2-3e7b-4c6f-8694-f7b2baeafeed.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647951210909-03423fe2-3e7b-4c6f-8694-f7b2baeafeed.png" alt="image.png" width="50%" />
 
 ### Erueka Server：注册中心服务端
 
 - **服务注册：**
 
-服务提供者启动时，会通过**Eureka Client向Eureka Server注册信息**，Eureka Server会**存储**该服务的信息，Eureka Server内部有**二层缓存机制**来维护整个注册表
+  服务提供者启动时，会通过**Eureka Client向Eureka Server注册信息**，Eureka Server会**存储**该服务的信息，Eureka Server内部有**二层缓存机制**来维护整个注册表。
 
 - **提供注册表**
 
-服务消费者在调用服务时，如果**Eureka Client没有缓存注册表的话，会从Eureka Server获取最新的注册表**
+  服务消费者在调用服务时，如果**Eureka Client没有缓存注册表的话，会从Eureka Server获取最新的注册表**。
 
 - **同步状态**
 
-Eureka Client通过**注册、心跳机制和Eureka Server同步**当前客户端的状态
+  Eureka Client通过**注册、心跳机制和Eureka Server同步**当前客户端的状态。
 
 ### Eureka Client：注册中心客户端
 
-Eureka Client 是一个 Java 客户端，用于简化与 Eureka Server 的交互。Eureka Client 会**拉取、更新和缓存 Eureka Server 中的信息**。因此当所有的 Eureka Server 节点都宕掉，服务消费者依然可以使用**缓存**中的信息找到服务提供者，但是**当服务有更改的时候会出现信息不一致**。
+  Eureka Client 是一个 Java 客户端，用于简化与 Eureka Server 的交互。Eureka Client 会**拉取、更新和缓存 Eureka Server 中的信息**。因此当所有的 Eureka Server 节点都宕掉，服务消费者依然可以使用**缓存**中的信息找到服务提供者，但是**当服务有更改的时候会出现信息不一致**。
 
 ### Register：服务注册
 
-服务的提供者，将自身注册到注册中心，服务提供者也是一个 Eureka Client。当 Eureka Client 向 Eureka Server 注册时，它提供自身的元数据，比如 IP 地址、端口，运行状况指示符 URL，主页等。
+  服务的提供者，将自身注册到注册中心，服务提供者也是一个 Eureka Client。当 Eureka Client 向 Eureka Server 注册时，它提供自身的元数据，比如 IP 地址、端口，运行状况指示符 URL，主页等。
 
 - Spring Cloud Eureka 在应用启动时，会在 EurekaAutoServiceRegistration 这个类初始化的时候，主动去 Eureka Server 端注册。
 - Eureka 在启动完成之后会启动**一个 40 秒执行一次的定时任务**，该任务会去**监测自身的 IP 信息以及自身的配置信息**是否发生改变，如果发生改变，则会重新发起注册。
@@ -36,25 +36,25 @@ Eureka Client 是一个 Java 客户端，用于简化与 Eureka Server 的交互
 
 ### Renew：服务续约
 
-Eureka Client 会**每隔 30 秒发送一次心跳来续约**。 通过续约来告知 Eureka Server 该 Eureka Client 运行正常，没有出现问题。 默认情况下，如果 Eureka Server 在 **90 秒内没有收到 Eureka Client 的续约**，Server 端会将实例从其注册表中删除，此时间可配置，一般情况不建议更改。
+  Eureka Client 会**每隔 30 秒发送一次心跳来续约**。 通过续约来告知 Eureka Server 该 Eureka Client 运行正常，没有出现问题。 默认情况下，如果 Eureka Server 在 **90 秒内没有收到 Eureka Client 的续约**，Server 端会将实例从其注册表中删除，此时间可配置，一般情况不建议更改。
 
 ### Remote Call：远程调用
 
-当Eureka Client从注册中心获取到服务提供者信息后，就可以通过http请求调用对应的服务；服务提供者有多个时，Eureka Client客户端会通过Ribbon自动进行负载均衡
+  当Eureka Client从注册中心获取到服务提供者信息后，就可以通过http请求调用对应的服务；服务提供者有多个时，Eureka Client客户端会通过Ribbon自动进行负载均衡
 
 ### GetRegisty: 获取注册列表信息
 
-Eureka Client 从服务器获取注册表信息，并将其**缓存**在本地。客户端会使用该信息查找其他服务，从而进行远程调用。该注册列表信息定期（每30秒钟）更新一次。每次返回注册列表信息可能与 Eureka Client 的缓存信息不同，Eureka Client 自动处理。
+  Eureka Client 从服务器获取注册表信息，并将其**缓存**在本地。客户端会使用该信息查找其他服务，从而进行远程调用。该注册列表信息定期（每30秒钟）更新一次。每次返回注册列表信息可能与 Eureka Client 的缓存信息不同，Eureka Client 自动处理。
 
-如果由于某种原因导致注册列表信息不能及时匹配，Eureka Client 则会重新获取整个注册表信息。 Eureka Server 缓存注册列表信息，整个注册表以及每个应用程序的信息进行了压缩，压缩内容和没有压缩的内容完全相同。Eureka Client 和 Eureka Server 可以使用 JSON/XML 格式进行通讯。在默认情况下 Eureka Client 使用压缩 JSON 格式来获取注册列表的信息。
+  如果由于某种原因导致注册列表信息不能及时匹配，Eureka Client 则会重新获取整个注册表信息。 Eureka Server 缓存注册列表信息，整个注册表以及每个应用程序的信息进行了压缩，压缩内容和没有压缩的内容完全相同。Eureka Client 和 Eureka Server 可以使用 JSON/XML 格式进行通讯。在默认情况下 Eureka Client 使用压缩 JSON 格式来获取注册列表的信息。
 
 ### 自我保护机制
 
-默认情况下，如果 Eureka Server 在**一定的 90s 内没有接收**到某个微服务实例的心跳，会注销该实例。但是在微服务架构下服务之间通常都是跨进程调用，网络通信往往会面临着各种问题，比如微服务状态正常，网络分区故障，导致此实例被注销。
+  默认情况下，如果 Eureka Server 在**一定的 90s 内没有接收**到某个微服务实例的心跳，会注销该实例。但是在微服务架构下服务之间通常都是跨进程调用，网络通信往往会面临着各种问题，比如微服务状态正常，网络分区故障，导致此实例被注销。
 
-固定时间内大量实例被注销，可能会严重威胁整个微服务架构的可用性。为了解决这个问题，Eureka 开发了自我保护机制，那么什么是自我保护机制呢？
+  固定时间内大量实例被注销，可能会严重威胁整个微服务架构的可用性。为了解决这个问题，Eureka 开发了自我保护机制，那么什么是自我保护机制呢？
 
-Eureka Server 在**运行期间**会去统计**心跳失败比例在 15 分钟之内是否低于 85%**，**如果低于 85%**，Eureka Server 即会进入自我保护机制。
+  Eureka Server 在**运行期间**会去统计**心跳失败比例在 15 分钟之内是否低于 85%**，**如果低于 85%**，Eureka Server 即会进入自我保护机制。
 
 ### Eureka Server进入自我保护机制，会出现一下几种情况
 
@@ -64,7 +64,7 @@ Eureka Server 在**运行期间**会去统计**心跳失败比例在 15 分钟�
 
 ### 注册中心高可用
 
-理论上来讲，服务消费者本地缓存了服务提供者的地址。即使 Eureka Server 宕机，也不会影响服务之间的调用，但是一旦涉及到服务的上下线，本地的缓存信息将会出现偏差，从而影响到了整个微服务架构的稳定性，因此搭建 Eureka Server 集群来提高整个架构的高可用性，是非常有必要的。这样就可以使注册中心高可用。
+  理论上来讲，服务消费者本地缓存了服务提供者的地址。即使 Eureka Server 宕机，也不会影响服务之间的调用，但是一旦涉及到服务的上下线，本地的缓存信息将会出现偏差，从而影响到了整个微服务架构的稳定性，因此搭建 Eureka Server 集群来提高整个架构的高可用性，是非常有必要的。这样就可以使注册中心高可用。
 
 ## 二、工作流程
 
@@ -83,11 +83,11 @@ Eureka Server 在**运行期间**会去统计**心跳失败比例在 15 分钟�
 
 ### 消息广播
 
-Eureka Server管理了全部的服务器列表（PeerEurekaNodes）
+  Eureka Server管理了全部的服务器列表（PeerEurekaNodes）
 
-当Eureka Server收到客户端的注册、下线、心跳请求时，通过PeerEurekaNodes向其余的服务器进行消息广播，如果广播失败则重试，直到任务过期后取消任务，此时两台服务器之间数据会出现短暂的不一致
+  当Eureka Server收到客户端的注册、下线、心跳请求时，通过PeerEurekaNodes向其余的服务器进行消息广播，如果广播失败则重试，直到任务过期后取消任务，此时两台服务器之间数据会出现短暂的不一致
 
-如果网络恢复正常，收到了其他服务器广播的心跳任务，此时可以有三种情况：
+  如果网络恢复正常，收到了其他服务器广播的心跳任务，此时可以有三种情况：
 
 - [脑裂](https://www.cnblogs.com/nicerblog/p/11232531.html)很快恢复，一切正常 
 - 该实例已自动过期，则重新进行注册
@@ -97,21 +97,21 @@ Eureka Server管理了全部的服务器列表（PeerEurekaNodes）
 
 **CAP理论：A 高可用性 P 分区容错性 C一致性**
 
-Eureka在设计时**保证可用性**。Eureka各个节点都是平等的，几个节点挂掉不会影响正常节点的工作，**剩余的节点依然可以提供注册和查询服务**。而Eureka的客户端在向某个Eureka注册或如果发现连接失败，则会自动切换至其它节点，只要有一台Eureka还在，就能保证注册服务可用(保证可用性)，只不过查到的信息可能不是最新的(不保证强一致性)。
+  Eureka在设计时**保证可用性**。Eureka各个节点都是平等的，几个节点挂掉不会影响正常节点的工作，**剩余的节点依然可以提供注册和查询服务**。而Eureka的客户端在向某个Eureka注册或如果发现连接失败，则会自动切换至其它节点，只要有一台Eureka还在，就能保证注册服务可用(保证可用性)，只不过查到的信息可能不是最新的(不保证强一致性)。
 
-除此之外，Eureka还有一种**自我保护机制**，如果在**15分钟内超过85%的节点**都没有正常的心跳，那么Eureka就认为客户端与注册中心出现了网络故障，此时会出现以下几种情况：
+  除此之外，Eureka还有一种**自我保护机制**，如果在**15分钟内超过85%的节点**都没有正常的心跳，那么Eureka就认为客户端与注册中心出现了网络故障，此时会出现以下几种情况：
 
 - Eureka不再从注册列表中移除因为**长时间没收到心跳**而应该**过期**的服务
 - Eureka仍然能够接受**新服务的注册和查询请求**，但是不会被同步到其它节点上(即保证当前节点依然可用)
 - 当网络稳定时，当前实例新的注册信息会被同步到其它节点中
 
-因此， Eureka可以很好的应对因网络故障导致部分节点失去联系的情况，而不会像zookeeper那样使整个注册服务瘫痪。
+  因此， Eureka可以很好的应对因网络故障导致部分节点失去联系的情况，而不会像zookeeper那样使整个注册服务瘫痪。
 
-**Eureka Server集群之间的状态是采用异步方式同步的，所以不保证节点间的状态一定是一致的，不过基本能保证最终状态是一致的**
+  **Eureka Server集群之间的状态是采用异步方式同步的，所以不保证节点间的状态一定是一致的，不过基本能保证最终状态是一致的。**
 
 ## 四、Eureka服务端安全设置
 
-您只需通过spring-boot-starter-security将Spring Security添加到服务器的类路径中即可保护Eureka服务器。默认情况下，当Spring Security在类路径上时，它将要求在每次向应用程序发送请求时都发送有效的CSRF令牌。Eureka客户通常不会拥有有效的跨站点请求伪造（CSRF）令牌，您需要为/eureka/**端点禁用此要求。例如：
+  通过spring-boot-starter-security将Spring Security添加到服务器的类路径中即可保护Eureka服务器。默认情况下，当Spring Security在类路径上时，它将要求在每次向应用程序发送请求时都发送有效的CSRF令牌。Eureka客户通常不会拥有有效的跨站点请求伪造（CSRF）令牌，您需要为/eureka/**端点禁用此要求。例如：
 
 ```java
 @EnableWebSecurity
@@ -126,13 +126,13 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 ### CSRF(跨站请求伪造）
 
-一般来说，攻击者通过伪造用户的浏览器的请求，向访问一个用户自己曾经认证访问过的网站发送出去，使目标网站接收并误以为是用户的真实操作而去执行命令。常用于盗取账号、转账、发送虚假消息等。攻击者利用网站对请求的验证漏洞而实现这样的攻击行为，网站能够确认请求来源于用户的浏览器，却不能验证请求是否源于用户的真实意愿下的操作行为。
+  一般来说，攻击者通过伪造用户的浏览器的请求，向访问一个用户自己曾经认证访问过的网站发送出去，使目标网站接收并误以为是用户的真实操作而去执行命令。常用于盗取账号、转账、发送虚假消息等。攻击者利用网站对请求的验证漏洞而实现这样的攻击行为，网站能够确认请求来源于用户的浏览器，却不能验证请求是否源于用户的真实意愿下的操作行为。
 
 ### 原理图：
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648202187464-e3f6465d-1f38-4cfd-a176-880c2526b706.png" alt="img" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648202187464-e3f6465d-1f38-4cfd-a176-880c2526b706.png" alt="img" width="50%" />
 
-CSRF攻击原理及过程：
+**CSRF攻击原理及过程：**
 
 1. 用户C打开浏览器，访问受信任网站A，输入用户名和密码请求登录网站A；
 2. 在用户信息通过验证后，网站A产生Cookie信息并返回给浏览器，此时用户登录网站A成功，可以正常发送请求到网站A；
@@ -142,7 +142,7 @@ CSRF攻击原理及过程：
 
 ### 防御CSRF的手段
 
-目前防御CSRF攻击主要有三种策略
+**目前防御CSRF攻击主要有三种策略**
 
 - 验证HTTP Referer字段
 - 在请求地址中添加token并验证
@@ -150,7 +150,7 @@ CSRF攻击原理及过程：
 
 ## 五、EurekaClient客户端源码分析
 
-EurekaClient 为了简化开发人员的工作量，将很多与EurekaServer交互的工作隐藏起来，自主完成。具体完成的工作分为三个阶段， 应用启动阶段,执行阶段, 销毁阶段.  各阶段的工作如下: 
+  EurekaClient 为了简化开发人员的工作量，将很多与EurekaServer交互的工作隐藏起来，自主完成。具体完成的工作分为三个阶段， 应用启动阶段,执行阶段, 销毁阶段.  各阶段的工作如下: 
 
 **应用启动阶段：**
 
@@ -172,7 +172,7 @@ EurekaClient 为了简化开发人员的工作量，将很多与EurekaServer交�
 
 ### 应用启动阶段与运行阶段分析
 
-Eureka Client通过Starter的方式引人依赖, Spring Boot将会为项目使用以下的自动配置类
+  Eureka Client通过Starter的方式引人依赖, Spring Boot将会为项目使用以下的自动配置类。
 
 1. EurekaClientAutoConfiguration：EurekeClient 自动配置类,负责Eureka关键Beans的配置和初始化,如AppplicationInfoManager和 EurekaClientConfig等。
 2. RibbonEurekaAutoConfiguration: Ribbon负载均衡相关配置。
@@ -180,7 +180,7 @@ Eureka Client通过Starter的方式引人依赖, Spring Boot将会为项目使�
 
 ### 读取应用自身配置
 
-通过 **EurekaClientAutoConfiguration**配置类, Spring boot帮助 Eureka Client完成很多必要Bean的属性读取和配置
+  通过 **EurekaClientAutoConfiguration**配置类, Spring boot帮助 Eureka Client完成很多必要Bean的属性读取和配置。
 
 1. EurekaClientConfig:      封装 Eureka Client与 Eureka Server交互所需要的配置信息。 Spring Cloud为其提供了一个默认配置类的EurekaClientConfigBean,可以在配置文件中通过前缀 eureka.client属性名进行属性覆盖
 2. ApplicationInfoManager :  作为应用信息管理器,管理服务实例的信息类 InstanceInfo和服务实例的配置信息类 EurekaInstanceConfig
@@ -196,9 +196,9 @@ public DiscoveryClient discoveryClient(EurekaClient client,
 }
 ```
 
-客户端的类结构
+**客户端的类结构**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648206960983-e1e20c20-60f8-4069-bac5-3f51c53267bc.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648206960983-e1e20c20-60f8-4069-bac5-3f51c53267bc.png" alt="image.png" width="50%" />
 
 ```java
 DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs args, Provider<BackupRegistry> backupRegistryProvider, EndpointRandomizer endpointRandomizer) {
@@ -584,7 +584,7 @@ public synchronized void shutdown() {
 
 ## 六、EurekaServer服务端源码分析
 
-EurekaServerAutoConfiguration 是通过配置文件注册（@Bean)。EurekaServer 是服务的注册中心，负责Eureka Client的相关信息注册，主要职责：
+  EurekaServerAutoConfiguration 是通过配置文件注册（@Bean)。EurekaServer 是服务的注册中心，负责Eureka Client的相关信息注册，主要职责：
 
 - 服务注册
 - 接受心跳服务
@@ -592,7 +592,7 @@ EurekaServerAutoConfiguration 是通过配置文件注册（@Bean)。EurekaServe
 - 服务下线:  由 eurekaClient主动发送下线通知后，由eurekaServer接收后，删除服务
 - 集群同步
 
-EurekaServerAutoConfiguration 是通过配置文件注册,并由spring boot完成加载. 在这个配置类中，它创建了 PeerAwareInstanceRegistry的对象. 这个对象主要是基于 节点感知的实例信息注册. 
+  EurekaServerAutoConfiguration 是通过配置文件注册,并由spring boot完成加载. 在这个配置类中，它创建了 PeerAwareInstanceRegistry的对象. 这个对象主要是基于 节点感知的实例信息注册. 
 
 ```java
 	@Bean
@@ -608,7 +608,7 @@ EurekaServerAutoConfiguration 是通过配置文件注册,并由spring boot完�
 
 PeerWareInstanceRegistry的类层次结构如下:
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648209049715-a3b5e826-4fa2-4a15-b260-ec50c8c655c0.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1648209049715-a3b5e826-4fa2-4a15-b260-ec50c8c655c0.png" alt="image.png" width="30%" />
 
 ### 最上层的接口LeaseManager
 
@@ -627,7 +627,7 @@ public interface LeaseManager<T> {
 
 ### 应用实例注册表接口
 
- com.netflix.eureka.registry.InstanceRegistry，应用实例注册表接口。它继承了 LookupService 、LeaseManager 接口，提供应用实例的注册与发现服务。另外，它结合实际业务场景，定义了更加丰富的接口方法
+   com.netflix.eureka.registry.InstanceRegistry，应用实例注册表接口。它继承了 LookupService 、LeaseManager 接口，提供应用实例的注册与发现服务。另外，它结合实际业务场景，定义了更加丰富的接口方法
 
 ```java
 public interface InstanceRegistry extends LeaseManager<InstanceInfo>, LookupService<String> {
@@ -678,7 +678,7 @@ public interface InstanceRegistry extends LeaseManager<InstanceInfo>, LookupServ
     boolean isSelfPreservationModeEnabled();
 }
 ```
-而PeerAwareInstanceRegistryImpl是一个子类的实现，在上面的基础上扩展对集群的同步操作，使Eureaka Server集群信息保持一致.
+  而PeerAwareInstanceRegistryImpl是一个子类的实现，在上面的基础上扩展对集群的同步操作，使Eureaka Server集群信息保持一致.
 
 ```java
 public interface PeerAwareInstanceRegistry extends InstanceRegistry {
@@ -696,7 +696,7 @@ public interface PeerAwareInstanceRegistry extends InstanceRegistry {
 
 ### 服务注册
 
-. com.netflix.eureka.registry.AbstractInstanceRegistry#register 这方法是负责服务的注册的
+  . com.netflix.eureka.registry.AbstractInstanceRegistry#register 这方法是负责服务的注册的
 
 ```java
 public void register(InstanceInfo registrant, int leaseDuration, boolean isReplication) {
@@ -782,7 +782,7 @@ public void register(InstanceInfo registrant, int leaseDuration, boolean isRepli
 
 ### 接受心跳服务:
 
-在Eureka Client完成服务的注册后，需要定时向Eureka Server发送心跳请求（默认30s）,维持自己在EurekaServer的租约有效性
+  在Eureka Client完成服务的注册后，需要定时向Eureka Server发送心跳请求（默认30s）,维持自己在EurekaServer的租约有效性
 
 ```java
 public boolean renew(String appName, String id, boolean isReplication) {
@@ -826,7 +826,7 @@ public boolean renew(String appName, String id, boolean isReplication) {
 
 ### 服务剔除:  
 
-如果Eureka Client在注册后，由于服务的崩溃或网络异常导致既没有续约，也没有下线，那么服务就处于不可知的状态，需要剔除这些服务 , 通过com.netflix.eureka.registry.AbstractInstanceRegistry#evict(long)完成,  这是个定时任务调用的方法.  在com.netflix.eureka.registry.AbstractInstanceRegistry#postInit 中使用 AbstractInstanceRegistry.EvictionTask 负责调用(默认60s)
+  如果Eureka Client在注册后，由于服务的崩溃或网络异常导致既没有续约，也没有下线，那么服务就处于不可知的状态，需要剔除这些服务 , 通过com.netflix.eureka.registry.AbstractInstanceRegistry#evict(long)完成,  这是个定时任务调用的方法.  在com.netflix.eureka.registry.AbstractInstanceRegistry#postInit 中使用 AbstractInstanceRegistry.EvictionTask 负责调用(默认60s)
 
 ```java
 public void evict(long additionalLeaseMs) {
@@ -890,7 +890,7 @@ public void evict(long additionalLeaseMs) {
 
 ### 服务下线:   
 
-EurekaClient在应用销毁时候，会向Eureka Server发送下线请求对于服务端的服务下线，其主要代码对应在com.netflix.eureka.registry.AbstractInstanceRegistry#cancel.
+  EurekaClient在应用销毁时候，会向Eureka Server发送下线请求对于服务端的服务下线，其主要代码对应在com.netflix.eureka.registry.AbstractInstanceRegistry#cancel.
 
 ```java
 public boolean cancel(String appName, String id, boolean isReplication) {
@@ -954,7 +954,7 @@ public boolean cancel(String appName, String id, boolean isReplication) {
 
 ### 集群同步
 
-如果Eureka Server是通过集群方式进行部署，为了为维护整个集群中注册表数据一致性所以集群同步也是非常重要得事情。
+  如果Eureka Server是通过集群方式进行部署，为了为维护整个集群中注册表数据一致性所以集群同步也是非常重要得事情。
 
 集群同步分为两部分: 
 
@@ -963,7 +963,7 @@ public boolean cancel(String appName, String id, boolean isReplication) {
 
 ### Eureka Server初始化本地注册表信息:
 
-​       在eureka server启动过程中，会从它的peer节点中拉取注册表来初始化本地注册表，这部分主要通过com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl#syncUp ,他从可能存在的peer节点中，拉取peer节点中的注册表信息，并将其中的服务实例的信息注册到本地注册表中。
+  在eureka server启动过程中，会从它的peer节点中拉取注册表来初始化本地注册表，这部分主要通过com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl#syncUp ,他从可能存在的peer节点中，拉取peer节点中的注册表信息，并将其中的服务实例的信息注册到本地注册表中。
 
 ```java
 public int syncUp() {
@@ -1005,7 +1005,7 @@ public int syncUp() {
 
 ### Eureka Server之间注册表信息同步复制
 
-为了保证Eureka Server集群运行时候注册表的信息一致性，每个eureka server在对本地注册表进行管理操作时，会将相应的信息同步到peer节点中。
+  为了保证Eureka Server集群运行时候注册表的信息一致性，每个eureka server在对本地注册表进行管理操作时，会将相应的信息同步到peer节点中。
 
 以下的各个方法中都会调用同步复制.
 

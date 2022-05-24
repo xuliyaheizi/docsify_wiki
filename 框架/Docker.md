@@ -2,9 +2,9 @@
 
 ## 一、概念
 
-一款产品的开发往往需要多套环境，比如开发环境、测试环境以及最终的上线环境；环境的配置是时分麻烦的，每一个机器都要部署环境（Redis、ES、Hadoop集群…），尤其是各种集群的部署特别浪费时间，常常会遇到 ”在我电脑上可以运行，在你电脑上不能运行“、”版本更新导致服务不用“、”不能跨平台“ 等等大量问题，这对运维人员来说就十分棘手。在以前，开发人员发开完成就发布一个jar或者war包，其他的都交给运维人员来做；而现在，开发即运维，打包部署上线一套流程走完：开发人员会将项目及其附带的环境一起打包jar+(Redis Jdk ES MySQL)成一整套发布，称为镜像，这样就不再需要再配置环境，直接执行一整套即可，省去环境配置的麻烦且保证了一致性；
-Docker 的思想**来源于集装箱**，打包装箱，每个箱子互相隔离
-Docker 通过**隔离机制**，可以将服务器运行到极致
+  一款产品的开发往往需要多套环境，比如开发环境、测试环境以及最终的上线环境；环境的配置是时分麻烦的，每一个机器都要部署环境（Redis、ES、Hadoop集群…），尤其是各种集群的部署特别浪费时间，常常会遇到 ”在我电脑上可以运行，在你电脑上不能运行“、”版本更新导致服务不用“、”不能跨平台“ 等等大量问题，这对运维人员来说就十分棘手。在以前，开发人员发开完成就发布一个jar或者war包，其他的都交给运维人员来做；而现在，开发即运维，打包部署上线一套流程走完：开发人员会将项目及其附带的环境一起打包jar+(Redis Jdk ES MySQL)成一整套发布，称为镜像，这样就不再需要再配置环境，直接执行一整套即可，省去环境配置的麻烦且保证了一致性；
+  Docker 的思想**来源于集装箱**，打包装箱，每个箱子互相隔离
+  Docker 通过**隔离机制**，可以将服务器运行到极致
 
 ### 1.2 Docker的应用场景
 
@@ -23,7 +23,7 @@ Docker 通过**隔离机制**，可以将服务器运行到极致
 - 冗余步骤多
 - 启动慢
 
- 容器化技术：不是模拟的一个完整的操作系统
+   容器化技术：不是模拟的一个完整的操作系统
 
 **Docker和虚拟机的不同：**
 
@@ -38,11 +38,11 @@ Docker 通过**隔离机制**，可以将服务器运行到极致
 
 **更快速的启动时间**
 
-传统的虚拟机技术启动应用服务往往需要数分钟，而 Docker 容器应用，由于直接运行于宿主内核，无需启动完整的操作系统，因此可以做到秒级、甚至毫秒级的启动时间。大大的节约了开发、测试、部署的时间。
+  传统的虚拟机技术启动应用服务往往需要数分钟，而 Docker 容器应用，由于直接运行于宿主内核，无需启动完整的操作系统，因此可以做到秒级、甚至毫秒级的启动时间。大大的节约了开发、测试、部署的时间。
 
 **一致的运行环境**
 
-开发过程中一个常见的问题是环境一致性问题。由于开发环境、测试环境、生产环境不一致，导致有些 bug 并未在开发过程中被发现。而 Docker 的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性，从而不会再出现「这段代码在我机器上没问题啊」 这类问题。
+  开发过程中一个常见的问题是环境一致性问题。由于开发环境、测试环境、生产环境不一致，导致有些 bug 并未在开发过程中被发现。而 Docker 的镜像提供了除内核外完整的运行时环境，确保了应用运行环境一致性，从而不会再出现「这段代码在我机器上没问题啊」 这类问题。
 
 **持续交付和部署**
 
@@ -52,11 +52,11 @@ Docker 通过**隔离机制**，可以将服务器运行到极致
 
 **更轻松的迁移**
 
-由于 Docker 确保了执行环境的一致性，使得应用的迁移更加容易。Docker 可以在很多平台上运行，无论是物理机、虚拟机、公有云、私有云，甚至是笔记本，其运行结果是一致的。因此用户可以很轻易的将在一个平台上运行的应用，迁移到另一个平台上，而不用担心运行环境的变化导致应用无法正常运行的情况。
+  由于 Docker 确保了执行环境的一致性，使得应用的迁移更加容易。Docker 可以在很多平台上运行，无论是物理机、虚拟机、公有云、私有云，甚至是笔记本，其运行结果是一致的。因此用户可以很轻易的将在一个平台上运行的应用，迁移到另一个平台上，而不用担心运行环境的变化导致应用无法正常运行的情况。
 
 **更轻松的维护和扩展**
 
-Docker 使用的分层存储以及镜像的技术，使得应用重复部分的复用更为容易，也使得应用的维护更新更加简单，基于基础镜像进一步扩展镜像也变得非常简单。此外，Docker 团队同各个开源项目团队一起维护了一大批高质量的 官方镜像，既可以直接在生产环境使用，又可以作为基础进一步定制，大大的降低了应用服务的镜像制作成本。
+  Docker 使用的分层存储以及镜像的技术，使得应用重复部分的复用更为容易，也使得应用的维护更新更加简单，基于基础镜像进一步扩展镜像也变得非常简单。此外，Docker 团队同各个开源项目团队一起维护了一大批高质量的 官方镜像，既可以直接在生产环境使用，又可以作为基础进一步定制，大大的降低了应用服务的镜像制作成本。
 
 ### 1.5 引入Docker后：DevOps（开发，运维）
 
@@ -84,7 +84,7 @@ Docker 使用的分层存储以及镜像的技术，使得应用重复部分的�
 
 #### 镜像
 
-镜像就是**一个可读的模块**，可以通过这个模块创建容器服务，**一个镜像可以创建多个容器**（最终服务运行或者项目运行就是在容器中）
+  镜像就是**一个可读的模块**，可以通过这个模块创建容器服务，**一个镜像可以创建多个容器**（最终服务运行或者项目运行就是在容器中）
 
 #### 容器
 
@@ -135,7 +135,7 @@ sudo yum-config-manager \
 ```
 #### 2.2.4 安装最新版Docker Engine和容器
 
-安装前建议先将将服务器上的软件包信息现在本地缓存，以提高安装软件的速度
+  安装前建议先将将服务器上的软件包信息现在本地缓存，以提高安装软件的速度
 ```
 sudo yum makecache fast
 
@@ -278,11 +278,11 @@ docker run --volumes-from dbdata2 -v /home/backup:/backup busybox tar xvf /backu
 - Docker是一个 Client-Server结构的系统，Docker的守护进程运行在主机上，通过Socker从客户端访问
 - DockerServer接收到DockerClient的指令，就会执行这个命令
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136139380-afe2793d-c4c6-404c-94d4-9d75c1f8342b.png" alt="image.png" style="zoom: 50%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136139380-afe2793d-c4c6-404c-94d4-9d75c1f8342b.png" alt="image.png" width="50%" />
 
 #### Docker为什么比VM快
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136129476-a8b0ea74-2efa-4a8f-8ed9-2ab2024f1953.png" alt="image.png" style="zoom: 50%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136129476-a8b0ea74-2efa-4a8f-8ed9-2ab2024f1953.png" alt="image.png" width="50%" />
 
 1. Docker有着比虚拟机更少的抽象层，由于Docker不需要Hypervisor实现**硬件资源虚拟化**，运行在Docker容器上的程序直接使用的都是实际物理机的硬件资源，因此在Cpu、内存利用率上Docker将会在效率上有明显优势。
 1. Docker利用的是**宿主机的内核**，而不需要Guest OS，因此，当新建一个容器时，**Docker不需要和虚拟机一样重新加载一个操作系统**，避免了**引导、加载操作系统内核**这个比较费时费资源的过程，当新建一个虚拟机时，虚拟机软件需要加载Guest OS，这个新建过程是分钟级别的，而Docker由于直接利用宿主机的操作系统则省略了这个过程，因此新建一个Docker容器只需要几秒钟。
@@ -353,7 +353,7 @@ docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=
 # 监控容器资源消耗(该命令也十分耗资源,服务器卡死)
 docker stats [容器ID]
 ```
-可以看到内存占用率很高；这时候赶紧关闭容器，增加内存的限制，再重新启动一个容器
+  可以看到内存占用率很高；这时候赶紧关闭容器，增加内存的限制，再重新启动一个容器
 ```
 # 重新启动elasticsearch容器,增加内存限制(-e ES_JAVA_OPTS="-Xms64m -Xmx512m" 最小64m 最大512m),防止服务器卡死
 docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e ES_JAVA_OPTS="-Xms64m -Xmx512m" elasticsearch:7.6.2
@@ -370,9 +370,7 @@ b6e7bc8063a5   elasticsearch:7.6.2   "/usr/local/bin/dock…"   39 seconds ago  
 
 ### 什么是 portainer ?
 
-Docker 图形化界面管理工具，提供一个后台面板供我们操作
-
-portainer（先用这个，不是最佳选项；学习CI/CD时再用 Rancher）
+  Docker 图形化界面管理工具，提供一个后台面板供我们操作，portainer（先用这个，不是最佳选项；学习CI/CD时再用 Rancher）
 
 ### 下载
 
@@ -382,7 +380,7 @@ docker run -d -p 8088:9000 \
 ```
 ### 访问测试
 
-我们用docker ps命令查看一下正在运行的容器，可以看到 portainer 正在运行
+  我们用docker ps命令查看一下正在运行的容器，可以看到 portainer 正在运行
 ```
 [root@zsr ~]# docker ps
 CONTAINER ID   IMAGE                 COMMAND        CREATED          STATUS          PORTS                    NAMES
@@ -392,59 +390,63 @@ b72d6033ae2e   portainer/portainer   "/portainer"   25 seconds ago   Up 23 secon
 
 ### 镜像是什么
 
-**镜像** 是一种**轻量级，可执行**的软件包，用来打包软件运行环境和基于运行软件开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。
-所有的应用，直接打包成docker镜像，就可以直接跑起来
+  **镜像**是一种**轻量级，可执行**的软件包，用来打包软件运行环境和基于运行软件开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。所有的应用，直接打包成docker镜像，就可以直接跑起来
 
 ### Docker镜像加载原理
 
 > **UnionFS(联合文件系统)：**一种分层、轻量级且高性能的文件系统，它支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不通目录挂载到同一个虚拟文件系统下（unite serveral directories into a single virtual filesystem）。Union 文件系统是 Docker 镜像的基础，镜像可以通过分层来继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。
 > **特性：**一次同时加载多个文件系统，但从外面看起来，只能看到一个文件系统，联合加载会把各层文件系统叠加起来，这样最终的文件系统会包含所有底层的文件和目录。
 
-Docker 的镜像实际上由一层一层的文件系统组成，这种层级的文件系统就是 UnionFS 。
+  Docker 的镜像实际上由一层一层的文件系统组成，这种层级的文件系统就是 UnionFS 。
 
-bootfs(boot file system)主要包含bootloader和kernel，bootloader主要是引导加载kerel，Linux刚启动时会加载 bootfs文件系统，在Docker镜像的最底层时bootfs。这一层与我们典型的Linux/Unix内核是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs
+  bootfs(boot file system)主要包含bootloader和kernel，bootloader主要是引导加载kerel，Linux刚启动时会加载 bootfs文件系统，在Docker镜像的最底层时bootfs。这一层与我们典型的Linux/Unix内核是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs
 
-rootfs(root file system)在bootfs之上，包含的就是典型的 Linux系统中的 /dev、/proc、/bin、/etc 等标准文件。rootfs 就是各种不同的操作系统发行版。
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136088883-171c6da4-ecd8-44c0-9c31-08f71ac80a91.png" alt="image.png" style="zoom:50%;" />
-平时安装的虚拟机的CentOS都是好几个G，为什么Docker中才200MB？
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136076268-f42418a8-2127-4c4b-a2de-d305a027676f.png" alt="image.png" style="zoom:50%;" />
-对于一个精简的 OS，rootfs 可以很小，只需要包含最基本的命令、工具和程序库就可以了，因为底层使用的是主机的Kernel，自己只需要提供rootfs就可以了。由此可见，对于不同linux发行版，bootfs是基本一致的，rootfs会有差别，因此不同的发行版可以公用bootfs
+  rootfs(root file system)在bootfs之上，包含的就是典型的 Linux系统中的 /dev、/proc、/bin、/etc 等标准文件。rootfs 就是各种不同的操作系统发行版。
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136088883-171c6da4-ecd8-44c0-9c31-08f71ac80a91.png" alt="image.png" width="50%" />
+
+  平时安装的虚拟机的CentOS都是好几个G，为什么Docker中才200MB？
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136076268-f42418a8-2127-4c4b-a2de-d305a027676f.png" alt="image.png" width="50%" />
+
+  对于一个精简的 OS，rootfs 可以很小，只需要包含最基本的命令、工具和程序库就可以了，因为底层使用的是主机的Kernel，自己只需要提供rootfs就可以了。由此可见，对于不同linux发行版，bootfs是基本一致的，rootfs会有差别，因此不同的发行版可以公用bootfs。
 
 ### 分层理解
 
-当我们下载一个镜像的时候，可以看到，是一层一层的在下载！
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136047327-7df5fa94-ace7-48ad-b4f2-7e14f4b7eee3.png" alt="image.png" style="zoom:50%;" />
-资源共享：如果有多个镜像从相同的Base镜像构建而来，那么宿主机只需要在磁盘上保留一份base镜像，同时内存中也只需要加载一份base镜像，这样就可以为所有的容器服务，且每一层的镜像都可以被共享。
+  当我们下载一个镜像的时候，可以看到，是一层一层的在下载！
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136047327-7df5fa94-ace7-48ad-b4f2-7e14f4b7eee3.png" alt="image.png" width="50%" />
+
+  资源共享：如果有多个镜像从相同的Base镜像构建而来，那么宿主机只需要在磁盘上保留一份base镜像，同时内存中也只需要加载一份base镜像，这样就可以为所有的容器服务，且每一层的镜像都可以被共享。
 
 ### 理解
 
 - 所有的 Docker镜像都起始于一个基础镜像层，当进行修改或增加新的内容时，就会在当前镜像层之上创建新的镜像层
 - 举一个简单的例子，假如基于 Ubuntu Linux 16.04 创建一个新的镜像，这就是新镜像的第一层；如果要在该镜像中添加python包，就会在基础镜像层之上创建了新的一个镜像层；如果继续添加一个安全补丁，就会创建第三个镜像层
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136229204-4ce26854-8d72-424c-aef7-103fdacaaac0.png" alt="image.png" style="zoom: 67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136229204-4ce26854-8d72-424c-aef7-103fdacaaac0.png" alt="image.png" width="50%" />
 
-在添加额外的镜像层的同时，镜像始终保持是当前所有镜像的组合。下图中举了一个简单的例子，每个镜像层包含 3 个文件，而镜像包含了来自两个镜像层的 6 个文件
+  在添加额外的镜像层的同时，镜像始终保持是当前所有镜像的组合。下图中举了一个简单的例子，每个镜像层包含 3 个文件，而镜像包含了来自两个镜像层的 6 个文件
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136265918-df07b12e-023a-434b-b48e-064557c7a1a2.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136265918-df07b12e-023a-434b-b48e-064557c7a1a2.png" alt="image.png" width="50%" />
 
-上图中的镜像层跟之前图中的略有区别，主要目的是便于展示文件。
-下图中展示了一个稍微复杂的三层镜像，在外部看来整个镜像只有 6 个文件，这是因为最上层中的文件7 是文件 5 的一个更新版本
+  上图中的镜像层跟之前图中的略有区别，主要目的是便于展示文件。
+  下图中展示了一个稍微复杂的三层镜像，在外部看来整个镜像只有 6 个文件，这是因为最上层中的文件7 是文件 5 的一个更新版本
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136277237-803db563-654a-4d58-ba83-139b091cae1b.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136277237-803db563-654a-4d58-ba83-139b091cae1b.png" alt="image.png" width="50%" />
 
-这种情况下，上层镜像层中的文件覆盖了底层镜像层中的文件。这样就使得文件的更新版本作为一个新镜像层添加到镜像当中。
-Docker 通过存储引擎（新版本采用快照机制）的方式来实现镜像层堆栈，并保证多镜像层对外展示为统一的文件系统。
-Linux 上可用的存储引擎有 AUFS、Overlay2、Device Mapper、Btrfs 以及 ZFS。顾名思义，每种存储引擎都基于 Linux 中对应的文件系统或者块设备技术，并且每种存储引擎都有其独有的性能特点。
-Docker 在 Windows 上仅支持 windowsfilter 一种存储引擎，该引擎基于 NTFS 文件系统之上实现了分层和 CoW[1]。
-下图展示了与系统显示相同的三层镜像。所有镜像层堆叠并合并，对外提供统一的视图。
+- 这种情况下，上层镜像层中的文件覆盖了底层镜像层中的文件。这样就使得文件的更新版本作为一个新镜像层添加到镜像当中。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136291693-1b3720b0-b639-4fe2-88d7-7fde261db968.png" alt="image.png" style="zoom:67%;" />
+- Docker 通过存储引擎（新版本采用快照机制）的方式来实现镜像层堆栈，并保证多镜像层对外展示为统一的文件系统。
+- Linux 上可用的存储引擎有 AUFS、Overlay2、Device Mapper、Btrfs 以及 ZFS。顾名思义，每种存储引擎都基于 Linux 中对应的文件系统或者块设备技术，并且每种存储引擎都有其独有的性能特点。
+- Docker 在 Windows 上仅支持 windowsfilter 一种存储引擎，该引擎基于 NTFS 文件系统之上实现了分层和 CoW[1]。
+- 下图展示了与系统显示相同的三层镜像。所有镜像层堆叠并合并，对外提供统一的视图。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136291693-1b3720b0-b639-4fe2-88d7-7fde261db968.png" alt="image.png" width="50%" />
 
 #### 特点
 
-Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部！
-这一层就是我们通常说的容器层，容器之下的都叫镜像层！
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136305781-a81bf143-ee9c-484d-83c6-2d0f7ada2528.png" alt="image.png" style="zoom:67%;" />
+  Docker镜像都是只读的，当容器启动时，一个新的可写层被加载到镜像的顶部！这一层就是我们通常说的容器层，容器之下的都叫镜像层！
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647136305781-a81bf143-ee9c-484d-83c6-2d0f7ada2528.png" alt="image.png" width="50%" />
 
 ### Commit镜像
 
@@ -458,22 +460,22 @@ docker commit -m="提交的描述信息" -a="作者" 容器id 目标镜像名:[T
 ```
 ## 八、SpringBoot微服务打包成Docker镜像
 
-首先将Docker里面清理一下
+  首先将Docker里面清理一下
 
 - 移除所有的容器：docker rm -f $(docker ps -aq)
 - 移除所有的镜像：docker rmi -f $(docker images -aq)
 
 ### 1.创建一个SpringBoot项目
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137829095-a3729c17-6095-4335-b944-c4af3ec838e0.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137829095-a3729c17-6095-4335-b944-c4af3ec838e0.png" alt="image.png" width="50%" />
 
 ### 2.打包应用
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137856411-062082f7-6de2-4d58-9e2d-9a4bf9cdde7d.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137856411-062082f7-6de2-4d58-9e2d-9a4bf9cdde7d.png" alt="image.png" width="50%" />
 
 ### 3.编写dockerfile
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137893141-0818b7df-7c8f-4c86-9f05-6d478608a182.png" alt="image.png" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1647137893141-0818b7df-7c8f-4c86-9f05-6d478608a182.png" alt="image.png" width="50%" />
 
 ### Dockerfile指令详解
 
@@ -528,17 +530,28 @@ ENTRYPOINT java -server -Dfile.encoding=UTF-8 -Xmx1025m -Xss256k -Xdebug -Xnoage
 ```
 ### 4. 构建镜像
 
-在jar包和dockerfile文件下构建镜像
-**docker build -t testhellojar .**
+  在jar包和dockerfile文件下构建镜像
+
+```tex
+docker build -t testhellojar .
+```
+
+
 ### 5.发布运行
 
-运行：docker run -d -p 服务器端口 : 项目端口号  --name 容器名 镜像名
+  运行：
+
+```tex
+docker run -d -p 服务器端口 : 项目端口号  --name 容器名 镜像名
+```
+
+
 
 ## 使用idea集成远程docker部署项目
 
 ### 1.修改docker配置文件
 
-```
+```tex
 vim /usr/lib/systemd/system/docker.service
 
 在ExecStart=/usr/bin/dockerd-current 后面加上
@@ -583,7 +596,7 @@ systemctl start docker
 ```
 ### 3.idea内Dockerfile文件配置
 
-```
+```tex
 # 添加 Java 8 镜像来源
 FROM java:8
 
@@ -601,9 +614,9 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
 
 ### Bridge存在的目的
 
-隔离各个容器，使得每个容器的端口号都是隔离的。如果不隔离开来，那么容器将和宿主机，容器和容器间都会发生端口占用的情况。
-docker的桥接网络使用虚拟网桥，bridge网络用于同一主机上的docker容器相互通信，连接到同一个网桥的docker容器可以相互通信，当我们启动docke时，会自动创建一个默认bridge网络，除非我们进行另外的配置，新创建的容器都会自动连接到这个网络，我们也可以自定义自己的bridge网络，docker文档建议使用自定义bridge网络
-连接到同一bridge网络的容器可以相互访问彼此任意一个端口，如果不发布端口，外界将无法访问这些容器，在创建容器时，通过-p或是--publish指令发布端口
+  隔离各个容器，使得每个容器的端口号都是隔离的。如果不隔离开来，那么容器将和宿主机，容器和容器间都会发生端口占用的情况。
+
+  docker的桥接网络使用虚拟网桥，bridge网络用于同一主机上的docker容器相互通信，连接到同一个网桥的docker容器可以相互通信，当我们启动docke时，会自动创建一个默认bridge网络，除非我们进行另外的配置，新创建的容器都会自动连接到这个网络，我们也可以自定义自己的bridge网络，docker文档建议使用自定义bridge网络连接到同一bridge网络的容器可以相互访问彼此任意一个端口，如果不发布端口，外界将无法访问这些容器，在创建容器时，通过-p或是--publish指令发布端口。
 
 ### 自定义bridge网络与默认bridge网络对比：
 

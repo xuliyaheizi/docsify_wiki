@@ -5,11 +5,11 @@
 
 ## Java序列化中如果有些字段不想进程序列化，怎么办？
 
-对于不想进行序列化的变量，使用`transient`关键字修饰，该关键字的作用：阻止实例中那些用此关键字修饰的变量序列化；当对象被反序列化时，被修饰的变量值不会被持久化和恢复。`transient`只能修饰变量，不能修饰类和方法，并且修饰的变量在反序列化后变量值将会被置换成类型的默认值。`static`变量不属于任何对象，也不会被序列化。
+  对于不想进行序列化的变量，使用`transient`关键字修饰，该关键字的作用：阻止实例中那些用此关键字修饰的变量序列化；当对象被反序列化时，被修饰的变量值不会被持久化和恢复。`transient`只能修饰变量，不能修饰类和方法，并且修饰的变量在反序列化后变量值将会被置换成类型的默认值。`static`变量不属于任何对象，也不会被序列化。
 
 ## 获取用键盘输入常用的两种方法？
 
-Scanner
+**Scanner**
 
 ```java
 Scanner input = new Scanner(System.in);
@@ -17,7 +17,7 @@ String s  = input.nextLine();
 input.close();
 ```
 
-BufferedReader
+**BufferedReader**
 
 ```java
 BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -32,71 +32,71 @@ String s = input.readLine();
 - InputStream/Reader: 所有的输入流的基类，前者是字节输入流，后者是字符输入流。
 - OutputStream/Writer: 所有输出流的基类，前者是字节输出流，后者是字符输出流。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB.png" alt="IO-操作方式分类" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB.png" alt="IO-操作方式分类" width="30%" />
 
-按操作对象分类结构图：
+**按操作对象分类结构图：**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1%E5%88%86%E7%B1%BB.png" alt="IO-操作对象分类" style="zoom: 67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1%E5%88%86%E7%B1%BB.png" alt="IO-操作对象分类"  width="50%"/>
 
 ## 既然有了字节流,为什么还要有字符流?
 
-问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
+  问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
 
-回答：字符流是由 Java 虚拟机将字节转换得到的，问题就出在这个过程还算是非常耗时，并且，如果我们不知道编码类型就很容易出现乱码问题。所以， I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
+  回答：字符流是由 Java 虚拟机将字节转换得到的，问题就出在这个过程还算是非常耗时，并且，如果我们不知道编码类型就很容易出现乱码问题。所以， I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
 
 ## IO模型
 
-UNIX系统下，IO模型一共有5种：**同步阻塞I/O**、**同步非阻塞I/O**、**I/O多路复用**、**信号驱动I/O和异步I/O**
+  UNIX系统下，IO模型一共有5种：**同步阻塞I/O**、**同步非阻塞I/O**、**I/O多路复用**、**信号驱动I/O和异步I/O**。
 
 ### BIO（同步阻塞IO模型）
 
-应用程序发起 read 调用后，会一直阻塞，直到内核把数据拷贝到用户空间。
+  应用程序发起 read 调用后，会一直阻塞，直到内核把数据拷贝到用户空间。
 
-<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6a9e704af49b4380bb686f0c96d33b81~tplv-k3u1fbpfcp-watermark.image" alt="图源：《深入拆解Tomcat & Jetty》" style="zoom:50%;" />
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6a9e704af49b4380bb686f0c96d33b81~tplv-k3u1fbpfcp-watermark.image" alt="图源：《深入拆解Tomcat & Jetty》" width="30%" />
 
-在客户端连接数量不高的情况下，是没问题的。但是，当面对十万甚至百万级连接的时候，传统的 BIO 模型是无能为力的。因此，我们需要一种更高效的 I/O 处理模型来应对更高的并发量。<br>在 BIO 模式中，服务器会为每个客户端请求建立一个线程，由该线程单独负责处理一个客户请求，这种模式虽然简单方便，但由于服务器为每个客户端的连接都采用一个线程去处理，使得资源占用非常大。因此，当连接数量达到上限时，如果再有用户请求连接，直接会导致资源瓶颈，严重的可能会直接导致服务器崩溃。<br>为避免该情况，大多都采用了线程池模型。也就是创建一个固定大小的线程池，如果有客户端请求，就从线程池中取一个空闲线程来处理，当客户端处理完操作之后，就会释放对线程的占用。因此这样就避免为每一个客户端都要创建线程带来的资源浪费，使得线程可以重用。但线程池也有它的弊端，如果连接大多是长连接，可能会导致在一段时间内，线程池中的线程都被占用，那么当再有客户端请求连接时，由于没有空闲线程来处理，就会导致客户端连接失败。
+  在客户端连接数量不高的情况下，是没问题的。但是，当面对十万甚至百万级连接的时候，传统的 BIO 模型是无能为力的。因此，我们需要一种更高效的 I/O 处理模型来应对更高的并发量。<br>  在 BIO 模式中，服务器会为每个客户端请求建立一个线程，由该线程单独负责处理一个客户请求，这种模式虽然简单方便，但由于服务器为每个客户端的连接都采用一个线程去处理，使得资源占用非常大。因此，当连接数量达到上限时，如果再有用户请求连接，直接会导致资源瓶颈，严重的可能会直接导致服务器崩溃。<br>  为避免该情况，大多都采用了线程池模型。也就是创建一个固定大小的线程池，如果有客户端请求，就从线程池中取一个空闲线程来处理，当客户端处理完操作之后，就会释放对线程的占用。因此这样就避免为每一个客户端都要创建线程带来的资源浪费，使得线程可以重用。但线程池也有它的弊端，如果连接大多是长连接，可能会导致在一段时间内，线程池中的线程都被占用，那么当再有客户端请求连接时，由于没有空闲线程来处理，就会导致客户端连接失败。
 
 ### NIO（IO多路复用模型）
 
-支持面向缓冲的，基于通道的I/O操作方法。对于高负载、高并发的（网络）应用。NIO 采用非阻塞模式，基于 Reactor 模式的工作方式，I/O 调用不会被阻塞，它的实现过程是：会先对每个客户端注册感兴趣的事件，然后有一个线程专门去轮询每个客户端是否有事件发生，当有事件发生时，便顺序处理每个事件，当所有事件处理完之后，便再转去继续轮询。
+  支持面向缓冲的，基于通道的I/O操作方法。对于高负载、高并发的（网络）应用。NIO 采用非阻塞模式，基于 Reactor 模式的工作方式，I/O 调用不会被阻塞，它的实现过程是：会先对每个客户端注册感兴趣的事件，然后有一个线程专门去轮询每个客户端是否有事件发生，当有事件发生时，便顺序处理每个事件，当所有事件处理完之后，便再转去继续轮询。
 
 #### 同步非阻塞IO模型
 
-<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bb174e22dbe04bb79fe3fc126aed0c61~tplv-k3u1fbpfcp-watermark.image" alt="图源：《深入拆解Tomcat & Jetty》" style="zoom:67%;" />
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bb174e22dbe04bb79fe3fc126aed0c61~tplv-k3u1fbpfcp-watermark.image" alt="图源：《深入拆解Tomcat & Jetty》" width="30%" />
 
-同步非阻塞 IO 模型中，应用程序会一直发起 read 调用，等待数据从内核空间拷贝到用户空间的这段时间里，线程依然是阻塞的，直到在内核把数据拷贝到用户空间。
+  同步非阻塞 IO 模型中，应用程序会一直发起 read 调用，等待数据从内核空间拷贝到用户空间的这段时间里，线程依然是阻塞的，直到在内核把数据拷贝到用户空间。
 
-相比于同步阻塞 IO 模型，同步非阻塞 IO 模型确实有了很大改进。通过轮询操作，避免了一直阻塞。
+  相比于同步阻塞 IO 模型，同步非阻塞 IO 模型确实有了很大改进。通过轮询操作，避免了一直阻塞。
 
-但是，这种 IO 模型同样存在问题：**应用程序不断进行 I/O 系统调用轮询数据是否已经准备好的过程是十分消耗 CPU 资源的。**
+  但是，这种 IO 模型同样存在问题：**应用程序不断进行 I/O 系统调用轮询数据是否已经准备好的过程是十分消耗 CPU 资源的。**
 
 #### IO多路复用模型
 
-<img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/88ff862764024c3b8567367df11df6ab~tplv-k3u1fbpfcp-watermark.image" alt="img" style="zoom:67%;" />
+<img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/88ff862764024c3b8567367df11df6ab~tplv-k3u1fbpfcp-watermark.image" alt="img"  width="30%"/>
 
-IO 多路复用模型中，线程首先发起 select 调用，询问内核数据是否准备就绪，等内核把数据准备好了，用户线程再发起 read 调用。read 调用的过程（数据从内核空间 -> 用户空间）还是阻塞的。**IO 多路复用模型，通过减少无效的系统调用，减少了对 CPU 资源的消耗。**Java 中的 NIO ，有一个非常重要的**选择器 ( Selector )** 的概念，也可以被称为 **多路复用器**。通过它，只需要一个线程便可以管理多个客户端连接。当客户端数据到了之后，才会为其服务。
+  IO 多路复用模型中，线程首先发起 select 调用，询问内核数据是否准备就绪，等内核把数据准备好了，用户线程再发起 read 调用。read 调用的过程（数据从内核空间 -> 用户空间）还是阻塞的。**IO 多路复用模型，通过减少无效的系统调用，减少了对 CPU 资源的消耗。**Java 中的 NIO ，有一个非常重要的**选择器 ( Selector )** 的概念，也可以被称为 **多路复用器**。通过它，只需要一个线程便可以管理多个客户端连接。当客户端数据到了之后，才会为其服务。
 
-<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0f483f2437ce4ecdb180134270a00144~tplv-k3u1fbpfcp-watermark.image" alt="img" style="zoom: 33%;" />
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0f483f2437ce4ecdb180134270a00144~tplv-k3u1fbpfcp-watermark.image" alt="img"  width="30%"/>
 
-NIO 的最重要的地方是当一个连接创建后，不需要对应一个线程，这个连接会被注册到多路复用器上面，一个选择器线程可以同时处理成千上万个连接，系统不必创建大量的线程，也不必维护这些线程，从而大大减小了系统的开销。
+  NIO 的最重要的地方是当一个连接创建后，不需要对应一个线程，这个连接会被注册到多路复用器上面，一个选择器线程可以同时处理成千上万个连接，系统不必创建大量的线程，也不必维护这些线程，从而大大减小了系统的开销。
 
 #### AIO(异步IO模型)
 
-异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
+  异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
 
-<img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3077e72a1af049559e81d18205b56fd7~tplv-k3u1fbpfcp-watermark.image" alt="img" style="zoom:50%;" />
+<img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3077e72a1af049559e81d18205b56fd7~tplv-k3u1fbpfcp-watermark.image" alt="img" width="30%" />
 
-<img src="https://images.xiaozhuanlan.com/photo/2020/33b193457c928ae02217480f994814b6.png" alt="img" style="zoom:50%;" />
+<img src="https://images.xiaozhuanlan.com/photo/2020/33b193457c928ae02217480f994814b6.png" alt="img"  width="30%"/>
 
 ## 网络编程系列之NIO
 
-JavaNIO由三个核心部分组成：Channels，Buffers，Selectors
+  JavaNIO由三个核心部分组成：**Channels，Buffers，Selectors**
 
 ### Channel
 
-Channel是一个通道，可以通过它完成读取和写入数据，通道和流的不同之处在于通道是双向的，流只是在一个方向流动（一个流必须是InputStream或OutputStream的子类），而且通道可以用于读，写或者同时用于读写。因此Channel是全双工的，可以比流更好的映射底层操作系统的API。
+  Channel是一个通道，可以通过它完成读取和写入数据，通道和流的不同之处在于通道是双向的，流只是在一个方向流动（一个流必须是InputStream或OutputStream的子类），而且通道可以用于读，写或者同时用于读写。因此Channel是全双工的，可以比流更好的映射底层操作系统的API。
 
-所有的数据都通过Buffer对象来处理，永远不会将字节直接写入通道中，而是将数据写入包含一个或多个字节的缓冲区。读取数据的时候也是先将数据从通道读入缓冲区，再从缓冲区获取数据。
+  所有的数据都通过Buffer对象来处理，永远不会将字节直接写入通道中，而是将数据写入包含一个或多个字节的缓冲区。读取数据的时候也是先将数据从通道读入缓冲区，再从缓冲区获取数据。
 
 - FileChannel 从文件中读写数据。 
 - DatagramChannel 能通过 UDP 读写网络中的数据。 
@@ -105,7 +105,7 @@ Channel是一个通道，可以通过它完成读取和写入数据，通道和�
 
 #### FileChannel
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220513003125241.png" alt="image-20220513003125241" style="zoom:50%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220513003125241.png" alt="image-20220513003125241"  width="50%"/>
 
 **读取数据**
 
@@ -181,11 +181,11 @@ System.out.println("系统结束");
 
 ##### ServerSocketChannel
 
-`ServerSocketChannel`是一个基于通道的socket监听器。与java.net.ServerSocket执行相同的任务，不过它增加了通道语义，因此能够在非阻塞模式下运行。
+  `ServerSocketChannel`是一个基于通道的socket监听器。与java.net.ServerSocket执行相同的任务，不过它增加了通道语义，因此能够在非阻塞模式下运行。
 
-由于ServerSocketChannel没有bind()方法，因此有必要取出对等的socket并使用它来绑定到一个端口以开始监听连接。
+  由于ServerSocketChannel没有bind()方法，因此有必要取出对等的socket并使用它来绑定到一个端口以开始监听连接。
 
-ServerSocketChannel非阻塞的accept()方法
+**ServerSocketChannel非阻塞的accept()方法**
 
 ```java
 public class ServerSocketChannelDemo1 {
@@ -220,7 +220,7 @@ public class ServerSocketChannelDemo1 {
 
 ##### SocketChannel
 
-Java NIO中的SocketChannel是一个连接到TCP网络套接字的通道，是一种面向流连接sockets套接字的可选择通道。
+  Java NIO中的SocketChannel是一个连接到TCP网络套接字的通道，是一种面向流连接sockets套接字的可选择通道。
 
 1. 对于已经存在的 socket 不能创建 SocketChannel 
 2. SocketChannel 中提供的 open 接口创建的 Channel 并没有进行网络级联，需要使用 connect 接口连接到指定地址 
@@ -253,7 +253,7 @@ System.out.println("read over");
 
 ##### DatagramChannel
 
-正如 SocketChannel 对应 Socket，ServerSocketChannel 对应 ServerSocket，每一个 DatagramChannel 对象也有一个关联的 DatagramSocket 对象。正如SocketChannel 模拟连接导向的流协议（如 TCP/IP），DatagramChannel 则模拟包导向的无连接协议（如UDP/IP）。DatagramChannel 是无连接的，每个数据报（datagram）都是一个自包含的实体，拥有它自己的目的地址及不依赖其他数据报的数据负载。与面向流的的 socket 不同，DatagramChannel 可以发送单独的数据报给不同的目的地址。同样，DatagramChannel 对象也可以接收来自任意地址的数据包。 每个到达的数据报都含有关于它来自何处的信息（源地址）。
+  正如 SocketChannel 对应 Socket，ServerSocketChannel 对应 ServerSocket，每一个 DatagramChannel 对象也有一个关联的 DatagramSocket 对象。正如SocketChannel 模拟连接导向的流协议（如 TCP/IP），DatagramChannel 则模拟包导向的无连接协议（如UDP/IP）。DatagramChannel 是无连接的，每个数据报（datagram）都是一个自包含的实体，拥有它自己的目的地址及不依赖其他数据报的数据负载。与面向流的的 socket 不同，DatagramChannel 可以发送单独的数据报给不同的目的地址。同样，DatagramChannel 对象也可以接收来自任意地址的数据包。 每个到达的数据报都含有关于它来自何处的信息（源地址）。
 
 ```java
 	/**
@@ -301,7 +301,7 @@ System.out.println("read over");
 
 ### Buffer
 
-Java NIO 中的 Buffer 用于和 NIO 通道进行交互。数据是从通道读入缓冲区，从缓冲区写入到通道中的。<br>缓冲区本质上是一块可以写入数据，然后可以从中读取数据的内存。这块内存被包装成 NIO Buffer 对象，并提供了一组方法，用来方便的访问该块内存。缓冲区实际上是一个容器对象，更直接的说，其实就是一个数组，在 NIO 库中，所有数据都是用缓冲区处理的。在读取数据时，它是直接读到缓冲区中的； 在写入数据时，它也是写入到缓冲区中的；任何时候访问 NIO 中的数据，都是将它放到缓冲区中。而在面向流 I/O系统中，所有数据都是直接写入或者直接将数据读取到 Stream 对象中。
+  Java NIO 中的 Buffer 用于和 NIO 通道进行交互。数据是从通道读入缓冲区，从缓冲区写入到通道中的。<br>  缓冲区本质上是一块可以写入数据，然后可以从中读取数据的内存。这块内存被包装成 NIO Buffer 对象，并提供了一组方法，用来方便的访问该块内存。缓冲区实际上是一个容器对象，更直接的说，其实就是一个数组，在 NIO 库中，所有数据都是用缓冲区处理的。在读取数据时，它是直接读到缓冲区中的； 在写入数据时，它也是写入到缓冲区中的；任何时候访问 NIO 中的数据，都是将它放到缓冲区中。而在面向流 I/O系统中，所有数据都是直接写入或者直接将数据读取到 Stream 对象中。
 
 Buffer用法
 
@@ -330,13 +330,13 @@ aFile.close();
 
 #### Buffer 的 capacity、position 和 limit
 
-position 和 limit 的含义取决于 Buffer 处在读模式还是写模式。不管 Buffer 处在什么模式，capacity 的含义总是一样的。
+  position 和 limit 的含义取决于 Buffer 处在读模式还是写模式。不管 Buffer 处在什么模式，capacity 的含义总是一样的。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220514225853831.png" alt="image-20220514225853831" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220514225853831.png" alt="image-20220514225853831" width="50%" />
 
 **capacity**
 
-作为一个内存块，Buffer 有一个固定的大小值，也叫capacity”.你只能往里写capacity 个 byte、long，char 等类型。一旦 Buffer 满了，需要将其清空（通过读数据或者清除数据）才能继续写数据往里写数据。
+  作为一个内存块，Buffer 有一个固定的大小值，也叫capacity”.你只能往里写capacity 个 byte、long，char 等类型。一旦 Buffer 满了，需要将其清空（通过读数据或者清除数据）才能继续写数据往里写数据。
 
 **position**
 
@@ -350,23 +350,23 @@ position 和 limit 的含义取决于 Buffer 处在读模式还是写模式。�
 
 #### clear()与 compact()方法
 
-一旦读完 Buffer 中的数据，需要让 Buffer 准备好再次被写入。可以通过 **clear**()或**compact**()方法来完成。如果调用的是 clear()方法，position 将被设回 0，limit 被设置成 capacity 的值。换句话说，Buffer 被清空了。**Buffer 中的数据并未清除**，只是这些标记告诉我们可以从哪里开始往 Buffer 里写数据。如果 Buffer 中有一些未读的数据，调用 clear()方法，数据将“被遗忘”，意味着不再有任何标记会告诉你哪些数据被读过，哪些还没有。<br>如果 Buffer 中仍有未读的数据，且后续还需要这些数据，但是此时想要先写些数据，那么使用 **compact**()方法。compact()方法将所有未读的数据拷贝到 Buffer 起始处。然后将 **position** 设到最后一个未读元素正后面。limit 属性依然像 clear()方法一样，设置成 capacity。现在Buffer 准备好写数据了，**但是不会覆盖未读的数据**。
+  一旦读完 Buffer 中的数据，需要让 Buffer 准备好再次被写入。可以通过 **clear**()或**compact**()方法来完成。如果调用的是 clear()方法，position 将被设回 0，limit 被设置成 capacity 的值。换句话说，Buffer 被清空了。**Buffer 中的数据并未清除**，只是这些标记告诉我们可以从哪里开始往 Buffer 里写数据。如果 Buffer 中有一些未读的数据，调用 clear()方法，数据将“被遗忘”，意味着不再有任何标记会告诉你哪些数据被读过，哪些还没有。<br>  如果 Buffer 中仍有未读的数据，且后续还需要这些数据，但是此时想要先写些数据，那么使用 **compact**()方法。compact()方法将所有未读的数据拷贝到 Buffer 起始处。然后将 **position** 设到最后一个未读元素正后面。limit 属性依然像 clear()方法一样，设置成 capacity。现在Buffer 准备好写数据了，**但是不会覆盖未读的数据**。
 
 #### 缓冲区分片
 
-在 NIO 中，除了可以分配或者包装一个缓冲区对象外，还可以根据现有的缓冲区对象来创建一个子缓冲区，即在现有缓冲区上切出一片来作为一个新的缓冲区，但现有的缓冲区与创建的子缓冲区在底层数组层面上是数据共享的，也就是说，子缓冲区相当于是现有缓冲区的一个视图窗口。调用 slice()方法可以创建一个子缓冲区。 
+  在 NIO 中，除了可以分配或者包装一个缓冲区对象外，还可以根据现有的缓冲区对象来创建一个子缓冲区，即在现有缓冲区上切出一片来作为一个新的缓冲区，但现有的缓冲区与创建的子缓冲区在底层数组层面上是数据共享的，也就是说，子缓冲区相当于是现有缓冲区的一个视图窗口。调用 slice()方法可以创建一个子缓冲区。 
 
 #### 只读缓冲区
 
-通过调用缓冲区的 `asReadOnlyBuffer()`方法，将任何常规缓冲区转换为只读缓冲区，这个方法返回一个与原缓冲区**完全相同**的缓冲区，并与原缓冲区共享数据，只不过它是只读的。如果原缓冲区的内容发生了变化，只读缓冲区的内容也随之发生变化
+  通过调用缓冲区的 `asReadOnlyBuffer()`方法，将任何常规缓冲区转换为只读缓冲区，这个方法返回一个与原缓冲区**完全相同**的缓冲区，并与原缓冲区共享数据，只不过它是只读的。如果原缓冲区的内容发生了变化，只读缓冲区的内容也随之发生变化。
 
 #### 直接缓冲区
 
-直接缓冲区是为**加快** I/O 速度，使用一种特殊方式为其分配内存的缓冲区，JDK 文档中的描述为：给定一个直接字节缓冲区，Java 虚拟机将尽最大努力直接对它执行本机I/O 操作。也就是说，它会在每一次调用底层操作系统的本机 I/O 操作之前(或之后)，尝试避免将缓冲区的内容拷贝到一个中间缓冲区中 或者从一个中间缓冲区中拷贝数据。要分配直接缓冲区，需要调用 `allocateDirect()`方法，而不是 `allocate()`方法，使用方式与普通缓冲区并无区别。
+  直接缓冲区是为**加快** I/O 速度，使用一种特殊方式为其分配内存的缓冲区，JDK 文档中的描述为：给定一个直接字节缓冲区，Java 虚拟机将尽最大努力直接对它执行本机I/O 操作。也就是说，它会在每一次调用底层操作系统的本机 I/O 操作之前(或之后)，尝试避免将缓冲区的内容拷贝到一个中间缓冲区中 或者从一个中间缓冲区中拷贝数据。要分配直接缓冲区，需要调用 `allocateDirect()`方法，而不是 `allocate()`方法，使用方式与普通缓冲区并无区别。
 
 #### 内存映射文件 I/O
 
-内存映射文件 I/O 是一种**读和写**文件数据的方法，它可以比常规的基于流或者基于通道的 I/O 快的多。内存映射文件 I/O 是通过使文件中的数据出现为 内存数组的内容来完成的，这其初听起来似乎不过就是将整个文件读到内存中，但是事实上并不是这样。一般来说，只有文件中实际读取或者写入的部分才会映射到内存中。
+  内存映射文件 I/O 是一种**读和写**文件数据的方法，它可以比常规的基于流或者基于通道的 I/O 快的多。内存映射文件 I/O 是通过使文件中的数据出现为 内存数组的内容来完成的，这其初听起来似乎不过就是将整个文件读到内存中，但是事实上并不是这样。一般来说，只有文件中实际读取或者写入的部分才会映射到内存中。
 
 ```java
 RandomAccessFile aFile = new RandomAccessFile("text/01.txt", "rw");
@@ -383,11 +383,11 @@ aFile.close();
 
 ### Selector
 
-Selector 一般称 为选择器 ，也可以翻译为 多路复用器 。它是 Java NIO 核心组件中的一个，用于检查一个或多个 NIO Channel（通道）的状态是否处于可读、可写。如此可以实现单线程管理多个 channels,也就是可以管理多个网络链接。
+  Selector 一般称 为选择器 ，也可以翻译为 多路复用器 。它是 Java NIO 核心组件中的一个，用于检查一个或多个 NIO Channel（通道）的状态是否处于可读、可写。如此可以实现单线程管理多个 channels,也就是可以管理多个网络链接。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220517201535405.png" alt="image-20220517201535405" style="zoom: 67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220517201535405.png" alt="image-20220517201535405"  width="50%"/>
 
-使用 Selector 的好处在于： 使用更少的线程来就可以来处理通道了， 相比使用多个线程，避免了线程上下文切换带来的开销。
+  使用 Selector 的好处在于： 使用更少的线程来就可以来处理通道了， 相比使用多个线程，避免了线程上下文切换带来的开销。
 
 #### 可选择通道(SelectableChannel)
 
@@ -395,7 +395,7 @@ Selector 一般称 为选择器 ，也可以翻译为 多路复用器 。它是 
 2. SelectableChannel 类提供了实现通道的可选择性所需要的公共方法。它是所有支持就绪检查的通道类的父类。所有 socket 通道，都继承了 SelectableChannel 类都是可选择的，包括从管道(Pipe)对象的中获得的通道。而 FileChannel 类，没有继承SelectableChannel，因此是不是可选通道。
 3. 一个通道可以被注册到多个选择器上，但对每个选择器而言只能被注册一次。通道和选择器之间的关系，使用注册的方式完成。SelectableChannel 可以被注册到Selector 对象上，在注册的时候，需要指定通道的哪些操作，是 Selector 感兴趣的。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220517201851267.png" alt="image-20220517201851267" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220517201851267.png" alt="image-20220517201851267"  width="50%"/>
 
 #### Channel 注册到 Selector
 
@@ -409,9 +409,9 @@ Selector 一般称 为选择器 ，也可以翻译为 多路复用器 。它是 
 3. 一个选择键，首先是包含了注册在 Selector 的通道操作的类型，比方说SelectionKey.OP_READ。也包含了特定的通道与特定的选择器之间的注册关系。开发应用程序是，选择键是编程的关键。NIO 的编程，就是根据对应的选择键，进行不同的业务逻辑处理。
 4. 选择键的概念，和事件的概念比较相似。一个选择键类似监听器模式里边的一个事件。由于 Selector 不是事件触发的模式，而是主动去查询的模式，所以不叫事件Event，而是叫 SelectionKey 选择键。
 
-与 Selector 一起使用时，Channel 必须处于非阻塞模式下，否则将抛出异常IllegalBlockingModeException。这意味着，FileChannel 不能与 Selector 一起使用，因为 FileChannel 不能切换到非阻塞模式，而套接字相关的所有的通道都可以。
+  与 Selector 一起使用时，Channel 必须处于非阻塞模式下，否则将抛出异常IllegalBlockingModeException。这意味着，FileChannel 不能与 Selector 一起使用，因为 FileChannel 不能切换到非阻塞模式，而套接字相关的所有的通道都可以。
 
-一个通道，并没有一定要支持所有的四种操作。比如服务器通道ServerSocketChannel 支持 Accept 接受操作，而 SocketChannel 客户端通道则不支持。可以通过通道上的 validOps()方法，来获取特定通道下所有支持的操作集合。
+  一个通道，并没有一定要支持所有的四种操作。比如服务器通道ServerSocketChannel 支持 Accept 接受操作，而 SocketChannel 客户端通道则不支持。可以通过通道上的 validOps()方法，来获取特定通道下所有支持的操作集合。
 
 #### NIO 编程步骤
 
@@ -503,13 +503,13 @@ public static void clientDemo() throws IOException {
 
 ### Pipe
 
-Java NIO 管道是 2 个线程之间的单向数据连接。Pipe 有一个 source 通道和一个 sink通道。数据会被写到 sink 通道，从 source 通道读取。
+  Java NIO 管道是 2 个线程之间的单向数据连接。Pipe 有一个 source 通道和一个 sink通道。数据会被写到 sink 通道，从 source 通道读取。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220520152958439.png" alt="image-20220520152958439" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220520152958439.png" alt="image-20220520152958439" width="50%" />
 
 **创建管道**
 
-通过 Pipe.open()方法打开管道。 
+  通过 Pipe.open()方法打开管道。 
 
 ```java
 Pipe pipe = Pipe.open();
@@ -517,7 +517,7 @@ Pipe pipe = Pipe.open();
 
 **写入管道**
 
-要向管道写数据，需要访问 sink 通道。： 
+  要向管道写数据，需要访问 sink 通道。： 
 
 ```java
 Pipe.SinkChannel sinkChannel = pipe.sink();
@@ -543,13 +543,13 @@ sinkChannel.write(buf);
 
 **从管道读取数据**
 
-从读取管道的数据，需要访问 source 通道，像这样： 
+  从读取管道的数据，需要访问 source 通道，像这样： 
 
 ```java
 Pipe.SourceChannel sourceChannel = pipe.source(); 
 ```
 
-调用 source 通道的 read()方法来读取数据： 
+  调用 source 通道的 read()方法来读取数据： 
 
 ```java
 ByteBuffer buf = ByteBuffer.allocate(48); 
@@ -557,13 +557,13 @@ ByteBuffer buf = ByteBuffer.allocate(48);
 int bytesRead = sourceChannel.read(buf); 
 ```
 
-read()方法返回的 int 值会告诉我们多少字节被读进了缓冲区。
+  read()方法返回的 int 值会告诉我们多少字节被读进了缓冲区。
 
 ### FileLock
 
-文件锁在 OS 中很常见，如果多个程序同时访问、修改同一个文件，很容易因为文件数据不同步而出现问题。给文件加一个锁，同一时间，只能有一个程序修改此文件，或者程序都只能读此文件，这就解决了同步问题。文件锁是**进程级别**的，不是**线程级别**的。文件锁可以解决多个进程并发访问、修改同一个文件的问题，但**不能解决多线程并发访问、修改同一文件的问题**。使用文件锁时，**同一进程内的多个线程，可以同时访问、修改此文件。**
+  文件锁在 OS 中很常见，如果多个程序同时访问、修改同一个文件，很容易因为文件数据不同步而出现问题。给文件加一个锁，同一时间，只能有一个程序修改此文件，或者程序都只能读此文件，这就解决了同步问题。文件锁是**进程级别**的，不是**线程级别**的。文件锁可以解决多个进程并发访问、修改同一个文件的问题，但**不能解决多线程并发访问、修改同一文件的问题**。使用文件锁时，**同一进程内的多个线程，可以同时访问、修改此文件。**
 
-文件锁是当前程序所属的 JVM 实例持有的，一旦获取到文件锁（对文件加锁），要调用 release()，或者关闭对应的 FileChannel 对象，或者当前 JVM 退出，才会释放这个锁。一旦某个进程（比如说 JVM 实例）对某个文件加锁，则在释放这个锁之前，此进程不能再对此文件加锁，就是说 JVM 实例在同一文件上的文件锁是不重叠的（进程级别不能重复在同一文件上获取锁）。
+  文件锁是当前程序所属的 JVM 实例持有的，一旦获取到文件锁（对文件加锁），要调用 release()，或者关闭对应的 FileChannel 对象，或者当前 JVM 退出，才会释放这个锁。一旦某个进程（比如说 JVM 实例）对某个文件加锁，则在释放这个锁之前，此进程不能再对此文件加锁，就是说 JVM 实例在同一文件上的文件锁是不重叠的（进程级别不能重复在同一文件上获取锁）。
 
 - 排它锁：又叫独占锁。对文件加排它锁后，该进程可以对此文件进行读写，该进程独占此文件，其他进程不能读写此文件，直到该进程释放文件锁。 
 - 共享锁：某个进程对文件加共享锁，其他进程也可以访问此文件，但这些进程都只能读此文件，不能写。线程是安全的。只要还有一个进程持有共享锁，此文件就只能读， 不能写。 
@@ -572,15 +572,15 @@ read()方法返回的 int 值会告诉我们多少字节被读进了缓冲区。
 
 **有 4 种获取文件锁的方法：** 
 
-lock() //对整个文件加锁，默认为排它锁。 
+  lock() //对整个文件加锁，默认为排它锁。 
 
-lock(long position, long size, booean shared) //自定义加锁方式。前 2 个参数指定要加锁的部分（可以只对此文件的部分内容加锁），第三个参数值指定是否是共享锁。 
+  lock(long position, long size, booean shared) //自定义加锁方式。前 2 个参数指定要加锁的部分（可以只对此文件的部分内容加锁），第三个参数值指定是否是共享锁。 
 
-tryLock() //对整个文件加锁，默认为排它锁。 
+  tryLock() //对整个文件加锁，默认为排它锁。 
 
-tryLock(long position, long size, booean shared)    //自定义加锁方式。 
+  tryLock(long position, long size, booean shared)    //自定义加锁方式。 
 
-如果指定为共享锁，则其它进程可读此文件，所有进程均不能写此文件，如果某进程试图对此文件进行写操作，会抛出异常
+  如果指定为共享锁，则其它进程可读此文件，所有进程均不能写此文件，如果某进程试图对此文件进行写操作，会抛出异常
 
 #### lock与tryLock的区别
 

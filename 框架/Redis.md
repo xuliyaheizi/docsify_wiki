@@ -2,13 +2,13 @@
 
 ## 一、NoSql
 
-NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关系型的数据库**。NoSQL 不依赖业务逻辑方式存储，而以简单的 `key-value` 模式存储。因此大大的增加了数据库的扩展能力。
+  NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关系型的数据库**。NoSQL 不依赖业务逻辑方式存储，而以简单的 `key-value` 模式存储。因此大大的增加了数据库的扩展能力。
 
 - 不遵循 SQL 标准。 
 - 不支持 ACID。 
 - 远超于 SQL 的性能。
 
-适用场景
+**适用场景**
 
 - 对数据高并发的读写 
 - 海量数据的读写 
@@ -16,7 +16,7 @@ NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关
 
 ## 二、Redis
 
-Redis 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它支持存储的 value 类型相对更多，包括 string(字符串)、list(链表)、set(集合)、zset(sorted set --有序集合)和 hash（哈希类型）。这些数据类型都支持 `push/pop、add/remove` 及取交集并集和差集及更丰富的操作，而且这些操作都是**原子性**的。在此基础上，Redis 支持各种不同方式的排序。与 memcached 一样，为了保证效率，数据都是缓存在内存中。区别的是 Redis 会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件。并且在此基础上实现了`master-slave(主从)同步`。
+  Redis 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它支持存储的 value 类型相对更多，包括 string(字符串)、list(链表)、set(集合)、zset(sorted set --有序集合)和 hash（哈希类型）。这些数据类型都支持 `push/pop、add/remove` 及取交集并集和差集及更丰富的操作，而且这些操作都是**原子性**的。在此基础上，Redis 支持各种不同方式的排序。与 memcached 一样，为了保证效率，数据都是缓存在内存中。区别的是 Redis 会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件。并且在此基础上实现了`master-slave(主从)同步`。
 
 **配合关系型数据库做高速缓存**
 
@@ -25,7 +25,7 @@ Redis 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它
 
 **多样的数据结构存储持久化数据**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521193155461.png" alt="image-20220521193155461" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521193155461.png" alt="image-20220521193155461" width="50%" />
 
 **redis介绍**
 
@@ -36,13 +36,13 @@ Redis 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它
 - flushdb 清空当前库 
 - flushall 通杀全部库
 
-Redis 是**单线程+多路 IO 复用技术** 
+  Redis 是**单线程+多路 IO 复用技术** 
 
-`多路复用`是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select 和 poll 函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池） 串行 vs 多线程+锁（memcached） vs 单线程+多路 IO 复用(Redis)。
+  `多路复用`是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select 和 poll 函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池） 串行 vs 多线程+锁（memcached） vs 单线程+多路 IO 复用(Redis)。
 
-（与 Memcache 三点不同: 支持多数据类型，支持持久化，单线程+多路 IO 复用）
+  （与 Memcache 三点不同: 支持多数据类型，支持持久化，单线程+多路 IO 复用）
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521194217299.png" alt="image-20220521194217299" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521194217299.png" alt="image-20220521194217299" width="50%" />
 
 ## 三、常用五大数据类型
 
@@ -89,7 +89,7 @@ getset <key><value> 				     	以新换旧，设置了新值同时获得旧值�
 
 **原子性** 
 
-所谓**原子**操作是指不会被线程调度机制打断的操作；这种操作一旦开始，就一直运行到结束，中间不会有任何 context switch （切换到另一个线程）。 
+  所谓**原子**操作是指不会被线程调度机制打断的操作；这种操作一旦开始，就一直运行到结束，中间不会有任何 context switch （切换到另一个线程）。 
 
 - 在单线程中， 能够在单条指令中完成的操作都可以认为是"原子操作"，因为中断只能发生于指令之间。 
 - 在多线程中，不能被其它进程（线程）打断的操作就叫原子操作。Redis 单命令的原子性主要得益于 Redis 的单线程。 
@@ -100,23 +100,23 @@ java 中的 i++是否是原子操作？**不是**
 
 i=0;两个线程分别对 i 进行++100 次,值是多少？ **2~200**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112446066.png" alt="image-20220522112446066" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112446066.png" alt="image-20220522112446066" width="15%" />
 
 #### 数据结构
 
-String 的数据结构为`简单动态字符串`(Simple Dynamic String,缩写 SDS)。是可以修改的字符串，内部结构实现上类似于 Java 的 `ArrayList`，采用**预分配冗余空间**的方式来减少内存的频繁分配.
+  String 的数据结构为`简单动态字符串`(Simple Dynamic String,缩写 SDS)。是可以修改的字符串，内部结构实现上类似于 Java 的 `ArrayList`，采用**预分配冗余空间**的方式来减少内存的频繁分配.
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112539492.png" alt="image-20220522112539492" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112539492.png" alt="image-20220522112539492" width="50%" />
 
-如图中所示，内部为当前字符串实际分配的空间 `capacity `一般要**高于实际字符串长度len**。当字符串长度小于 1M 时，扩容都是加倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间。需要注意的是字符串最大长度为 `512M`。
+  如图中所示，内部为当前字符串实际分配的空间 `capacity `一般要**高于实际字符串长度len**。当字符串长度小于 1M 时，扩容都是加倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间。需要注意的是字符串最大长度为 `512M`。
 
 ### Redis链表（List）
 
-单键多值Redis 
+**单键多值Redis** 
 
-链表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。它的底层实际是个双向链表，对两端的操作性能很高，通过索引下标的操作中间的节点性能会较差。
+  链表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。它的底层实际是个双向链表，对两端的操作性能很高，通过索引下标的操作中间的节点性能会较差。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112807853.png" alt="image-20220522112807853" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112807853.png" alt="image-20220522112807853" width="50%"/>
 
 ```
 lpush/rpush <key><value1><value2><value3> .... 	   从左边/右边插入一个或多个值。 
@@ -133,15 +133,15 @@ lset<key><index><value>					    	 将列表 key 下标为 index 的值替换成 
 
 #### 数据结构
 
-List 的数据结构为`快速链表 quickList`。首先在列表元素较少的情况下会使用一块连续的内存存储，这个结构是 `ziplist`，也即是**压缩列表**。它将所有的元素紧挨着一起存储，分配的是一块连续的内存。当数据量比较多的时候才会改成 quicklist。因为普通的链表需要的附加指针空间太大，会比较浪费空间。比如这个列表里存的只是 int 类型的数据，结构上还需要两个额外的指针 prev 和 next。 
+  List 的数据结构为`快速链表 quickList`。首先在列表元素较少的情况下会使用一块连续的内存存储，这个结构是 `ziplist`，也即是**压缩列表**。它将所有的元素紧挨着一起存储，分配的是一块连续的内存。当数据量比较多的时候才会改成 quicklist。因为普通的链表需要的附加指针空间太大，会比较浪费空间。比如这个列表里存的只是 int 类型的数据，结构上还需要两个额外的指针 prev 和 next。 
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113324227.png" alt="image-20220522113324227" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113324227.png" alt="image-20220522113324227" width="50%" />
 
-Redis 将链表和 ziplist 结合起来组成了 quicklist。也就是将多个 ziplist 使用双向指针串起来使用。这样既满足了快速的插入删除性能，又不会出现太大的空间冗余。
+  Redis 将链表和 ziplist 结合起来组成了 quicklist。也就是将多个 ziplist 使用双向指针串起来使用。这样既满足了快速的插入删除性能，又不会出现太大的空间冗余。
 
 ### Redis集合（Set）
 
-Redis set 对外提供的功能与 list 类似是一个列表的功能，特殊之处在于 set 是可以**自动排重**的，当你需要存储一个列表数据，又不希望出现重复数据时，set 是一个很好的选择，并且 set 提供了判断某个成员是否在一个 set 集合内的重要接口，这个也是 list 所不能提供的。Redis 的 Set 是 string 类型的无序集合。它底层其实是一个 value 为 null 的 hash 表，所以添加，删除，查找的**复杂度都是** **O(1)**。一个算法，随着数据的增加，执行时间的长短，如果是 O(1)，数据增加，查找数据的时间不变 
+  Redis set 对外提供的功能与 list 类似是一个列表的功能，特殊之处在于 set 是可以**自动排重**的，当你需要存储一个列表数据，又不希望出现重复数据时，set 是一个很好的选择，并且 set 提供了判断某个成员是否在一个 set 集合内的重要接口，这个也是 list 所不能提供的。Redis 的 Set 是 string 类型的无序集合。它底层其实是一个 value 为 null 的 hash 表，所以添加，删除，查找的**复杂度都是** **O(1)**。一个算法，随着数据的增加，执行时间的长短，如果是 O(1)，数据增加，查找数据的时间不变 
 
 ```tex
 sadd <key><value1><value2> .....        将一个或多个 member 元素加入到集合 key 中，已经存在的 member 元素将被忽略 
@@ -159,7 +159,7 @@ sdiff <key1><key2>			            返回两个集合的差集元素(key1 中的�
 
 #### 数据结构
 
-Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 HashSet 的内部实现使用的是 `HashMap`，只不过所有的 value 都指向同一个对象。Redis 的 set 结构也是一样，它的内部也使用 hash 结构，所有的 value 都指向同一个内部值
+  Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 HashSet 的内部实现使用的是 `HashMap`，只不过所有的 value 都指向同一个对象。Redis 的 set 结构也是一样，它的内部也使用 hash 结构，所有的 value 都指向同一个内部值。
 
 ### Redis哈希（Hash）
 
@@ -170,7 +170,7 @@ Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 
 
 主要有以下 2 种存储方式：
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113735993.png" alt="image-20220522113735993" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113735993.png" alt="image-20220522113735993" width="45%" />
 
 ```tex
 hset <key><field><value>			  	          给<key>集合中的 <field>键赋值<value> 
@@ -185,11 +185,11 @@ hsetnx <key><field><value>						 将哈希表 key 中的域 field 的值设置�
 
 #### 数据结构
 
-Hash 类型对应的数据结构是两种：ziplist（压缩列表），hashtable（哈希表）。当field-value 长度较短且个数较少时，使用 ziplist，否则使用 hashtable。
+  Hash 类型对应的数据结构是两种：ziplist（压缩列表），hashtable（哈希表）。当field-value 长度较短且个数较少时，使用 ziplist，否则使用 hashtable。
 
 ### Redis有序集合Zset（sorted set）
 
-Redis **有序集合 zset 与普通集合 set** 非常相似，是一个没有重复元素的字符串集合。不同之处是有序集合的每个成员都关联了一个**评分（score）**,这个评分（score）被用来按照从`最低分到最高分`的方式排序集合中的成员。集合的成员是唯一的，但是评分可用是重复的 。因为元素是`有序`的, 所以你也可以很快的根据评分（score）或者次序（position）来获取一个范围的元素。访问有序集合的中间元素也是非常快的,因此你能够使用有序集合作为一个没有重复成员的智能列表。
+  Redis **有序集合 zset 与普通集合 set** 非常相似，是一个没有重复元素的字符串集合。不同之处是有序集合的每个成员都关联了一个**评分（score）**,这个评分（score）被用来按照从`最低分到最高分`的方式排序集合中的成员。集合的成员是唯一的，但是评分可用是重复的 。因为元素是`有序`的, 所以你也可以很快的根据评分（score）或者次序（position）来获取一个范围的元素。访问有序集合的中间元素也是非常快的,因此你能够使用有序集合作为一个没有重复成员的智能列表。
 
 ```
 zadd <key><score1><value1><score2><value2>… 	将一个或多个 member 元素及其 score 值加入到有序集 key 当中。 
@@ -208,7 +208,7 @@ zrank <key><value>							 	返回该值在集合中的排名，从 0 开始。
 
 #### 数据结构
 
-SortedSet(zset)是 Redis 提供的一个非常特别的数据结构，一方面它等价于 Java的数据结构 Map<String, Double>，可以给每一个元素 value 赋予一个权重 score，另一方面它又类似于 TreeSet，内部的元素会按照权重 score 进行排序，可以得到每个元素的名次，还可以通过 score 的范围来获取元素的列表。 
+  SortedSet(zset)是 Redis 提供的一个非常特别的数据结构，一方面它等价于 Java的数据结构 Map<String, Double>，可以给每一个元素 value 赋予一个权重 score，另一方面它又类似于 TreeSet，内部的元素会按照权重 score 进行排序，可以得到每个元素的名次，还可以通过 score 的范围来获取元素的列表。 
 
 zset 底层使用了两个数据结构 
 
@@ -217,19 +217,19 @@ zset 底层使用了两个数据结构
 
 #### 跳跃表（跳表）
 
-有序集合在生活中比较常见，例如根据成绩对学生排名，根据得分对玩家排名等。对于有序集合的底层实现，可以用数组、平衡树、链表等。数组不便元素的插入、删除；平衡树或红黑树虽然效率高但结构复杂；链表查询需要遍历所有效率低。Redis采用的是跳跃表。跳跃表效率堪比红黑树，实现远比红黑树简单。
+  有序集合在生活中比较常见，例如根据成绩对学生排名，根据得分对玩家排名等。对于有序集合的底层实现，可以用数组、平衡树、链表等。数组不便元素的插入、删除；平衡树或红黑树虽然效率高但结构复杂；链表查询需要遍历所有效率低。Redis采用的是跳跃表。跳跃表效率堪比红黑树，实现远比红黑树简单。
 
 2、实例
 
-对比有序链表和跳跃表，从链表中查询出 51 
+  对比有序链表和跳跃表，从链表中查询出 51 
 
 （1） 有序链表 
 
-要查找值为 51 的元素，需要从第一个元素开始依次查找、比较才能找到。共需要 6 次比较。 
+  要查找值为 51 的元素，需要从第一个元素开始依次查找、比较才能找到。共需要 6 次比较。 
 
 （2） 跳跃表 
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522114511831.png" alt="image-20220522114511831" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522114511831.png" alt="image-20220522114511831" width="50%" />
 
 - 从第 2 层开始，1 节点比 51 节点小，向后比较。21 节点比 51 节点小，继续向后比较，后面就是 NULL 了，所以从 21 节点向下到第 1 层 
 - 在第 1 层，41 节点比 51 节点小，继续向后，61 节点比 51 节点大，所以从 41 向下 
@@ -238,15 +238,15 @@ zset 底层使用了两个数据结构
 
 ## 四、Redis的发布与订阅
 
-Redis 发布订阅 (pub/sub) 是一种**消息通信模式**：发送者 (pub) 发送消息，订阅者(sub) 接收消息。Redis 客户端可以订阅任意数量的频道。 
+  Redis 发布订阅 (pub/sub) 是一种**消息通信模式**：发送者 (pub) 发送消息，订阅者(sub) 接收消息。Redis 客户端可以订阅任意数量的频道。 
 
 客户端可以订阅频道如下图 
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522121140826.png" alt="image-20220522121140826" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522121140826.png" alt="image-20220522121140826" width="40%" />
 
 当给这个频道发布消息后，消息就会发送给订阅的客户端
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522121201473.png" alt="image-20220522121201473" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522121201473.png" alt="image-20220522121201473" width="40%" />
 
 ```
 SUBSCRIBE channel1		 客户端订阅 channel1
@@ -258,16 +258,16 @@ publish channel1 hello	 另一个客户端，给 channel1 发布消息 hello
 
 ### Bitmaps
 
-现代计算机用二进制（位） 作为信息的基础单位， 1 个字节等于 8 位， 例如“abc” 字符串是由 3 个字节组成， 但实际在计算机存储时将其用二进制表示， “abc”分别对应的 ASCII 码分别是 97、 98、 99， 对应的二进制分别是 01100001、 01100010和 01100011，如下图 
+  现代计算机用二进制（位） 作为信息的基础单位， 1 个字节等于 8 位， 例如“abc” 字符串是由 3 个字节组成， 但实际在计算机存储时将其用二进制表示， “abc”分别对应的 ASCII 码分别是 97、 98、 99， 对应的二进制分别是 01100001、 01100010和 01100011，如下图 
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184731379.png" alt="image-20220522184731379" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184731379.png" alt="image-20220522184731379" width="50%" />
 
-合理地使用操作位能够有效地提高内存使用率和开发效率。Redis 提供了 Bitmaps 这个“数据类型”可以实现对位的操作： 
+  合理地使用操作位能够有效地提高内存使用率和开发效率。Redis 提供了 Bitmaps 这个“数据类型”可以实现对位的操作： 
 
 - Bitmaps 本身不是一种数据类型， 实际上它就是字符串（key-value） ，但是它可以对字符串的位进行操作。 
 - Bitmaps 单独提供了一套命令， 所以在 Redis 中使用 Bitmaps 和使用字符串的方法不太相同。 可以把 Bitmaps 想象成一个以位为单位的数组，数组的每个单元只能存储 0 和 1， 数组的下标在 Bitmaps 中叫做偏移量。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184824449.png" alt="image-20220522184824449" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184824449.png" alt="image-20220522184824449" width="50%" />
 
 ```
 setbit<key><offset><value>			设置 Bitmaps 中某个偏移量的值（0 或 1）
@@ -285,20 +285,20 @@ bitop 是一个复合操作， 它可以做多个 Bitmaps 的 and（交集） �
 
 ### HyperLogLog
 
-在工作当中，我们经常会遇到与统计相关的功能需求，比如统计网站 PV（PageView 页面访问量）,可以使用 Redis 的 incr、incrby 轻松实现。 但像 UV（UniqueVisitor，独立访客）、独立 IP 数、搜索记录数等需要去重和计数的问题如何解决？这种求集合中不重复元素个数的问题称为基数问题。 解决基数问题有很多种方案： 
+  在工作当中，我们经常会遇到与统计相关的功能需求，比如统计网站 PV（PageView 页面访问量）,可以使用 Redis 的 incr、incrby 轻松实现。 但像 UV（UniqueVisitor，独立访客）、独立 IP 数、搜索记录数等需要去重和计数的问题如何解决？这种求集合中不重复元素个数的问题称为基数问题。 解决基数问题有很多种方案： 
 
 - 数据存储在 MySQL 表中，使用 distinct count 计算不重复个数 
 - 使用 Redis 提供的 hash、set、bitmaps 等数据结构来处理 
 
-以上的方案结果精确，但随着数据不断增加，导致占用空间越来越大，对于非常大的数据集是不切实际的。能否能够降低一定的精度来平衡存储空间？Redis 推出了 HyperLogLog Redis HyperLogLog 是用来做基数统计的算法，HyperLogLog 的优点是，在输入元素的数量或者体积非常非常大时，计算基数所需的空间总是固定的、并且是很小的。 
+  以上的方案结果精确，但随着数据不断增加，导致占用空间越来越大，对于非常大的数据集是不切实际的。能否能够降低一定的精度来平衡存储空间？Redis 推出了 HyperLogLog Redis HyperLogLog 是用来做基数统计的算法，HyperLogLog 的优点是，在输入元素的数量或者体积非常非常大时，计算基数所需的空间总是固定的、并且是很小的。 
 
-在 Redis 里面，每个 HyperLogLog 键只需要花费 12 KB 内存，就可以计算接近 2^64 个不同元素的基数。这和计算基数时，元素越多耗费内存就越多的集合形成鲜明对比。但是，因为 HyperLogLog 只会根据输入元素来计算基数，而不会储存输入元素本身，所以 HyperLogLog 不能像集合那样，返回输入的各个元素。 
+  在 Redis 里面，每个 HyperLogLog 键只需要花费 12 KB 内存，就可以计算接近 2^64 个不同元素的基数。这和计算基数时，元素越多耗费内存就越多的集合形成鲜明对比。但是，因为 HyperLogLog 只会根据输入元素来计算基数，而不会储存输入元素本身，所以 HyperLogLog 不能像集合那样，返回输入的各个元素。 
 
-什么是基数? 
+**什么是基数?** 
 
-比如数据集 {1, 3, 5, 7, 5, 7, 8}， 那么这个数据集的基数集为 {1, 3, 5 ,7, 8}, 
+  比如数据集 {1, 3, 5, 7, 5, 7, 8}， 那么这个数据集的基数集为 {1, 3, 5 ,7, 8}, 
 
-基数(不重复元素)为 5。 基数估计就是在误差可接受的范围内，快速计算基数。
+  基数(不重复元素)为 5。 基数估计就是在误差可接受的范围内，快速计算基数。
 
 ```
 pfadd <key>< element> [element ...] 			    添加指定元素到 HyperLogLog 中
@@ -521,15 +521,15 @@ public class RedisController {
 
 ## 八、Redis事务操作、锁机制、秒杀案例
 
-Redis 事务是一个单独的**隔离操作**：事务中的所有命令都会**序列化**、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。 
+  Redis 事务是一个单独的**隔离操作**：事务中的所有命令都会**序列化**、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。 
 
-Redis 事务的主要作用**就是串联多个命令防止别的命令插队**。
+  Redis 事务的主要作用**就是串联多个命令防止别的命令插队**。
 
 ### Multi、Exec、discard
 
-Multi命令：输入的命令都会依次进入命令队列中，不会执行，直到输入`exec`后才会依次执行命令。组队过程可通过`discard`放弃组队。
+  Multi命令：输入的命令都会依次进入命令队列中，不会执行，直到输入`exec`后才会依次执行命令。组队过程可通过`discard`放弃组队。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220523234928318.png" alt="image-20220523234928318" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220523234928318.png" alt="image-20220523234928318" width="50%" />
 
 **错误处理**
 
@@ -540,47 +540,43 @@ Multi命令：输入的命令都会依次进入命令队列中，不会执行，
 
 **悲观锁**
 
-定义：每次去拿数据时都认为别人会修改，所以每次拿数据时都会给数据上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，**读锁**，**写锁**等，都是在做操作之前先上锁。
+  定义：每次去拿数据时都认为别人会修改，所以每次拿数据时都会给数据上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，**读锁**，**写锁**等，都是在做操作之前先上锁。
 
 **乐观锁**
 
-定义：每次拿数据时都认为别人不会修改，因此不会上锁，只是在更新的时候会判断在此期间数据有没有更新，可用使用版本号等机制。**乐观锁适用于多读的应用类型，这样可以提高吞吐量。Redis 就是利用这种 check-and-set 机制实现事务的。**
+  定义：每次拿数据时都认为别人不会修改，因此不会上锁，只是在更新的时候会判断在此期间数据有没有更新，可用使用版本号等机制。**乐观锁适用于多读的应用类型，这样可以提高吞吐量。Redis 就是利用这种 check-and-set 机制实现事务的。**
 
 **WATCH** **key** **[key ...]** 
 
-在执行 multi 之前，先执行 watch key1 [key2],可以监视一个(或多个) key ，如果在事务**执行之前这个****(****或这些****) key** **被其他命令所改动，那么事务将被打断。**
+  在执行 multi 之前，先执行 watch key1 [key2],可以监视一个(或多个) key ，如果在事务**执行之前这个****(****或这些****) key** **被其他命令所改动，那么事务将被打断。**
 
 **unwatch**
 
-取消 WATCH 命令对所有 key 的监视。如果在执行 WATCH 命令之后，EXEC 命令或 DISCARD 命令先被执行了的话，那么就不需要再执行 UNWATCH 了。
+  取消 WATCH 命令对所有 key 的监视。如果在执行 WATCH 命令之后，EXEC 命令或 DISCARD 命令先被执行了的话，那么就不需要再执行 UNWATCH 了。
 
 ### 事务三特性
 
 - 单独的隔离操作
 
-  事务中的所有命令都会序列化、按顺序地执行。事务在执行的过程中，不会 
-
-  被其他客户端发送来的命令请求所打断。 
+  事务中的所有命令都会序列化、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。 
 
 - 没有隔离级别的概念
 
-  队列中的命令没有提交之前都不会实际被执行，因为事务提交前任何指令都 
-
-  不会被实际执行 
+  队列中的命令没有提交之前都不会实际被执行，因为事务提交前任何指令都不会被实际执行。
 
 - 不保证原子性
 
-  事务中如果有一条命令执行失败，其后的命令仍然会被执行，没有回滚
+  事务中如果有一条命令执行失败，其后的命令仍然会被执行，没有回滚。
 
 ## 九、持久化
 
 ### 持久化之RDB
 
-在指定的时间间隔内将内存中的数据集快照写入磁盘， 也就是行话讲的 `Snapshot`快照，它恢复时是将快照文件直接读到内存里。
+  在指定的时间间隔内将内存中的数据集快照写入磁盘， 也就是行话讲的 `Snapshot`快照，它恢复时是将快照文件直接读到内存里。
 
 #### 备份是如何执行的
 
-Redis 会单独创建（fork）一个子进程来进行持久化，会先将数据写入到 一个**临时文件**中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。 整个过程中，主进程是不进行任何 IO 操作的，这就确保了极高的性能 如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常敏感，那 RDB 方式要比 AOF 方式更加的高效。RDB的缺点**是最后一次持久化后的数据可能丢失**。
+  Redis 会单独创建（fork）一个子进程来进行持久化，会先将数据写入到 一个**临时文件**中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。 整个过程中，主进程是不进行任何 IO 操作的，这就确保了极高的性能 如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常敏感，那 RDB 方式要比 AOF 方式更加的高效。RDB的缺点**是最后一次持久化后的数据可能丢失**。
 
 #### Fork
 
@@ -588,7 +584,7 @@ Redis 会单独创建（fork）一个子进程来进行持久化，会先将数�
 - 在 `Linux`程序中，fork()会产生一个和父进程完全相同的子进程，但子进程在此后多会 exec 系统调用，出于效率考虑，Linux 中引入了“**写时复制技术**” 。
 - **一般情况父进程和子进程会共用同一段物理内存**，只有进程空间的各段的内容要发生变化时，才会将父进程的内容复制一份给子进程。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524000140862.png" alt="image-20220524000140862" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524000140862.png" alt="image-20220524000140862" width="45%" />
 
 #### 优势
 
@@ -597,7 +593,7 @@ Redis 会单独创建（fork）一个子进程来进行持久化，会先将数�
 - 节省磁盘空间 
 - 恢复速度快
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524000316624.png" alt="image-20220524000316624" style="zoom:67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524000316624.png" alt="image-20220524000316624" width="45%" />
 
 #### 劣势
 
