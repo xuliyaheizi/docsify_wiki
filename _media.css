@@ -71,7 +71,7 @@ h1 span {
 .app-nav {
     position: fixed;
     margin: 0;
-    padding: 10px 10rem 10px 0;
+    padding: 10px 1rem 10px 0;
     width: calc(100% - 21rem);
     background-color: #fff;
     height: 50px;
