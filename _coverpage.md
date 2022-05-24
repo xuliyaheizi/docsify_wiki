@@ -1,5 +1,7 @@
 <!-- _coverpage.md -->
 
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/favicon.ico" alt="" style="border-radius: 100px;">
+
 <br>
 
 ## Sunspot's Wiki
@@ -11,6 +13,5 @@
 [GitHub](https://github.com/xuliyaheizi)
 [开始阅读](/README.md)
 
-<!-- ![](https://xiaoheizi.oss-cn-guangzhou.aliyuncs.com/wallhaven-x8gkpo.jpg) -->
 ![color](#fff)
 
