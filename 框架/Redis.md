@@ -46,7 +46,7 @@
 
 ## 三、常用五大数据类型
 
-### Redis键（key）
+### 键（key）
 
 ```tex
 keys *			查看当前库所有 key (匹配：keys *1) 
@@ -62,7 +62,7 @@ flushdb			清空当前库
 flushall		  通杀全部库 
 ```
 
-### Redis字符串（String）
+### 字符串（String）
 
 - String 是 Redis 最基本的类型，你可以理解成与 Memcached 一模一样的类型，一个 key对应一个 value。 
 - String 类型是**二进制安全**的。意味着 Redis 的 string 可以**包含任何数据**。比如 jpg 图片或者序列化的对象。 
@@ -110,7 +110,7 @@ i=0;两个线程分别对 i 进行++100 次,值是多少？ **2~200**
 
   如图中所示，内部为当前字符串实际分配的空间 `capacity `一般要**高于实际字符串长度len**。当字符串长度小于 1M 时，扩容都是加倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间。需要注意的是字符串最大长度为 `512M`。
 
-### Redis链表（List）
+### 链表（List）
 
 **单键多值Redis** 
 
@@ -139,7 +139,7 @@ lset<key><index><value>					    	 将列表 key 下标为 index 的值替换成 
 
   Redis 将链表和 ziplist 结合起来组成了 quicklist。也就是将多个 ziplist 使用双向指针串起来使用。这样既满足了快速的插入删除性能，又不会出现太大的空间冗余。
 
-### Redis集合（Set）
+### 集合（Set）
 
   Redis set 对外提供的功能与 list 类似是一个列表的功能，特殊之处在于 set 是可以**自动排重**的，当你需要存储一个列表数据，又不希望出现重复数据时，set 是一个很好的选择，并且 set 提供了判断某个成员是否在一个 set 集合内的重要接口，这个也是 list 所不能提供的。Redis 的 Set 是 string 类型的无序集合。它底层其实是一个 value 为 null 的 hash 表，所以添加，删除，查找的**复杂度都是** **O(1)**。一个算法，随着数据的增加，执行时间的长短，如果是 O(1)，数据增加，查找数据的时间不变 
 
@@ -161,7 +161,7 @@ sdiff <key1><key2>			            返回两个集合的差集元素(key1 中的�
 
   Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 HashSet 的内部实现使用的是 `HashMap`，只不过所有的 value 都指向同一个对象。Redis 的 set 结构也是一样，它的内部也使用 hash 结构，所有的 value 都指向同一个内部值。
 
-### Redis哈希（Hash）
+### 哈希（Hash）
 
 - Redis hash 是一个键值对集合。 
 - Redis hash 是一个 string 类型的 field 和 value 的映射表，hash 特别适合用于存储对象。 
@@ -187,7 +187,7 @@ hsetnx <key><field><value>						 将哈希表 key 中的域 field 的值设置�
 
   Hash 类型对应的数据结构是两种：ziplist（压缩列表），hashtable（哈希表）。当field-value 长度较短且个数较少时，使用 ziplist，否则使用 hashtable。
 
-### Redis有序集合Zset（sorted set）
+### 有序集合Zset（sorted set）
 
   Redis **有序集合 zset 与普通集合 set** 非常相似，是一个没有重复元素的字符串集合。不同之处是有序集合的每个成员都关联了一个**评分（score）**,这个评分（score）被用来按照从`最低分到最高分`的方式排序集合中的成员。集合的成员是唯一的，但是评分可用是重复的 。因为元素是`有序`的, 所以你也可以很快的根据评分（score）或者次序（position）来获取一个范围的元素。访问有序集合的中间元素也是非常快的,因此你能够使用有序集合作为一个没有重复成员的智能列表。
 
