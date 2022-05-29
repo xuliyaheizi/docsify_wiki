@@ -19,7 +19,7 @@
 
   一个分布式系统**最多只能同时**满足**一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项**。
 
-  在这三个基本需求中，最多只能同时满足其中的两项，P 是必须的，因此只能在 CP 和 AP 中选择，**zookeeper 保证的是 CP（一致性和分区容错性），对比 spring cloud 系统中的注册中心 eruka 实现的是 AP（可用性和分区容错性）**。
+  在这三个基本需求中，最多只能同时满足其中的两项，P 是必须的，因此只能在 CP 和 AP 中选择，**zookeeper 保证的是 CP（一致性和分区容错性），对比 SpringCloud 系统中的注册中心 eureka 实现的是 AP（可用性和分区容错性）**。
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1651891779818-733bda0d-01cd-450d-9fb9-f507bbe48c5c.png" alt="image.png" width="40%" />
 
