@@ -111,17 +111,26 @@
         titleAsText: true
       });
     });
+
+    window.onload = function () {
+      var buttons = document.getElementsByClassName("label");
+      Array.prototype.forEach.call(buttons, function (element) {
+        element.innerHTML = '复制';
+      });
+    }
   </script>
 
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/emoji.min.js"></script>
 
   <!-- 复制提醒 -->
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert.min.js"></script>
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert2%408.js"></script>
   <script>
     document.body.oncopy = function () {
-      swal("复制成功 🎉",
-        "若要转载或引用请务必保留原文链接，并申明来源。如果你觉得本仓库不错，那就来 GitHub 给个 Star 吧 😊   - by Sunspot",
-        "success");
+      Swal.fire({
+        title: "复制成功 🎉",
+        html: "如果你觉得本仓库不错，那就来 <a target='_blank' href='https://github.com/xuliyaheizi/docsify_wiki' style='text-decoration:none;'>GitHub</a> 给个 Star 吧 😊   - by Sunspot",
+        type: "success"
+      })
     };
   </script>
 </body>
