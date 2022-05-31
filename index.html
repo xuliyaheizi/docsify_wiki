@@ -129,6 +129,7 @@
       console.log("复制");
       var buttons = document.getElementsByClassName("label");
       Array.prototype.forEach.call(buttons, function (element) {
+        console.log(element);
         element.innerHTML = '复制';
       });
     };
