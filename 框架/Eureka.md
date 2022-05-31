@@ -1087,7 +1087,7 @@ public int syncUp() {
 方法中，会判断action具体的动作,调用节点不同的操作. 以注册为例，查看一下注册的操作.
 
 ```java
-/**
+	/**
      * Sends the registration information of {@link InstanceInfo} receiving by
      * this node to the peer node represented by this class.
      *
@@ -1108,5 +1108,45 @@ public int syncUp() {
                 expiryTime
         );
     }
+```
+
+## 七、SpringBoot整合Eureka
+
+### EurekaServer服务端
+
+```xml
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+	<version>3.1.2</version>
+</dependency>
+```
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServer {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServer.class, args);
+    }
+}
+```
+
+```yml
+server:
+  port: 7001
+
+eureka:
+  instance:
+    hostname: eureka7001.com
+  client:
+    #false 表示不向注册中心注册自己
+    register-with-eureka: false
+    #false 表示自己端就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
+    fetch-registry: false
+
+spring:
+  application:
+    name: eureka_server
 ```
 
