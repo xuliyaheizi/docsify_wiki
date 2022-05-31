@@ -658,7 +658,7 @@ ls2 path [watch]		对创建，删除子节点事件起作用
 
 ### 基于docker-compose部署zookeeper集群
 
-```tex
+```
 
 ```
 
