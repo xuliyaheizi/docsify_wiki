@@ -217,16 +217,119 @@
 
   分布式锁，主要得益于Zookeeper保证了数据的强一致性。用户可以完全相信每时每刻，zk集群中任意节点上的相同的znode的数据是一定相同的。锁服务可以分为两类：
 
-- **保持独占：**
+- **保持独占：**就是所有试图来获取这个锁（znode)的客户端，最终只有一个可以成功获得这把锁。通常的做法是把zk上的一个znode看作是一把锁，通过create znode的方式来实现。所有客户端都去创建 /distribute_lock 节点，最终成功创建的那个客户端也即拥有了这把锁。
 - **控制时序：**
+  1. 客户端在/locks根节点下面创建**临时有序节点**（这个可以通过节点的属性控制：CreateMode.EPHEMERAL_SEQUENTIAL来指 定）。
+  2. client调用getChildren("/root/lock_",watch)来获取所有已经创建的子节点，并同时在这个节点上注册子节点变更通知的Watcher。
+  3. 客户端获取到所有子节点Path后，如果发现自己在步骤1中创建的节点是所有节点中最小的(排序），那么就认为这个客户端获得了锁。
+  4. 如果在步骤3中，发现不是最小的，那么等待，直到下次子节点变更通知的时候，在进行子节点的获取，判断是否获取到锁。
+  5. 释放锁也比较容易，就是删除自己创建的那个节点即可
+
 
 #### 自定义实现分布式锁流程
 
 1. client调用create()方法创建“/root/lock_”节点，注意节点类型是**EPHEMERAL_SEQUENTIAL（临时有序节点）**
+
 2. client调用getChildren("/root/lock_",false)来获取所有已经创建的子节点，这里并不注册任何Watcher
+
 3. 客户端获取到所有子节点Path后（ getChildren(),排序，看自己是否为最小节点, )，如果发现自己在步骤1中创建的节点是所有节点中最小的，那么就认为这个客户端获得了锁( 操作redis中的数据)
+
 4. 如果在步骤3中，发现不是最小的，那么找到比自己小的那个节点，然后对其调用exist()方法注册事件监听
+
 5. 之后一旦这个被关注的节点移除，客户端会收到相应的通知，这个时候客户端需要再次调用getChildren("/root/lock_",false)来确保自己是最小的节点，然后进入步骤3
+
+   ```java
+   public class MyDistruvtuedLock {
+       private final ZooKeeper zk;
+       private final int sessionTimeout = 20000;
+       /** 根节点 */
+       private final String LOCK = "/locks";
+       /** zk连接等待 */
+       private CountDownLatch connectLatch = new CountDownLatch(1);
+       /** 等待节点删除 */
+       private CountDownLatch waitLatch = new CountDownLatch(1);
+       /** 监听上一个节点的路径 */
+       private String waitPath;
+       /** 当前节点 */
+       private String currentNode;
+   
+       /**
+        * 构造方法：创建zk的联接
+        * @param connectionUrl
+        * @throws IOException
+        */
+       public MyDistruvtuedLock(String connectionUrl) throws Exception {
+           zk = new ZooKeeper(connectionUrl, sessionTimeout, event -> {
+               //连接上zk，释放连接等待锁
+               if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
+                   //计数  -1
+                   connectLatch.countDown();
+               }
+               if (event.getType() == Watcher.Event.EventType.NodeDeleted && event.getPath().equals(waitPath)) {
+                   //释放锁
+                   waitLatch.countDown();
+               }
+           });
+           //等待zk正常连接后，程序往下执行  在计数器为0之前一直等待
+           connectLatch.await();
+           //判断根节点是否存在  不存在则创建  false-不监听
+           Stat stat = zk.exists(LOCK, false);
+           if (stat == null) {
+               //创建一个根节点（持久节点）
+               zk.create(LOCK, "locks".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+           }
+       }
+   
+       /**
+        * 记录哪个节点    currentNode; 加入锁,
+        */
+       public void lock() {
+           try {
+               //1.创建临时有序的节点到  /locks下.
+               currentNode = zk.create(LOCK + "/seq-", null, ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.EPHEMERAL_SEQUENTIAL);
+               //2. 获取  /locks下所有的子节点列表 /
+               List<String> children = zk.getChildren(LOCK, false);
+               //3.如果children只有一个值，说明就是自己，直接获取锁；如果有多个，需要判断谁最小
+               if (children.size() != 1) {
+                   //排序
+                   Collections.sort(children);
+                   //获取节点名称  currentNode
+                   String thisNode = currentNode.substring((LOCK + "/").length());
+                   //通过seq-00000000获取该节点在children集合的位置
+                   int index = children.indexOf(thisNode);
+                   if (index != 0) {
+                       //需要监听前一个节点的变化  不监听父节点的子节点列表变化的原因 在于防止羊群效应
+                       waitPath = LOCK + "/" + children.get(index - 1);
+                       zk.getData(waitPath, true, new Stat());
+                       //当前的线程阻塞  等待监听
+                       waitLatch.await();
+                   }
+               }
+               return;
+           } catch (KeeperException e) {
+               throw new RuntimeException(e);
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+       }
+   
+       /**
+        * 解锁
+        */
+       public void unlock() {
+           try {
+               //删除当前获取到锁的节点
+               zk.delete(currentNode, -1);
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           } catch (KeeperException e) {
+               throw new RuntimeException(e);
+           }
+       }
+   }
+   ```
+
+   
 
 ### 分布式通知/协调
 
@@ -551,5 +654,11 @@ stat path [watch] 	对当前节点更新数据起作用
 get path [watch] 		对当前节点更新数据（set 路径 新内容）起作用
 ls path [watch]			对创建，删除子节点事件起作用
 ls2 path [watch]		对创建，删除子节点事件起作用
+```
+
+### 基于docker-compose部署zookeeper集群
+
+```tex
+
 ```
 

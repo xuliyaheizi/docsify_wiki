@@ -1144,9 +1144,53 @@ eureka:
     register-with-eureka: false
     #false 表示自己端就是注册中心，我的职责就是维护服务实例，并不需要去检索服务
     fetch-registry: false
+    #覆盖默认ip地址
+    service-url:
+      defaultZone: http://eureka.com:7001/eureka
 
 spring:
   application:
     name: eureka_server
+```
+
+### EurekaClient客户端
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+```
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+public class ZkRedisMain {
+    public static void main(String[] args) {
+        SpringApplication.run(ZkRedisMain.class, args);
+    }
+}
+```
+
+```yml
+server:
+  port: 8081
+eureka:
+  instance:
+  	instance-id: zk-redis_8081
+ 	 prefer-ip-address: true
+  client:
+  	register-with-eureka: true
+  	fetch-registry: true
+  	serviceUrl:
+  		defaultZone: http://eureka.com:7001/eureka	
+ribbon:
+  #  指定是建立连接所用的时间，适用于网络状况正常的情况下，两端连接所有的时间
+  ReadTimeout: 5000
+  #指定是建立连接后从服务器读取到可用资源所用的时间
+  ConnectionTimeout: 5000
+logging:
+  level:
+    root: warn
 ```
 
