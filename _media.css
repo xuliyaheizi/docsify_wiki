@@ -75,11 +75,16 @@ h1 span {
 .app-nav {
     position: fixed;
     margin: 0;
-    padding: 10px 1rem 10px 0;
-    width: calc(100% - 21rem);
+    padding: 10px 3rem 10px 0;
+    width: calc(100% - 19rem);
     background-color: #fff;
-    height: 50px;
-    border-bottom: 1px solid #eeeeee;
+    height: 3rem;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgb(0 0 0 / 6%);
+}
+
+.app-nav.no-badge {
+    margin-right: 0;
 }
 
 /* 首页背景 */

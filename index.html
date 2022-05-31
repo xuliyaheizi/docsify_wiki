@@ -55,7 +55,7 @@
       themeColor: '#2185d5',  // 主题颜色
       coverpage: true,        //封面
       // loadSidebar: true,   // 加载 _sidebar.md
-      onlyCover: false,       //只在访问主页时加载封面。
+      onlyCover: true,       //只在访问主页时加载封面。
       // subMaxLevel: 3,      //侧边栏展现目录
       maxLevel: 3,            //最大的内容表级别
       mergeNavbar: false,      //Navbar将在小屏幕上与侧边栏合并
@@ -63,6 +63,7 @@
       auto2top: true,         //当路线改变时,滚动到屏幕的顶部
       topMargin: 60,          //调整top
       hideSidebar: false,     //完全隐藏侧边栏，侧边栏的任何内容都不会被渲染
+      executeScript: true,    //执行文档里的 script 标签里的脚本，只执行第一个 script (demo)。
       count: {
         countable: true,
         fontsize: '0.9em',
@@ -106,6 +107,13 @@
   <!-- 回到顶部 -->
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/jquery.js"></script>
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/jquery.goup.js"></script>
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/emoji.min.js"></script>
+  <!-- 复制提醒 -->
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert2%408.js"></script>
+
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify-sidebar-collapse.min.js"></script>
+
+
   <script type="text/javascript">
     $(document).ready(function () {
       $.goup({
@@ -122,14 +130,8 @@
       Array.prototype.forEach.call(buttons, function (element) {
         element.innerHTML = '复制';
       });
-    }
-  </script>
+    };
 
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/emoji.min.js"></script>
-
-  <!-- 复制提醒 -->
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert2%408.js"></script>
-  <script>
     document.body.oncopy = function () {
       Swal.fire({
         title: "复制成功 🎉",
@@ -138,10 +140,6 @@
       })
     };
   </script>
-
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify-sidebar-collapse.min.js"></script>
-  <script
-    src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify-sidebarfooter%40latest.js"></script>
 </body>
 
 </html>
