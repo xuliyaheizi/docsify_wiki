@@ -8,7 +8,7 @@
 * [Java基础](/Java/语法基础)
 * [实体对象](/Java/实体对象(Bean))
 * [Java集合](/Java/集合)
-* [Java IO/NIO/AIO](/Java/IO)
+* [Java IO/NIO/AIO](/Java/IO_Nio_Aio)
 * [设计模式](/Java/设计模式)
 * [项目框架](/Java/项目框架)
 
