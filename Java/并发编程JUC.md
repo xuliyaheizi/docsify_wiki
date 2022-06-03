@@ -1,336 +1,3 @@
-# 并发编程JUC
-
-## 一.线程基础、线程之间的共享和协作
-
-### 什么是进程和线程
-
-**进程是程序运行资源分配的最小单位**
-
-- 进程是操作系统进行资源分配的最小单位,其中资源包括:CPU、内存空间、磁盘IO等,同一进程中的多条线程共享该进程中的全部系统资源,而进程和进程之间是相互独立的。进程是具有一定独立功能的程序关于某个数据集合上的一次运行活动,进程是系统进行资源分配和调度的一个独立单位。
-- 进程是程序在计算机上的一次执行活动。当你运行一个程序,你就启动了一个进程。显然,程序是死的、静态的,进程是活的、动态的。进程可以分为系统进程和用户进程。凡是用于完成操作系统的各种功能的进程就是系统进程,它们就是处于运行状态下的操作系统本身,用户进程就是所有由你启动的进程。
-
-**线程是CPU调度的最小单位，必须依赖于进程而存在**
-
-- 线程是进程的一个实体,是CPU调度和分派的基本单位,它是比进程更小的、能独立运行的基本单位。线程自己基本上不拥有系统资源,只拥有一点在运行中必不可少的资源(如程序计数器,一组寄存器和栈),但是它可与同属一个进程的其他的线程共享进程所拥有的全部资源。
-
-**线程无处不在**
-
-- 任何一个程序都必须要创建线程,特别是Java不管任何程序都必须启动一个main函数的主线程; Java Web开发里面的定时任务、定时器、JSP和 Servlet、异步消息处理机制,远程访问接口RM等,任何一个监听事件, onclick的触发事件等都离不开线程和并发的知识。
-
-### CPU核心是和线程数的关系
-
-  多核心:也指单芯片多处理器( Chip Multiprocessors,简称CMP),CMP是由美国斯坦福大学提出的,其思想是将大规模并行处理器中的SMP(对称多处理器)集成到同一芯片内,各个处理器并行执行不同的进程。这种依靠多个CPU同时并行地运行程序是实现超高速计算的一个重要方向,称为并行处理。
-
-  多线程: Simultaneous Multithreading.简称SMT.让同一个处理器上的多个线程同步执行并共享处理器的执行资源。
-
-  核心数、线程数:目前主流CPU都是多核的。增加核心数目就是为了增加线程数,因为操作系统是通过线程来执行任务的,一般情况下它们是1:1对应关系,也就是说四核CPU一般拥有四个线程。但 Intel引入超线程技术后,使核心数与线程数形成1:2的关系。
-
-### CPU时间片轮转机制
-
-  时间片轮转调度是一种最古老、最简单、最公平且使用最广的算法,又称RR调度。每个进程被分配一个时间段,称作它的时间片,即该进程允许运行的时间。
-
-  上下文切换 (context switch) , 其实际含义是任务切换, 或者CPU寄存器切换。当多任务内核决定运行另外的任务时, 它保存正在运行任务的当前状态, 也就是CPU寄存器中的全部内容。这些内容被保存在任务自己的堆栈中, 入栈工作完成后就把下一个将要运行的任务的当前状况从该任务的栈中重新装入CPU寄存器, 并开始下一个任务的运行, 这一过程就是context switch。
-
-如图: 每个任务都是整个应用的一部分, 都被赋予一定的优先级, 有自己的一套CPU寄存器和栈空间
-
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524200937130.png" width="30%"/>
-
-### 什么是并行和并发
-
-- 并发:指应用能够交替执行不同的任务,比如单CPU核心下执行多线程并非是同时执行多个任务,如果你开两个线程执行,就是在你几乎不可能察觉到的速度不断去切换这两个任务,已达到"同时执行效果",其实并不是的,只是计算机的速度太快,我们无法察觉到而已.
-- 并行:指应用能够同时执行不同的任务,例:吃饭的时候可以边吃饭边打电话,这两件事情可以同时执行
-
-  两者区别:一个是交替执行,一个是同时执行.
-
-### 高并发编程的意义、好处和注意事项
-
-**(1)充分利用CPU的资源**
-
-- 从上面的CPU的介绍,可以看的出来,现在市面上没有CPU的内核不使用多线程并发机制的,特别是服务器还不止一个CPU,如果还是使用单线程的技术做思路,明显就out了。因为程序的基本调度单元是线程,并且一个线程也只能在一个CPU的一个核的一个线程跑,如果你是个i3的CPU的话,最差也是双核心4线程的运算能力:如果是一个线程的程序的话,那是要浪费3/4的CPU性能:如果设计一个多线程的程序的话,那它就可以同时在多个CPU的多个核的多个线程上跑,可以充分地利用CPU,减少CPU的空闲时间,发挥它的运算能力,提高并发量。
-- 就像我们平时坐地铁一样,很多人坐长线地铁的时候都在认真看书,而不是为了坐地铁而坐地铁,到家了再去看书,这样你的时间就相当于有了两倍。这就是为什么有些人时间很充裕,而有些人老是说没时间的一个原因,工作也是这样,有的时候可以并发地去做几件事情,充分利用我们的时间,CPU也是一样,也要充分利用。
-
-**(2)加快响应用户的时间**
-
-- 比如我们经常用的迅雷下载,都喜欢多开几个线程去下载,谁都不愿意用一个线程去下载,为什么呢?答案很简单,就是多个线程下载快啊。
-- 我们在做程序开发的时候更应该如此,特别是我们做互联网项目,网页的响应时间若提升1s,如果流量大的话,就能增加不少转换量。做过高性能web前端调优的都知道,要将静态资源地址用两三个子域名去加载,为什么?因为每多一个子域名,浏览器在加载你的页面的时候就会多开几个线程去加载你的页面资源,提升网站的响应速度。多线程,高并发真的是无处不在。
-
-**(3)可以使你的代码模块化,异步化,简单化**
-
-- 例如我们实现电商系统，下订单和给用户发送短信、邮件就可以进行拆分，将给用户发送短信、邮件这两个步骤独立为单独的模块，并交给其他线程去执行。这样既增加了异步的操作，提升了系统性能，又使程序模块化,清晰化和简单化。
-- 多线程应用开发的好处还有很多,大家在日后的代码编写过程中可以慢慢体会它的魅力。
-
-### 多线程的注意事项
-
-**(1)线程之间的安全性**
-
-- 从前面的章节中我们都知道,在同一个进程里面的多线程是资源共享的,也就是都可以访问同一个内存地址当中的一个变量。例如:若每个线程中对全局变量、静态变量只有读操作,而无写操作,一般来说,这个全局变量是线程安全的:若有多个线程同时执行写操作,一般都需要考虑线程同步,否则就可能影响线程安全。
-
-**(2)线程之间的死锁**
-
-- 为了解决线程之间的安全性引入了Java的锁机制,而一不小心就会产生Java线程死锁的多线程问题,因为不同的线程都在等待那些根本不可能被释放的锁,从而导致所有的工作都无法完成。假设有两个线程,分别代表两个饥饿的人,他们必须共享刀叉并轮流吃饭。他们都需要获得两个锁:共享刀和共享叉的锁。
-- 假如线程A获得了刀,而线程B获得了叉。线程A就会进入阻塞状态来等待获得叉,而线程B则阻塞来等待线程A所拥有的刀。这只是人为设计的例子,但尽管在运行时很难探测到,这类情况却时常发生
-
-**(3)线程太多了会将服务器资源耗尽形成死机当机**
-
-- 线程数太多有可能造成系统创建大量线程而导致消耗完系统内存以及CPU的“过渡切换”,造成系统的死机,那么我们该如何解决这类问题呢?
-- 某些系统资源是有限的,如文件描述符。多线程程序可能耗尽资源,因为每个线程都可能希望有一个这样的资源。如果线程数相当大,或者某个资源的侯选线程数远远超过了可用的资源数则最好使用资源池。一个最好的示例是数据库连接池。只要线程需要使用一个数据库连接,它就从池中取出一个,使用以后再将它返回池中。资源池也称为资源库。
-
-### Java中线程基础
-
-#### 三种线程的启动方式
-
-##### 1.继承Thread类创建线程类
-
-- 定义[Thread类](https://so.csdn.net/so/search?q=Thread%E7%B1%BB&spm=1001.2101.3001.7020)的子类，并重写该类的run方法，该run方法的方法体就代表了线程要完成的任务。因此把run()方法称为执行体。
-- 创建Thread[子类](https://so.csdn.net/so/search?q=%E5%AD%90%E7%B1%BB&spm=1001.2101.3001.7020)的实例，即创建了线程对象。
-- 调用线程对象的start()方法来启动该线程。
-```java
-public class Test1_thread {
-    
-    public static void main(String[] args) throws InterruptedException {
-        System.out.println("主方法的开头...");
-        //外部类线程启动
-        MyThread mt = new MyThread();
-        mt.start();     //子程序 运行
-        //内部类线程启动
-        InnerThread it = new InnerThread();
-        it.start();     //启动线程要用start(); -->jvm会自动的调用线程中的run()
-
-        //匿名内部类
-        Thread nmThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i <= 100; i++) {
-                    System.out.println("匿名内部类中j的值为：" + i);
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        nmThread.start();
-
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(1000);
-            System.out.println("主方法在运行...");
-        }
-
-    }
-
-    //内部类 只有Test1_thread会用到
-    static class InnerThread extends Thread {
-        @Override
-        public void run() {
-            for (int i = 0; i <= 100; i++) {
-                System.out.println("内部类中j的值为：" + i);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-}
-
-//方案一：外部类 写一个类继承自Thread， 重写run()方法。在这个方法加入耗时的操作或阻塞操作
-class MyThread extends Thread {
-    @Override
-    public void run() {
-        for (int i = 0; i <= 100; i++) {
-            System.out.println("i的值为：" + i);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-}
-//缺点：java是单继承，以上方法影响类的扩展性
-```
-##### 2.通过Runnable接口创建线程类
-
-- 定义runnable接口的实现类，并重写该接口的run()方法，该run()方法的方法体同样是该线程的线程执行体。
-- 创建 Runnable实现类的实例，并依此实例作为Thread的target来创建Thread对象，该Thread对象才是真正的线程对象。
-- 调用线程对象的start()方法来启动该线程。
-```java
-package com.zhulin.thread;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-/**
- * @program:大数据工作区
- * @description:
- * @author:ZHULIN
- * @create:2022-01-10 20:44
- */
-public class Test2_Thread_runnable {
-    public static void main(String[] args) {
-        //方法一：继承Thread类
-        ShowTimeThread stt = new ShowTimeThread();
-        stt.setName("线程1--显示时间");     //设置线程名
-        stt.setPriority(1);     //可以设置优先级（理论上） 1-10
-        stt.start();
-
-        //实现二：实现runnable接口  任务对象
-        ShowTimeThread2 task = new ShowTimeThread2();
-        //创建线程对象        任务      线程名
-        Thread t = new Thread(task, "线程二--继承Runnable接口");
-        t.setPriority(10);
-        t.start();      //t启动，jvm就会自动回调它配置 task中的run()
-
-        //实现二：换成匿名内部类写法
-        Thread t2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
-                Date d = null;
-                while (true) {
-                    d = new Date();
-                    System.out.println(Thread.currentThread().getName() + "当前的时间为：" + sdf.format(d));
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, "线程3--匿名内部类");
-        t2.start();
-
-        //写法4：函数式编程  -> lambda写法
-        Thread t3 = new Thread(() -> {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
-            Date d = null;
-            while (true) {
-                d = new Date();
-                System.out.println(Thread.currentThread().getName() + "当前的时间为：" + sdf.format(d));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, "线程4--函数式编程");
-        t3.start();
-    }
-}
-
-/**
- * 显示时间  线程类
- */
-class ShowTimeThread extends Thread {
-    @Override
-    public void run() {
-        //耗时操作
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
-        Date d = null;
-        //死循环
-        while (true) {
-            d = new Date();
-            //Thread.currentThread().getName()  获取线程的名字
-            System.out.println(Thread.currentThread().getName() + "当前时间为：" + sdf.format(d));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-}
-
-/**
- * 方案二：写一个类(任务类) 实现Runnable接口，重写run()
- */
-class ShowTimeThread2 implements Runnable {
-    @Override
-    //run加入在线程中完成的操作
-    public void run() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 hh:mm:ss");
-        Date d = null;
-        while (true) {
-            d = new Date();
-            System.out.println(Thread.currentThread().getName() + "当前时间为：" + sdf.format(d));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-}
-```
-##### 3.通过Callable和Future创建线程
-
-- 创建Callable接口的实现类，并实现call()方法，该call()方法将作为线程执行体，并且有返回值。
-- 创建Callable实现类的实例，使用FutureTask类来包装Callable对象，该FutureTask对象封装了该Callable对象的call()方法的返回值。
-- 使用FutureTask对象作为Thread对象的target创建并启动新线程。
-- 调用FutureTask对象的get()方法来获得子线程执行结束后的返回值
-```java
-public class Test03_callable {
-    public static void main(String[] args) {
-        //FutureTask对象
-        //方式一：内部类
-        FutureTask<Integer> task = new FutureTask<Integer>(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                int count = 0;
-                for (int i = 0; i <= 100; i++) {
-                    Thread.sleep(100);
-                    count += i;
-                }
-                return count;
-            }
-        });
-
-        //方式二：Lambda表达式
-        //FutureTask<Integer> task = new FutureTask<Integer>(() -> {
-        //    int count = 0;
-        //    for (int i = 0; i <= 100; i++) {
-        //        Thread.sleep(100);
-        //        count += i;
-        //    }
-        //    return count;
-        //});
-
-        //创建线程 与一个FutureTask任务绑定
-        Thread thread = new Thread(task);
-        //启动线程
-        thread.start();
-        try {
-            //获取线程返回值
-            //System.out.println("1+2+3+...+100=" + task.get());  //等到两种情况跳出  1.任务执行出异常  2.任务执行完
-            System.out.println("1+2+3+...+100=" + task.get(20, TimeUnit.SECONDS)); //超时
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
-        }
-        //因为调用了get() 这是阻塞式的方法，它要等出结果后，主线程才会继续
-        System.out.println("主程序中其他的代码......");
-    }
-}
-```
-#### 创建线程的三种方式的对比：
-
-##### （1）采用实现Runnable、Callable接口的方式创建多线程时，
-
-**优势是：**
-  线程类只是实现了Runnable接口或Callable接口，还可以继承其他类。在这种方式下，多个线程可以共享同一个target对象，所以非常适合多个相同线程来处理同一份资源的情况，从而可以将CPU、代码和数据分开，形成清晰的模型，较好地体现了面向对象的思想。
-
-**劣势是：**
-  编程稍微复杂，如果要访问当前线程，则必须使用Thread.currentThread()方法。
-
-##### （2）使用继承Thread类的方式创建多线程时
-
-**优势是：**
-  编写简单，如果需要访问当前线程，则无需使用Thread.currentThread()方法，直接使用this即可获得当前线程。
-
-**劣势是：**
-  线程类已经继承了Thread类，所以不能再继承其他父类
-
 #### 线程的中断
 
   安全的中止则是其他线程通过调用某个线程A的interrupt()方法对其进行中断操作, 中断好比其他线程对该线程打了个招呼，“A，你要中断了”，不代表线程A会立即停止自己的工作，同样的A线程完全可以不理会这种中断请求。因为java里的线程是协作式的，不是抢占式的。线程通过检查自身的中断标志位是否被置为true来进行响应。
@@ -376,7 +43,7 @@ public class Test5_Interrupt {
 - static方法interrupted() 判定当前线程是否处于中断状态，同时中断标志位改为false。
 - 方法里如果抛出InterruptedException，线程的中断标志位会被复位成false，如果确实是需要中断线程，要求我们自己在catch语句块里再次调用interrupt()。
 
-### 线程的常用方法
+### 1.6、线程的常用方法
 
 #### yield()方法
 
@@ -455,7 +122,7 @@ class LifeCircle extends Thread {
 ```
 #### 守护线程
 
-  和主线程共死，finally不能保证一定执行。Daemon（守护）线程是一种支持型线程，因为它主要被用作程序中后台调度以及支持性工作。这意味着，当一个Java虚拟机中不存在非Daemon线程的时候，Java虚拟机将会退出。可以通过调用Thread.setDaemon(true)将线程设置为Daemon线程。我们一般用不上，比如垃圾回收线程就是Daemon线程。
+  和主线程共死，finally不能保证一定执行。Daemon（守护）线程是一种支持型线程，因为它主要被用作程序中后台调度以及支持性工作。这意味着，当一个Java虚拟机中不存在非Daemon线程的时候，Java虚拟机将会退出。可以通过调用`Thread.setDaemon(true)`将线程设置为Daemon线程。我们一般用不上，比如垃圾回收线程就是Daemon线程。
 
   Daemon线程被用作完成支持性工作，但是在Java虚拟机退出时Daemon线程中的finally块并不一定会执行。在构建Daemon线程时，不能依靠finally块中的内容来确保执行关闭或清理资源的逻辑。
 
@@ -502,7 +169,7 @@ class MyDaemon implements Runnable{
 	}
 }
 ```
-### 线程间的共享
+### 1.7、线程间的共享
 
 #### synchronized内置锁
 
@@ -520,6 +187,7 @@ class MyDaemon implements Runnable{
 ```java
 public class Test15_synchronized {
     public static void main(String[] args) {
+        //创建资源类
         SellTickOp sto = new SellTickOp(40);
         Thread counter1 = new Thread(sto,"张三");
         Thread counter2 = new Thread(sto,"李四");
@@ -643,3 +311,8 @@ public class Test21_threadlocal2 {
     }
 }
 ```
+
+## 二、Lock接口
+
+wait虚假唤醒
+

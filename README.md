@@ -13,6 +13,7 @@
 * [项目框架](/Java/项目框架)
 
 ## Java进阶
+* [多线程与并发](/Java/多线程与并发)
 * [并发编程JUC](/Java/并发编程JUC)
 * [Shiro](/Java/Shiro)
 * [Swagger&Kinfe4j接口文档](/Java/Swagger%26Kinfe4j)
