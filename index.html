@@ -125,10 +125,9 @@
       });
 
       var buttons = document.getElementsByClassName("label");
-      console.log("复制");
-      Array.prototype.forEach.call(buttons, function (element) {
-        element.innerHTML = '复制';
-      });
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].innerHTML = "复制";
+      }
     });
 
     document.body.oncopy = function () {
