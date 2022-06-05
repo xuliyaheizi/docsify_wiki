@@ -27,14 +27,28 @@
 
 - [Docker容器](/框架/Docker)
 
-## SpringCloud
+## 服务注册
 
 * [Eureka服务注册与发现](/框架/Eureka.md)
-* [Ribbon负载均衡](/框架/Ribbon.md)
-* [OpenFeign服务调用](/框架/OpenFeign.md)
-* [Hystrix服务降级](/框架/Hystrix.md)
-* [GetWay服务网关](/框架/GetWay.md)
 * [Zookeeper服务注册中心](/框架/Zookeeper.md)
+
+## 负载均衡
+
+* [Ribbon负载均衡](/框架/Ribbon.md)
+
+## 服务调用
+
+* [OpenFeign服务调用](/框架/OpenFeign.md)
+
+## 服务降级 断路器
+
+* [Hystrix服务降级](/框架/Hystrix.md)
+
+## 服务网关
+
+* [GetWay服务网关](/框架/GetWay.md)
+
+  
 
 # 🍳中间件
 
