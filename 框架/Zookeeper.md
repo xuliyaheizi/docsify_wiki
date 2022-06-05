@@ -206,7 +206,7 @@
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/1651889779709-f0448093-e1a0-4757-92cc-13049cb80325.png" alt="image.png" width="40%"/>
 
-## 五、应用场景
+## 五、应用场景的实现
 
   结合实际的使用场景来融会贯通。关于 集群管理与 Master 高可用，ZooKeeper 的以下两个特性是实现 HA 的关键。
 
@@ -331,12 +331,196 @@
 
    
 
-### 分布式通知/协调
+### 配置管理
 
-  关键仍然是 **ZooKeeper** 的 `Watch` 机制，它能够很好的承担分布式环境下**不同系统之间的通知与协调工作**，**实现对数据变更的实时处理**。比如心跳检测机制：两个节点不直接通信而是通过 zookeeper 来关联，大大减少系统耦合。下面看两个实例
+  zookeeper的内存数据模型是树结构，在内存中存储了整个树的内容，既然是树结构对应单个树节点信息包括节点路径、节点数据、ACL信息等。zookeeper对节点提供了watch监听功能，当我们使用zookeeper客户端操作内存中节点时，就会实时获取监听的事件如：新增节点、删除节点、更新节点，以及节点变化后的值。在分布式服务中，我们把配置信息存储到zookeeper节点中，为每个应用服务添加zookeeper节点监听后，一旦相关配置属性有变化，所有用用服务节点都能及时监听到配置属性的变化事件以及变化后的值。
 
-- 如果 HBase 集群有 RegionServer 宕机，Master 需要重新分配 Region，会把任务放在 Zookeeper 的节点下，等其他健康 RegionServer 来获取。
-- Kafka 的各个节点必须维护和 ZooKeeper 的连接，Zookeeper 通过心跳机制检查每个节点的存活情况，客户端通过 Zookeeper 得知 Kafka 的节点健康状态。
+**数据中心**
+
+```java
+public class DataSources {
+    /**
+     * zk服务器地址
+     */
+    public final static String ZK_URL = "zhulinz.top:2184";
+
+    /**
+     * 数据库相关配置
+     */
+    public final static String DB_URL = "jdbc:mysql://zhulinz.top:3306/bookshop?serverTimezone=UTC&useSSL=false";
+    public final static String DB_USERNAME = "zhulin";
+    public final static String DB_PASSWORD = "zhulin0804";
+
+    /**
+     * zk服务器存储数据节点路劲
+     */
+    public final static String ROOT = "/zbookmysql";
+    public final static String URL_NODE = ROOT + "/url";
+    public final static String PASSWORD_NODE = ROOT + "/password";
+    public final static String USERNAME_NODE = ROOT + "/username";
+
+    /**
+     * 加密规则
+     */
+    public final static String AUTH_TYPE = "digest";
+    public final static String AUTH_PASSWORD = "zhulin:123456";
+}
+```
+
+**zk客户端**
+
+```java
+@Component
+@Slf4j
+public class CreateInZk {
+    private ZooKeeper zk = null;
+
+    @PostConstruct
+    public void zkInit() throws IOException, InterruptedException, KeeperException {
+        if (zk == null) {
+            //连接zk服务器
+            zk = new ZooKeeper(DataSources.ZK_URL, 10000, event -> {
+                log.warn("事件更新-----" + event.getType());
+            });
+        }
+        while (zk.getState() != ZooKeeper.States.CONNECTED) {
+            Thread.sleep(3000);
+        }
+        //添加加密规则
+        zk.addAuthInfo(DataSources.AUTH_TYPE, DataSources.AUTH_PASSWORD.getBytes());
+
+        //初始化节点信息
+        if (zk.exists(DataSources.ROOT, true) == null) {
+            //创建节点
+            if (existsNode(DataSources.ROOT)) {
+                createNode(DataSources.ROOT, "zBook项目数据库配置".getBytes());
+            }
+            if (existsNode(DataSources.URL_NODE)) {
+                createNode(DataSources.URL_NODE, DataSources.DB_URL.getBytes());
+            }
+            if (existsNode(DataSources.USERNAME_NODE)) {
+                createNode(DataSources.USERNAME_NODE, DataSources.DB_USERNAME.getBytes());
+            }
+            if (existsNode(DataSources.PASSWORD_NODE)) {
+                createNode(DataSources.PASSWORD_NODE, DataSources.DB_PASSWORD.getBytes());
+            }
+        }
+        //关闭zk连接
+        zk.close();
+    }
+
+    /**
+     * 判断节点存在
+     * @param path
+     * @return
+     * @throws InterruptedException
+     * @throws KeeperException
+     */
+    public boolean existsNode(String path) throws InterruptedException, KeeperException {
+        if (zk.exists(path, true) == null) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * zk服务器创建节点
+     * @param path
+     * @param data
+     * @throws InterruptedException
+     * @throws KeeperException
+     */
+    public void createNode(String path, byte[] data) throws InterruptedException, KeeperException {
+        zk.create(path, data, ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+    }
+}
+```
+
+**节点监听**
+
+```java
+@Component
+@Slf4j
+@Data
+@DependsOn
+public class GetZkNode implements Watcher, ApplicationContextAware {
+    private ApplicationContext applicationContext;
+    private ZooKeeper zk;
+    private String dbUrl;
+    private String dbUserName;
+    private String dbPassWord;
+
+    @Override
+    public void process(WatchedEvent event) {
+        //zk服务器连接信息回调
+        Event.EventType eventType = event.getType();
+        if (eventType == Event.EventType.None) {
+            log.warn("获取数据--连接zk服务器成功");
+        } else if (eventType == Event.EventType.NodeCreated) {
+            log.warn("获取数据--节点创建成功");
+        } else if (eventType == Event.EventType.NodeChildrenChanged) {
+            log.warn("获取数据--子节点更新成功");
+        } else if (eventType == Event.EventType.NodeDataChanged) {
+            log.warn("获取数据--节点更新成功");
+            try {
+                getNode();
+                //重新设置DruidDataSource的值
+                DruidDataSource dataSource = (DruidDataSource) applicationContext.getBean("druidDataSource");
+                //重启数据源
+                dataSource.resetStat();
+                dataSource.setUsername(this.getDbUserName());
+                dataSource.setUrl(this.getDbUrl());
+                dataSource.setPassword(this.getDbPassWord());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else if (eventType == Event.EventType.NodeDeleted) {
+            log.warn("获取数据--节点删除成功");
+        }
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    /**
+     * 获取节点数据
+     * @throws IOException
+     */
+    @PostConstruct
+    public void getNode() throws IOException, InterruptedException {
+        if (zk == null) {
+            //连接zk服务器
+            zk = new ZooKeeper(DataSources.ZK_URL, 3000, GetZkNode.this);
+        }
+        log.warn("获取节点数据---开始连接zk服务器");
+        while (zk.getState() != ZooKeeper.States.CONNECTED) {
+            Thread.sleep(3000);
+        }
+        log.warn("获取节点数据---连接zk服务器成功");
+
+        //添加加密规则
+        zk.addAuthInfo(DataSources.AUTH_TYPE, DataSources.AUTH_PASSWORD.getBytes());
+
+        try {
+            dbUrl = getNodeMsg(DataSources.URL_NODE);
+            dbUserName = getNodeMsg(DataSources.USERNAME_NODE);
+            dbPassWord = getNodeMsg(DataSources.PASSWORD_NODE);
+        } catch (KeeperException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getNodeMsg(String path) throws InterruptedException, KeeperException, UnsupportedEncodingException {
+        Stat stat = zk.exists(path, true);
+        byte[] data = zk.getData(path, true, stat);
+        return new String(data, "UTF-8");
+    }
+}
+```
+
+
 
 ### 命名服务
 
@@ -649,3 +833,4 @@ ls2 path [watch]		对创建，删除子节点事件起作用
 
 ```
 
+### 

@@ -123,14 +123,12 @@
         //title: 'TOP',
         titleAsText: true
       });
-    });
 
-    window.onload = function () {
       var buttons = document.getElementsByClassName("label");
       Array.prototype.forEach.call(buttons, function (element) {
         element.innerHTML = '复制';
       });
-    };
+    });
 
     document.body.oncopy = function () {
       Swal.fire({
