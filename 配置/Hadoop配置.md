@@ -8,17 +8,15 @@
 
 **图形界面与命令行界面切换**
 
-```tex
-输入“systemctl get-default” 获得当前系统启动模式（mult-user.target 为命令行）
-
-      systemctl set-default multi-user.target     将图形改为命令行
-
-      systemctl set-default graphical.target        将命令行改成图形
+```bash
+//输入“systemctl get-default” 获得当前系统启动模式（mult-user.target 为命令行）
+systemctl set-default multi-user.target     //将图形改为命令行
+systemctl set-default graphical.target      //将命令行改成图形
 ```
 
 **CentOs静态Ip设置**
 
-```
+```bash
 //静态IP设置
 vim /etc/sysconfig/network-scripts/ifcfg-ens33
 //在该文件输入
@@ -35,13 +33,11 @@ vim /etc/hostname
 systemctl stop NetworkManager 临时关闭
 systemctl disable NetworkManager 永久关闭网络管理命令
 systemctl start network.service 开启网络服务
-
-
 ```
 
 **配置SFTP**
 
-```
+```bash
 //添加用户组
 groupadd sftp
 //添加用户
@@ -70,7 +66,7 @@ XllForwarding no
 
 **关闭防火墙**
 
-```
+```bash
 //取消开机自启动防火墙
 systemctl stop firewalld
 systemctl disable firewalld.service
@@ -80,7 +76,7 @@ systemctl status firewalld
 
 **centos7设置时间和时区**
 
-```
+```bash
 1、安装ntp服务软件包：yum install ntp
 
 2、将ntp设置为缺省启动：systemctl enable ntpd
@@ -95,15 +91,15 @@ systemctl status firewalld
 
 **安装 epel-release**
 
-```tex
-注：Extra Packages for Enterprise Linux 是为“红帽系”的操作系统提供额外的软件包，适用于 RHEL、CentOS 和 Scientific Linux。相当于是一个软件仓库，大多数 rpm 包在官方 repository 中是找不到的）
+```bash
+//注：Extra Packages for Enterprise Linux 是为“红帽系”的操作系统提供额外的软件包，适用于 RHEL、CentOS 和 Scientific Linux。相当于是一个软件仓库，大多数 rpm 包在官方 repository 中是找不到的）
 
 yum install -y epel-release
 ```
 
 **配置JDK**
 
-```
+```bash
 //卸载系统jdk
 rpm -qa | grep -i java | xargs -n1 rpm -e --nodeps
 ➢ rpm -qa：查询所安装的所有 rpm 软件包
@@ -127,7 +123,7 @@ chmod 777 java/jdk/bin/java
 
 **配置Hadoop**
 
-```
+```bash
 //利用传输工具将Hadoop文件传上去
 //将Hadoop添加到环境变量
 //打开配置文件
@@ -145,7 +141,7 @@ hadoop version
 
 **集群之间免密登录**
 
-```
+```bash
 //生成密钥
 ssh-keygen -t rsa
 //将公钥拷贝到其他集群机器上
@@ -160,7 +156,7 @@ ssh-copy-id Node3
 
 **配置 core-site.xml**
 
-```
+```bash
 //配置 core-site.xml
 cd $HADOOP_HOME/etc/hadoop
 vim core-site.xml
@@ -188,7 +184,7 @@ vim core-site.xml
 
 **HDFS 配置文件**
 
-```
+```bash
 //配置 hdfs-site.xml
 vim hdfs-site.xml
 //以下内容
@@ -208,7 +204,7 @@ vim hdfs-site.xml
 
 **YARN 配置文件**
 
-```
+```bash
 //配置 yarn-site.xml
 vim yarn-site.xml
 //内容如下
@@ -237,7 +233,7 @@ vim yarn-site.xml
 
 **MapReduce 配置文件**
 
-```
+```bash
 //配置 mapred-site.xml
 vim mapred-site.xml
 //内容
@@ -252,7 +248,7 @@ vim mapred-site.xml
 
 **启动**
 
-```
+```bash
 //初始化（注意：只有第一次的时候才需要）
 hdfs namenode -format
 
@@ -272,7 +268,7 @@ node3:8088   //resourceManager
 
 **集群测试**
 
-```
+```bash
 //上传文件到集群
 hadoop fs -mkdir /input
 //上传大文件
@@ -285,7 +281,7 @@ hadoop fs -rm -r /output
 
 **配置历史服务器**
 
-```
+```bash
 //配置 mapred-site.xml
 vim mapred-site.xml
 //输入以下内容
@@ -307,7 +303,7 @@ mapred --daemon start historyserver
 
 **配置日志聚集**
 
-```
+```bash
 //配置 yarn-site.xml
 vim yarn-site.xml
 //输入以下内容
@@ -337,7 +333,7 @@ sbin/stop-yarn.sh
 
 ## 四、配置错误
 
-```
+```bash
 //HDFS格式化后启动dfs出现以下错误：
 [root@master sbin]# ./start-dfs.sh
 Starting namenodes on [master]
@@ -364,7 +360,7 @@ HADOOP_SECURE_DN_USER=yarn
 YARN_NODEMANAGER_USER=root
 ```
 
-```
+```bash
 //出现错误
 master: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).
 //问题原因：出现这问题是因为免密登录配置上的缺陷导致，所以只要解决免密问题即可。
@@ -376,7 +372,7 @@ ssh localhost
 
 ```
 
-```
+```bash
 //出现 Permission denied
 chmod u+x 文件路径
 ```
@@ -385,7 +381,7 @@ chmod u+x 文件路径
 
 ### Hadoop 集群启停脚本（包含 HDFS ，Yarn ，Historyserver ）
 
-```
+```bash
 //进入用户目录
 cd /home/zhulin/bin
 vim myhadoop.sh
@@ -393,7 +389,7 @@ vim myhadoop.sh
 
 **输入脚本内容**
 
-```sh
+```bash
 #!/bin/bash 
  
 if [ $# -lt 1 ] 
@@ -430,7 +426,7 @@ case $1 in
 esac 
 ```
 
-```
+```bash
 //然后赋予脚本执行权限
 chmod +x myhadoop.sh
 //拷贝到系统目录的bin下
@@ -445,7 +441,7 @@ myhadoop.sh start
 
 > 由于每次查看进程都得到每台服务器上输入jps查看，比较麻烦，且如果服务器较多，十分耗时，于是想到编写一个脚本，查看所有服务器的进程情况。
 
-```
+```bash
 //用户目录 写入脚本文件
 cd /home/zhulin/bin
 vim jps
@@ -453,7 +449,7 @@ vim jps
 
 **脚本内容**
 
-```sh
+```bash
 #!/bin/bash 
  
 for host in master node1 node2 node3 node4 
@@ -463,10 +459,11 @@ do
 done 
 ```
 
-```
+```bash
 //赋予脚本权限
 chmod +x jpsall
 //拷贝至系统bin目录
 sudo cp jpsall /bin
 ```
 
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220607174704672.png" alt="image-20220607174704672" width="67%;" />
