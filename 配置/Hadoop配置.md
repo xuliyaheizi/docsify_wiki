@@ -377,6 +377,17 @@ ssh localhost
 chmod u+x 文件路径
 ```
 
+```
+ssh hadoop1 jps
+jps出错
+把/etc/profile里面的环境变量追加到~/.bashrc目录
+[root@cdh1 opt]# cat /etc/profile >> ~/.bashrc 
+[root@cdh2 opt]# cat /etc/profile >> ~/.bashrc 
+[root@cdh3 opt]# cat /etc/profile >> ~/.bashrc 
+```
+
+
+
 ## 五、编写集群脚本
 
 ### Hadoop 集群启停脚本（包含 HDFS ，Yarn ，Historyserver ）
@@ -467,3 +478,391 @@ sudo cp jpsall /bin
 ```
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220607174704672.png" alt="image-20220607174704672" width="67%;" />
+
+## 六、使用Docker安装Hadoop
+
+### 获取centos镜像
+
+```
+docker search centos    //查找centos镜像
+docker pull centos      //拉取centos镜像
+docker images           //查看镜像
+```
+
+### 安装SSH
+
+以centos7镜像为基础，构建一个带有SSH功能的centos，基于Dockerfile
+
+```
+vim Dockerfile           # 以 centos 镜像为基础，安装SSH的相关包，设置了root用户的密码
+```
+
+```
+//Dockerfile内容
+FROM centos:7                       # 基于centos镜像
+MAINTAINER  zhulin                  # 创建者信息
+
+# 执行的命令
+RUN  yum -y install openssh-server sudo  
+RUN  sed -i 's/UsePAM yes/UsePAM no/g'  /etc/ssh/sshd_config
+RUN  yum -y install openssh-clients
+RUN  yum -y install net-tools
+RUN  yum -y install initscripts
+RUN  yum -y install ntp
+RUN  yum -y install rsync
+RUN  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+RUN echo "root:a"  | chpasswd
+RUN echo "root ALL=(ALL)  ALL"  >> /etc/sudoers
+RUN ssh-keygen -t dsa  -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa  -f /etc/ssh/ssh_host_rsa_key
+
+RUN mkdir /var/run/sshd
+EXPOSE 22                    # 开放的端口
+CMD ["/usr/sbin/sshd","-D"]      # 执行的命令，这里为启动的命令，在/lib/systemd/system/sshd.service 可以查看到相应的启动命令
+```
+
+```
+//构建镜像
+docker build -t mycentos .
+```
+
+### 构建Hadoop镜像
+
+```
+vim Dockerfile      # 编写Dockerfile
+```
+
+```
+FROM mycentos
+ADD jdk-8u333-linux-x64.tar.gz  /usr/local
+RUN mv /usr/local/jdk1.8.0_333   /usr/local/jdk1.8
+ENV JAVA_HOME  /usr/local/jdk1.8
+ENV PATH $JAVA_HOME/bin:$PATH
+
+ADD hadoop-3.1.3.tar.gz  /usr/local
+RUN mv /usr/local/hadoop-3.1.3  /usr/local/hadoop
+ENV HADOOP_HOME /usr/local/hadoop
+ENV PATH $HADOOP_HOME/bin:$PATH
+
+RUN yum -y install which sudo vim bash-completion
+```
+
+```
+//启动容器
+//hadoop0  作为namenode resourcemanger
+docker run --name hadoop0 --hostname hadoop0 -d -P -p 50070:50070  -p 8100:8088 -p 8001:9864 -p 8090:9000 myhadoop
+//hadoop1  作为历史服务器
+docker run --name hadoop1 --hostname hadoop1 -d -P -p 8002:9864 -p 8101:19888 myhadoop
+docker run --name hadoop2 --hostname hadoop2 -d -P -p 8003:9864 myhadoop
+docker run --name hadoop3 --hostname hadoop3 -d -P -p 8004:9864 -p 8005:9871 myhadoop 
+```
+
+### 配置环境变量
+
+```
+vim /etc/profile
+
+#JAVA_HOME 
+export JAVA_HOME=/usr/local/jdk1.8
+export PATH=$PATH:$JAVA_HOME/bin 
+
+#HADOOP_HOME 
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin 
+export PATH=$PATH:$HADOOP_HOME/sbin 
+
+//使配置文件生效
+source /etc/profile
+```
+
+###修改hosts文件
+
+```
+vi /etc/hosts    # 在每个容器修改/etc/hosts配置文件
+172.17.0.5 hadoop0
+172.17.0.6 hadoop1
+172.17.0.7 hadoop2
+172.17.0.8 hadoop3
+```
+
+### 免密登录
+
+```
+ssh-keygen        # 在每台主机都执行该操作
+for i in hadoop{0..3}; do ssh-copy-id root@$i; done    
+# 将公钥传给包括自己的每台主机，三个容器都要做！！！确保最终每台主机都能免密访问其他主机包括自己
+```
+
+### 安装配置Hadoop
+
+```
+//修改 hadoop-env.sh
+vim etc/hadoop/hadoop-env.sh
+修改   export JAVA_HOME=/usr/local/jdk1.8
+
+//将start-dfs.sh，stop-dfs.sh(在hadoop安装目录的sbin里)两个文件顶部添加以下参数
+HDFS_DATANODE_USER=root
+HADOOP_SECURE_DN_USER=hdfs
+HDFS_NAMENODE_USER=root
+HDFS_SECONDARYNAMENODE_USER=root
+
+//将start-yarn.sh，stop-yarn.sh(在hadoop安装目录的sbin里)两个文件顶部添加以下参数
+YARN_RESOURCEMANAGER_USER=root
+HADOOP_SECURE_DN_USER=yarn
+YARN_NODEMANAGER_USER=root
+```
+
+### 配置文件
+
+```
+//修改配置文件core-site.xml
+vim etc/hadoop/core-site.xml 
+在 <configuration> 块儿中添加：
+    <!-- 指定 NameNode 的地址 --> 
+    <property> 
+        <name>fs.defaultFS</name> 
+        <value>hdfs://hadoop0:9000</value> 
+    </property> 
+ 
+    <!-- 指定 hadoop 数据的存储目录 --> 
+    <property> 
+        <name>hadoop.tmp.dir</name> 
+        <value>/opt/hadoopdata</value> 
+    </property> 
+     
+//修改配置文件hdfs-site.xml 
+vim etc/hadoop/hdfs-site.xml 
+在 <configuration> 块儿中添加：
+<configuration> 
+  <!-- NameNode web 端访问地址--> 
+  <property> 
+        <name>dfs.namenode.http-address</name> 
+        <value>hadoop0:50070</value> 
+    </property> 
+  <!-- SecondaryNameNode web 端访问地址--> 
+    <property> 
+        <name>dfs.namenode.secondary.http-address</name> 
+        <value>hadoop3:9871</value> 
+    </property>
+    <property>
+      <name>dfs.webhdfs.enabled</name>
+      <value>true</value>
+    </property>
+</configuration> 
+
+
+//配置 yarn-site.xml
+vim etc/hadoop/yarn-site.xml
+//内容如下
+<configuration> 
+    <!-- 指定 MR 走 shuffle --> 
+    <property> 
+        <name>yarn.nodemanager.aux-services</name> 
+        <value>mapreduce_shuffle</value> 
+    </property> 
+ 
+    <!-- 指定 ResourceManager 的地址--> 
+    <property> 
+        <name>yarn.resourcemanager.hostname</name> 
+        <value>hadoop0</value> 
+    </property> 
+ 
+    <!-- 环境变量的继承 --> 
+    <property> 
+        <name>yarn.nodemanager.env-whitelist</name>
+ <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value> 
+    </property> 
+</configuration> 
+
+//配置 mapred-site.xml
+vim etc/hadoop/mapred-site.xml
+//内容
+<configuration> 
+  <!-- 指定 MapReduce 程序运行在 Yarn 上 --> 
+    <property> 
+        <name>mapreduce.framework.name</name> 
+        <value>yarn</value> 
+    </property> 
+</configuration> 
+```
+
+### 配置历史服务器与日志聚集
+
+```
+//配置 mapred-site.xml  历史服务器
+vim etc/hadoop/mapred-site.xml
+//输入以下内容
+<!-- 历史服务器端地址 --> 
+<property> 
+    <name>mapreduce.jobhistory.address</name> 
+    <value>hadoop1:10020</value> 
+</property> 
+ 
+<!-- 历史服务器 web 端地址 --> 
+<property> 
+    <name>mapreduce.jobhistory.webapp.address</name> 
+    <value>hadoop1:19888</value> 
+</property> 
+
+//配置 yarn-site.xml  日志聚集
+vim etc/hadoop/yarn-site.xml
+//输入以下内容
+<!-- 开启日志聚集功能 --> 
+<property> 
+    <name>yarn.log-aggregation-enable</name> 
+    <value>true</value> 
+</property> 
+<!-- 设置日志聚集服务器地址 --> 
+<property>   
+    <name>yarn.log.server.url</name>   
+    <value>http://zhulinz.top:8100/jobhistory/logs</value> 
+</property> 
+<!-- 设置日志保留时间为 7 天 --> 
+<property> 
+    <name>yarn.log-aggregation.retain-seconds</name> 
+    <value>604800</value> 
+</property> 
+```
+
+
+
+###编写脚本
+
+**文件分发脚本**
+
+```
+//进入用户目录
+cd /home/zhulin/bin
+vim xsync
+
+#!/bin/bash 
+ 
+#1. 判断参数个数 
+# 判断参数是否小于1
+if [ $# -lt 1 ]   
+then 
+    echo Not Enough Arguement! 
+    exit; 
+fi 
+
+#2. 遍历集群所有机器 
+for host in hadoop0 hadoop1 hadoop2 hadoop3 
+do 
+   echo ====================  $host  ==================== 
+   #3. 遍历所有目录，挨个发送 
+   for file in $@ 
+   do 
+
+        #4. 判断文件是否存在 
+        if [ -e $file ] 
+            then 
+                #5. 获取父目录 
+                pdir=$(cd -P $(dirname $file); pwd) 
+                
+                #6. 获取当前文件的名称 
+                fname=$(basename $file) 
+                ssh $host "mkdir -p $pdir" 
+                rsync -av $pdir/$fname $host:$pdir 
+            # 如果不存在
+            else 
+                echo $file does not exists! 
+        fi 
+    done 
+done
+
+//然后赋予脚本执行权限
+chmod +x xsync
+//拷贝到系统目录的bin下
+sudo cp xsync /bin
+```
+
+**启动脚本**
+
+```
+//进入用户目录
+cd /home/zhulin/bin
+vim myhadoop.sh
+
+#!/bin/bash 
+ 
+if [ $# -lt 1 ] 
+then 
+    echo "No Args Input..." 
+    exit ; 
+fi 
+ 
+case $1 in 
+"start") 
+        echo " =================== 启动 hadoop 集群 ===================" 
+ 
+        echo " --------------- 启动 hdfs ---------------" 
+        ssh hadoop0 "/usr/local/hadoop/sbin/start-dfs.sh"
+        echo " --------------- 启动 yarn ---------------" 
+        ssh hadoop0 "/usr/local/hadoop/sbin/start-yarn.sh" 
+        echo " --------------- 启动 historyserver ---------------" 
+        ssh hadoop1 "/usr/local/hadoop/bin/mapred --daemon start historyserver" 
+;; 
+"stop") 
+        echo " =================== 关闭 hadoop 集群 ===================" 
+ 
+        echo " --------------- 关闭 historyserver ---------------" 
+        ssh hadoop1 "/usr/local/hadoop/bin/mapred --daemon stop historyserver" 
+        echo " --------------- 关闭 yarn ---------------" 
+        ssh hadoop0 "/usr/local/hadoop/sbin/stop-yarn.sh" 
+        echo " --------------- 关闭 hdfs ---------------" 
+        ssh hadoop0 "/usr/local/hadoop/sbin/stop-dfs.sh"
+        
+;; 
+*) 
+    echo "Input Args Error..." 
+;; 
+esac 
+
+//然后赋予脚本执行权限
+chmod +x myhadoop.sh
+//拷贝到系统目录的bin下
+sudo cp myhadoop.sh /bin
+//脚本关闭集群
+myhadoop.sh top
+//脚本启动集群
+myhadoop.sh start
+```
+
+**查看进程脚本**
+
+```
+//用户目录 写入脚本文件
+cd /home/zhulin/bin
+vim jpsall
+
+#!/bin/bash  
+
+for host in hadoop0 hadoop1 hadoop2 hadoop3 
+do         
+echo =============== $host ===============         
+ssh $host jps  
+done 
+
+//赋予脚本权限
+chmod +x jpsall
+//拷贝至系统bin目录
+sudo cp jpsall /bin
+```
+
+### 集群启动
+
+```
+//初始化（注意：只有第一次的时候才需要）
+hdfs namenode -format
+
+//脚本启动
+myhadoop.sh start
+/usr/local/hadoop/sbin/hadoop-daemon.sh start namenode
+/usr/local/hadoop/sbin/hadoop-daemon.sh start datanode
+/usr/local/hadoop/sbin/yarn-daemon.sh start resourcemanager
+/usr/local/hadoop/sbin/yarn-daemon.sh start nodemanager
+
+/usr/local/hadoop/etc/hadoop/sbin/yarn-daemon.sh start resourcemanager
+```
+

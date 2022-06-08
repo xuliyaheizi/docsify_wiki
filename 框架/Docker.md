@@ -629,15 +629,23 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
    1. 可以使用swarm services，并且通过  secrets 和 configs  （这两个还没看）实现环境变量共享
 ### 使用自定义网络
 
-#### 1.创建一个自定义网络
+#### 1.创建自定义网络命令：docker network create
 
-> $ docker network create 网络ID
+```
+//docker network create
+docker network create --driver bridge --subnet 192.168.1.0/16 --gateway 192.168.1.0 hadoop
+解析：
+--driver bridge 表示使用桥接模式
+--subnet 192.168.1.0/16 表示子网ip 可以分配 192.168.1.2 到 192.168.255.255
+--gateway 192.168.1.0 表示网关
+mynet 表示网络名
+```
 
-可以指定子网、IP地址范围、网关等网络配置，详情请看[docker network create](https://docs.docker.com/engine/reference/commandline/network_create/#specify-advanced-options)
+#### 2.查看自己定义的网络相关信息
 
-#### 2.移除自定义网络
-
-> $ docker network rm 网络ID
+```
+docker network inspect 网络名(hadoopnet)
+```
 
 移除自定义网络前先移除该网络上的所有容器
 #### 3.查看某个网络的详情
