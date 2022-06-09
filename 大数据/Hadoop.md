@@ -206,3 +206,17 @@ public void testDelete() throws URISyntaxException, IOException {
 }
 ```
 
+### 读写流程
+
+#### 写数据流程
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220609164200158.png" alt="image-20220609164200158" width="67%;" />
+
+1. 客户端通过`Distributed FileSystem`模块向`Name Node`请求上传文件，`Name Node`检查目标文件是否存在，父目录是否存在。
+2. `Name Node`向客户端响应是否可以上传文件。
+3. 客户端请求上传第一个数据块到哪几个`Data Node`服务器上。请求返回`Data Node`节点。
+4. `Name Node`响应请求，返回dn1、dn2、dn3节点，表示采用这三个节点存储数据。
+5. 客户端通过`FSDataOutputStream`模块请求dn1上传数据，然后依次调用dn2、dn3，请求建立`Block`传输通道。
+6. `Data Node`节点依次应答客户端。
+7. 客户端开始往dn1上传第一个`Block`（先从磁盘读取数据放到一个本地内存缓存），以`Packet`为单位，dn1收到一个Packet就会传给dn2，然后dn2传给dn3。dn1每传一个packet会放入一个应答队列等待应答。
+8. 当一个`Block`传输完成后，客户端再次请求`Name Node`上传第二个Block的服务器。（依次重复3~7步）
