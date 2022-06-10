@@ -19,6 +19,9 @@
 * <i class="iconfont "></i>🍖大数据
     * [Hadoop配置](/配置/Hadoop配置)
     * [Hadoop](/大数据/Hadoop)
+* <i class="iconfont "></i>数据结构
+    * [链表](/数据结构与算法/链表)
+
 * [<i class="iconfont icon-zongjie"></i>每日一结](/每日一结/README.md)
 * [<i class="iconfont icon-kebiao1"></i>课表](/课表)
 * [<i class="iconfont icon-zuozhe"></i>关于作者](/简历.md)
