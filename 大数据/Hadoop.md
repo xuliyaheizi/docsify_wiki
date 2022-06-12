@@ -97,59 +97,59 @@ HDFS的块设置太小，会增加寻址时间，若太大，从磁盘传输数�
 **上传**
 
 ```bash
-//-moveFromLcoal：从本地剪切粘贴到HDFS
-# hadoop fs -moveFromLocal ./shugo.txt /sanguo
+# -moveFromLcoal：从本地剪切粘贴到HDFS
+hadoop fs -moveFromLocal ./shugo.txt /sanguo
 
-//-copyFromLocal：从本地文件系统中拷贝文件到HDFS路径中去
-# hadoop fs -copyFromLocal ./weiguo.txt /sanguo
+# -copyFromLocal：从本地文件系统中拷贝文件到HDFS路径中去
+hadoop fs -copyFromLocal ./weiguo.txt /sanguo
 
-//-put：效果与copyFromLocal相同
-# hadoop fs -put ./wuguo /sanguo
+# -put：效果与copyFromLocal相同
+hadoop fs -put ./wuguo /sanguo
 
-//-appendToFile：追加一个文件到已存在的文件末尾
-# hadoop fs -appendToFile liubei.txt /sanguo/shugo.txt
+# -appendToFile：追加一个文件到已存在的文件末尾
+hadoop fs -appendToFile liubei.txt /sanguo/shugo.txt
 ```
 
 **下载**
 
 ```bash
-//-copyToLocal：从HDFS拷贝到本地
-# hadoop fs -copyToLocal /sanguo/shuguo.txt ./
+# -copyToLocal：从HDFS拷贝到本地
+hadoop fs -copyToLocal /sanguo/shuguo.txt ./
 
-//-get：等同于copyToLocal
-# hadoop fs -get /sanguo/shuguo.txt ./
+# -get：等同于copyToLocal
+hadoop fs -get /sanguo/shuguo.txt ./
 ```
 
 **基本命令**
 
 ```bash
-//-ls：显示目录信息
-# hadoop fs -ls /sanguo
+# -ls：显示目录信息
+hadoop fs -ls /sanguo
 
-//-cat：显示文件内容
-# hadoop fs -cat /sanguo/shuguo.txt
+# -cat：显示文件内容
+hadoop fs -cat /sanguo/shuguo.txt
 
-//-chgrp、-chmod、-chown：与Linux文件系统中的用法一样，修改文件所属权限
-# hadoop fs -chmod 777 /sanguo/shuguo.txt
-# hadoop fs -chown zhulin:zhulin /sanguo/shuguo.txt
+# -chgrp、-chmod、-chown：与Linux文件系统中的用法一样，修改文件所属权限
+hadoop fs -chmod 777 /sanguo/shuguo.txt
+hadoop fs -chown zhulin:zhulin /sanguo/shuguo.txt
 
-//-mkdir：创建路径
-# hadoop fs -mkdir /jinguo
+# -mkdir：创建路径
+hadoop fs -mkdir /jinguo
 
-//-cp：从HDFS的一个路径拷贝到HDFS的另一个路径
-# hadoop fs -cp /sanguo/shuguo.txt /jinguo
+# -cp：从HDFS的一个路径拷贝到HDFS的另一个路径
+hadoop fs -cp /sanguo/shuguo.txt /jinguo
 
-//-mv：在HDFS目录中移动文件
-# hadoop fs -mv /sanguo/shuguo.txt /jinguo
+# -mv：在HDFS目录中移动文件
+hadoop fs -mv /sanguo/shuguo.txt /jinguo
 
-//-rm：删除文件或文件夹
-# hadoop fs -rm /sanguo/shuguo.txt
+# -rm：删除文件或文件夹
+hadoop fs -rm /sanguo/shuguo.txt
 
-//-rm -r：递归删除目录及目录里面内容
-# hadoop fs -rm -r /sanguo
+# -rm -r：递归删除目录及目录里面内容
+hadoop fs -rm -r /sanguo
 
-//-setrep：设置HDFS中文件的副本数量
-# hadoop fs -setrep 10 /jinguo/shuguo.txt
+# -setrep：设置HDFS中文件的副本数量
+hadoop fs -setrep 10 /jinguo/shuguo.txt
 ```
 
 ### 2.6、API操作
