@@ -52,7 +52,7 @@
           });
         }
       ],//编辑按钮
-      // themeColor: '#2185d5',  // 主题颜色
+      themeColor: '#2185d5',  // 主题颜色
       coverpage: true,        //封面
       // loadSidebar: true,   // 加载 _sidebar.md
       onlyCover: true,       //只在访问主页时加载封面。
@@ -129,9 +129,13 @@
     setTimeout(() => {
       var buttons = document.getElementsByClassName("label");
       for (let i = 0; i < buttons.length; i++) {
-        buttons[i].innerHTML = "复制";
+        buttons[i].innerHTML = '<i class="iconfont zhulin-fuzhi"></i>';
       }
-    }, 3000)
+    }, 1000)
+
+    document.oncopy = function () {
+      console.log("复制成功");
+    }
 
   </script>
 </body>

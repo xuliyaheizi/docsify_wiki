@@ -1,30 +1,29 @@
-# I/O
+# Java IO/NIO/AIO
 
-- 序列化：将数据结构或对象转换成二进制字节流的过程
-- 反序列化：将在序列化过程中所生成的二进制字节流转换成数据结构或者对象的过程
+## 一、Java IO分类
 
-## Java序列化中如果有些字段不想进程序列化，怎么办？
+### 1.1、从传输方式上
 
-  对于不想进行序列化的变量，使用`transient`关键字修饰，该关键字的作用：阻止实例中那些用此关键字修饰的变量序列化；当对象被反序列化时，被修饰的变量值不会被持久化和恢复。`transient`只能修饰变量，不能修饰类和方法，并且修饰的变量在反序列化后变量值将会被置换成类型的默认值。`static`变量不属于任何对象，也不会被序列化。
+从传输方式或者说是运算方式角度来看，可以将IO类分为：
 
-## 获取用键盘输入常用的两种方法？
+- 字节流
+- 字符流
 
-**Scanner**
+流：代表任何有能力产出数据的数据源对象或者是有能力接受数据的接收端对象。**本质**是数据传输，根据传输特性将流抽象为各种类，方便更直观的进行数据操作。**作用**是为数据源和目的地建立一个输送通道。
 
-```java
-Scanner input = new Scanner(System.in);
-String s  = input.nextLine();
-input.close();
-```
+#### 字节流
 
-**BufferedReader**
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/java-io-category-1.png" alt="java-io-category-1" width="50%;" />
 
-```java
-BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-String s = input.readLine();
-```
+#### 字符流
 
-## Java中IO流的分类？
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/java-io-category-2.png" alt="java-io-category-2" width="50%;" />
+
+### 1.2、从数据操作方式上
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/java-io-category-3.png" alt="java-io-category-3" width="50%;" />
+
+### 1.3、IO流的分类？
 
 - 按照流的流向分，可以分为输入流和输出流；
 - 按照操作单元划分，可以划分为字节流和字符流；
@@ -32,21 +31,42 @@ String s = input.readLine();
 - InputStream/Reader: 所有的输入流的基类，前者是字节输入流，后者是字符输入流。
 - OutputStream/Writer: 所有输出流的基类，前者是字节输出流，后者是字符输出流。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB.png" alt="IO-操作方式分类" width="30%" />
+### 1.4、既然有了字节流,为什么还要有字符流?
 
-**按操作对象分类结构图：**
+问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/IO-%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1%E5%88%86%E7%B1%BB.png" alt="IO-操作对象分类"  width="50%"/>
+回答：字符流是由 Java 虚拟机将字节转换得到的，问题就出在这个过程还算是非常耗时，并且，如果我们不知道编码类型就很容易出现乱码问题。所以， I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
 
-## 既然有了字节流,为什么还要有字符流?
+### 1.5、字节流与字符流之间的选择
 
-  问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
+- 大多数情况下使用字节流会更好，因为字节流是字符流的包装，大多数时候IO操作都是直接操作磁盘文件，所有这些流在传输时都是以字节的方式进行的。（图片等都是按字节存储的）
+- 如果对于操作需要通过IO在内存中频繁处理字符串的情况使用字符流会好些。因为字符流具备缓冲区，提高性能。
 
-  回答：字符流是由 Java 虚拟机将字节转换得到的，问题就出在这个过程还算是非常耗时，并且，如果我们不知道编码类型就很容易出现乱码问题。所以， I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
+## 二、设计模式（装饰者模式）
+
+### 2.1、装饰者模式
+
+装饰者(Decorator)和具体组件(ConcreteComponent)都继承自组件(Component)，具体组件的方法实现不需要依赖于其它对象，而装饰者组合了一个组件，这样它可以装饰其它装饰者或者具体组件。所谓装饰，就是把这个装饰者套在被装饰者之上，从而动态扩展被装饰者的功能。装饰者的方法有一部分是自己的，这属于它的功能，然后调用被装饰者的方法实现，从而也保留了被装饰者的功能。可以看到，具体组件应当是装饰层次的最低层，因为只有具体组件的方法实现不需要依赖于其它对象。
+
+### 2.2、IO装饰者模式
+
+以`InputStream`为例：
+
+- InputStream是抽象组件。
+- FileInputStream是InputStream的子类，属于具体组件，提供了字节流的输入操作。
+- FilterInputStream 属于抽象装饰者，装饰者用于装饰组件，为组件提供额外的功能。例如 BufferedInputStream 为 FileInputStream 提供缓存的功能。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220612192603156.png" alt="image-20220612192603156" width="67%;" />
+
+```java
+//实例化一个具有缓存功能的字节流对象
+FileInputStream fileInputStream = new FileInputStream(path);
+BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+```
 
 ## IO模型
 
-  UNIX系统下，IO模型一共有5种：**同步阻塞I/O**、**同步非阻塞I/O**、**I/O多路复用**、**信号驱动I/O和异步I/O**。
+UNIX系统下，IO模型一共有5种：**同步阻塞I/O**、**同步非阻塞I/O**、**I/O多路复用**、**信号驱动I/O和异步I/O**。
 
 ### BIO（同步阻塞IO模型）
 

@@ -197,11 +197,12 @@ li {
     margin: 0 0 24px;
 }
 
+/* 代码复制按钮 */
 .docsify-copy-code-button {
     right: 4px !important;
     top: 4px !important;
     color: #ffffff !important;
-    background-color: #9999AA !important;
+    background-color: #282c34 !important;
     padding: 2px 8px !important;
     margin: 8px !important;
     border-radius: 4px !important;
