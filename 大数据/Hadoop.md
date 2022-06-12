@@ -2,22 +2,22 @@
 
 ## 一、概述
 
-### 是什么
+### 1.1、是什么
 
 Hadoop是一个由Apache基金会所开发的分布式系统基础架构，主要解决海量数据的存储和海量数据的分析计算问题。广义上说，Hadoop是指Hadoop生态圈。
 
-### 优势
+### 1.2、优势
 
 - 高可靠性：Hadoop底层维护多个数据副本，所以即使某个计算元素或存储出现故障，也不会导致数据的丢失。
 - 高扩展性：在集群间分配任务数据，可方便的扩展数以千计的节点。
 - 高效性：在Map Reduce的思想下，Hadoop是并行工作的，以加快任务处理速度。
 - 高容错性：能够自动将失败的任务重新分配。
 
-### 组成
+### 1.3、组成
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608200350845.png" alt="image-20220608200350845" width="67%;" />
 
-### HDFS架构概述
+### 1.4、HDFS架构概述
 
 Hadoop Distributed File System，简称HDFS，是一个分布式文件系统。
 
@@ -25,7 +25,7 @@ Hadoop Distributed File System，简称HDFS，是一个分布式文件系统。
 2. `DataNode(dn)`：在本地文件系统存储文件块数据，以及块数据的校验和。
 3. `Secondary NameNode(2nn)`：每隔一段时间对NameNode元数据备份。
 
-### YARN架构概述
+### 1.5、YARN架构概述
 
 Yet Another Resource Negotiator 简称YARN ，另一种资源协调者，是Hadoop 的资源管理器。
 
@@ -36,7 +36,7 @@ Yet Another Resource Negotiator 简称YARN ，另一种资源协调者，是Hado
 3. `ApplicationMaster(AM)`：单个任务运行的管理者。
 4. `Container`：容器，相当于一台独立的服务器，里面封装了任务运行所需要的资源，如内存、CPU、磁盘、网络等。
 
-### MapReduce架构概述
+### 1.6、MapReduce架构概述
 
 MapReduce将计算过程分为两个阶段：Map和Reduce
 
@@ -45,7 +45,7 @@ MapReduce将计算过程分为两个阶段：Map和Reduce
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608201047671.png" alt="image-20220608201047671" width="67%;" />
 
-### 大数据生态体系
+### 1.7、大数据生态体系
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608201138312.png" alt="image-20220608201138312" width="67%;" />
 
@@ -63,26 +63,26 @@ MapReduce将计算过程分为两个阶段：Map和Reduce
 
 HDFS是一个分布式文件系统，用于存储文件，通过目录树来定位文件，
 
-### 优点
+### 2.1、优点
 
 - 高容错性：数据自动保存多个副本，通过增加副本的形式，来提高容错性。某个副本丢失后，可以自动恢复。
 - 适合处理大数据：数据规模能达到GB、TB、甚至PB级别。文件规模能够处理百万规模以上的文件数量。
 - 可构建在廉价机器上：通过多副本机制，提高可靠性。
 
-### 缺点
+### 2.2、缺点
 
 - 不适合低延时数据访问：无法访问毫秒级的存储数据。
 - 无法高效的对大量小文件进行存储：存储大量的小文件会占用NameNode大量的内存存储文件目录和块信息。小文件的寻址时间会超过读取时间，违背了HDFS的设计目标。
 - 不支持并发写入、文件随机修改：一个文件只能一个写，不允许多个线程同时写。仅支持数据追加，不支持文件的随机修改。
 
-### 组成架构
+### 2.3、组成架构
 
 - NameNode：管理HDFS的名称空间，配置副本策略，管理数据块（BLOCK）映射信息，处理客户端读写请求。
 - DataNode：NameNode下达命令后，DataNode执行实际的操作，存储实际的数据块，执行数据块的读/写操作。
 - Client：客户端，文件切分，文件上传HDFS的时候，客户端将文件切分成一个一个的数据块，然后进行上传。与NameNode交互，获取文件的位置信息。与DataNode交互，读取或写入数据。命令管理或访问HDFS。
 - Secondary NameNode：辅助NameNode，分担其工作量，定期合并Fsimage和Edits，并推送给NameNode。紧急情况下可辅助恢复NameNode。当NameNode挂掉的时候，并不能立刻替换NameNode并提供服务。
 
-### 文件块大小
+### 2.4、文件块大小
 
 HDFS中的文件在物理上是分块存储的，块的大小可以通过配置参数来规定。
 
@@ -92,7 +92,7 @@ HDFS中的文件在物理上是分块存储的，块的大小可以通过配置�
 
 HDFS的块设置太小，会增加寻址时间，若太大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。
 
-### 常用命令
+### 2.5、常用命令
 
 **上传**
 
@@ -119,6 +119,8 @@ HDFS的块设置太小，会增加寻址时间，若太大，从磁盘传输数�
 //-get：等同于copyToLocal
 # hadoop fs -get /sanguo/shuguo.txt ./
 ```
+
+**基本命令**
 
 ```bash
 //-ls：显示目录信息
@@ -150,7 +152,7 @@ HDFS的块设置太小，会增加寻址时间，若太大，从磁盘传输数�
 # hadoop fs -setrep 10 /jinguo/shuguo.txt
 ```
 
-### API操作
+### 2.6、API操作
 
 **创建目录**
 
@@ -206,7 +208,7 @@ public void testDelete() throws URISyntaxException, IOException {
 }
 ```
 
-### 读写流程
+### 2.7、读写流程
 
 #### 写数据流程
 

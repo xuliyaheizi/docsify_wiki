@@ -111,7 +111,7 @@
 
 ## 四、Eureka服务端安全设置
 
-  通过spring-boot-starter-security将Spring Security添加到服务器的类路径中即可保护Eureka服务器。默认情况下，当Spring Security在类路径上时，它将要求在每次向应用程序发送请求时都发送有效的CSRF令牌。Eureka客户通常不会拥有有效的跨站点请求伪造（CSRF）令牌，您需要为/eureka/**端点禁用此要求。例如：
+  通过spring-boot-starter-security将Spring Security添加到服务器的类路径中即可保护Eureka服务器。默认情况下，当Spring Security在类路径上时，它将要求在每次向应用程序发送请求时都发送有效的CSRF令牌。Eureka客户通常不会拥有有效的跨站点请求伪造（CSRF）令牌，您需要为`eureka`端点禁用此要求。例如：
 
 ```java
 @EnableWebSecurity
