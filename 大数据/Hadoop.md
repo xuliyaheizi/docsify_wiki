@@ -222,3 +222,44 @@ public void testDelete() throws URISyntaxException, IOException {
 6. `Data Node`节点依次应答客户端。
 7. 客户端开始往dn1上传第一个`Block`（先从磁盘读取数据放到一个本地内存缓存），以`Packet`为单位，dn1收到一个Packet就会传给dn2，然后dn2传给dn3。dn1每传一个packet会放入一个应答队列等待应答。
 8. 当一个`Block`传输完成后，客户端再次请求`Name Node`上传第二个Block的服务器。（依次重复3~7步）
+
+## 三、集群高可用性
+
+Hadoop1.X中每个集群只有一个NaemNode，使得HDFS中存在单点故障，难以应用在线上场景。NameNode压力过大，内存受限，影响扩展性。
+
+- 针对单点故障的修复方案：HDFS HA高可用，通过主备2个Namenode（3.X上最多5个备，官方推荐3个备。NN太多导致很多数据发送，造成网络压力），主提供服务，备不提供，但是运行着。如果主Namenode发生故障，切换到备Namenode上。
+- 解决内存受限问题：HDFS Federation（联邦），水平扩展，**支持多个Namenode**；同时对外提供服务，分治；
+  每个Namenode分管一部分目录，所有的Namenode共享所有DataNode存储资源。
+
+### 实现手动HA
+
+![image-20220613210414833](https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220613210414833.png)
+
+NameNode存了两类元数据：客户端产生的动态数据，生成的目录；DataNode汇报到block位置信息。Standby（备用NameNode）通过以下两种方式同步获取Active（主NameNode）上的元数据。
+
+- 阻塞（为了保持数据一致性，丧失可用性）：客户端要求NN Active创建目录，NN Active向NN Standby发送指令创建目录，成功之后Standby返回ok给Active，Active再发送ok给客户端。如果Satndby中途挂掉，后续操作就阻塞了。
+- 异步（为了可用性，丧失了一致性）：客户端要求Active创建目录，Activite向Standby传达相同指令。此时，activite不管standby，只要activite它自己创建完成，里面给客户端返回ok。但是standby创建目录的过程中，有可能挂掉。
+
+不能为解决一个问题，从而引入另一个问题。只需实现最终数据一致性。借助中间的组件JN（JournalNodes），往Active中写数据，相当于写到了NFS里，读也是从里面读。客户端向Active写入数据，Active同时要写入到JN中（2个NN只能Active往JN写，JN放的是edits文件，JN可以做到可靠性存储数据，能保证最终一致性。和NFS干的活一样，不过实现技术不一样。）然后Standby从JN中读取数据，即使两者之间的Socket连接有网络波动，一旦网络恢复，Standby继续从JN中读取数据，最终实现数据一致性。JN中有一个过半机制，在Active往JN群写数据时，只要过半的JN写入成功，Standby从过半JN的任意一个读取到了修改的数据，Standby就可以顺利同步全部数据。
+
+> NFS（Network File System）：是一种基于TCP/IP传输的网络文件系统协议。通过该协议，客户机可以像访问本地目录一样访问远程服务器中的共享资源。依赖于RPC来实现网络文件系统共享。
+
+> RPC（Remote Procedure Call Protocol）：远程过程调用协议，是一种通过网络从远程计算机程序上请求服务，而不需要了解底层网络技术的协议。RPC协议假定某些传输协议的存在，如TCP/UDP，为通信程序之间携带信息数据。目的是调用远程方法像调用本地方法一样。
+>
+> 采用C/S模式，客户机请求程序调用进程发送一个有进程参数的调用信息到服务进程，然后等待应答信息。在服务器端，进程保持睡眠状态直到调用信息到达为止。当一个调用信息到达，服务器获得进程参数，计算结果，发送答复信息，然后等待下一个调用信息。
+
+> JN(JournalNode)：为了让备用节点保持与活动节点的状态同步，两个节点都与一组名为“JournalNodes”（JN）的独立守护进程通信。当主动节点执行任何命名空间修改时，它会将修改记录持久地记录到这些 JN 中的大多数。Standby 节点能够从 JN 中读取编辑，并不断地观察它们以了解对编辑日志的更改。当备用节点看到编辑时，它将它们应用到自己的命名空间。在发生故障转移的情况下，备用节点将确保它已从 JournalNodes 读取所有编辑，然后再将其提升为 Active 状态。这可确保在发生故障转移之前完全同步命名空间状态。
+>
+> 为防止数据在两个NameNode之间产生分歧，以及所谓的“脑裂场景”，JN永远只允许一个NameNode一次称为写入者。
+>
+> （过半机制）必须至少有 3 个 JournalNode 守护进程，因为编辑日志修改必须写入大多数 JN。这将允许系统容忍单台机器的故障。您也可以运行 3 个以上的 JournalNode，但为了实际增加系统可以容忍的故障数量，您应该运行奇数个 JN（即 3、5、7 等）。请注意，当使用 N 个 JournalNode 运行时，系统最多可以容忍 (N - 1) / 2 次故障并继续正常运行。
+
+| 节点名 |       IP       | NameNode | DataNode | JournalNodes (共享文件系统) |         ZK          |               ZKFC               |
+| :----: | :------------: | :------: | :------: | :-------------------------: | :-----------------: | :------------------------------: |
+| master | 192.168.10.200 |    1     |          |                             |          1          |                1                 |
+| node1  | 192.168.10.201 |    1     |    1     |              1              |          1          |                1                 |
+| node2  | 192.168.10.202 |          |    1     |              1              |          1          |                                  |
+| node3  | 192.168.76.203 |          |    1     |              1              |                     |                                  |
+|        |                |          |          |        轻量级,奇数个        |       奇数个        | zookeeper的 fail over controller |
+|        |                |          |          |      用于存editLog日志      | 机器的状态,接收心跳 |            zk的客户端            |
+
