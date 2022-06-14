@@ -263,3 +263,11 @@ NameNode存了两类元数据：客户端产生的动态数据，生成的目录
 |        |                |          |          |        轻量级,奇数个        |       奇数个        | zookeeper的 fail over controller |
 |        |                |          |          |      用于存editLog日志      | 机器的状态,接收心跳 |            zk的客户端            |
 
+```shell
+#启动
+myzk.sh start	#启动zookeeper集群
+myjn.sh start	#启动jn
+HDFS_JOURNALNODE_USER
+HDFS_ZKFC_USER
+```
+
