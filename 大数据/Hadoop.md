@@ -304,8 +304,8 @@ done
 
 **启用机架感知**
 
-```shell
-# 在core-site.xml中加入
+```xml
+<!--在core-site.xml中加入-->
 <property>
 	<name>net.topology.script.file.name</name>
 	<value>/home/zhulin/bin/rackaware.sh</value>
