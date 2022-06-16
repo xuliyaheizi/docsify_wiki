@@ -548,15 +548,25 @@ ENV PATH $HADOOP_HOME/bin:$PATH
 RUN yum -y install which sudo vim bash-completion
 ```
 
-```
+```shell
 //启动容器
-//hadoop0  作为namenode resourcemanger
-docker run --name hadoop0 --hostname hadoop0 -d -P -p 50070:50070  -p 8100:8088 -p 8001:9864 -p 8090:9000 myhadoop
-//hadoop1  作为历史服务器
-docker run --name hadoop1 --hostname hadoop1 -d -P -p 8002:9864 -p 8101:19888 myhadoop
-docker run --name hadoop2 --hostname hadoop2 -d -P -p 8003:9864 myhadoop
-docker run --name hadoop3 --hostname hadoop3 -d -P -p 8004:9864 -p 8005:9871 myhadoop 
+docker run --name master --hostname master -d --net hadoopnet --ip 192.168.10.1 --add-host=node1:192.168.10.2 --add-host=node2:192.168.10.3 --add-host=node3:192.168.10.4 -p 8210:22 -p 8211:8020 -p 8212:8042 -p 8214:9864 -p 8215:50070 -p 8218:8088  myhadoop
+
+docker run --name node1 --hostname node1 -d --net hadoopnet --ip 192.168.10.2 --add-host=master:192.168.10.1 --add-host=node2:192.168.10.3 --add-host=node3:192.168.10.4 -p 8310:22 -p 8311:8020 -p 8312:8042 -p 8314:9864 -p 8315:50070 -p 8318:8088 myhadoop
+
+docker run --name node2 --hostname node2 -d --net hadoopnet --ip 192.168.10.3 --add-host=node1:192.168.10.2 --add-host=master:192.168.10.1 --add-host=node3:192.168.10.4 -p 8410:22 -p 8411:8020 -p 8412:8042 -p 8413:9864 -p 8415:50070 -p 8418:8088 myhadoop
+
+docker run --name node3 --hostname node3 -d --net hadoopnet --ip 192.168.10.4 --add-host=node1:192.168.10.2 --add-host=node2:192.168.10.3 --add-host=master:192.168.10.1 -p 8510:22 -p 8511:8020 -p 8512:8042 -p 8513:9864 -p 8515:50070 -p 8518:8088 myhadoop 
 ```
+
+| 节点名 |       IP       | NameNode:50070 | DataNode | JournalNodes(共享文件系统) |         ZK          |               ZKFC               | RM:8088 | historyserver |
+| :----: | :------------: | :------------: | :------: | :------------------------: | :-----------------: | :------------------------------: | :-----: | :-----------: |
+| master | 192.168.10.200 |       1        |          |                            |          1          |                1                 |         |               |
+| node1  | 192.168.10.201 |       1        |    1     |             1              |          1          |                1                 |         |       1       |
+| node2  | 192.168.10.202 |                |    1     |             1              |          1          |                                  |    1    |               |
+| node3  | 192.168.76.203 |                |    1     |             1              |                     |                                  |    1    |               |
+|        |                |    API:8020    |          |       轻量级,奇数个        |       奇数个        | zookeeper的 fail over controller |         |               |
+|        |                |                |          |     用于存editLog日志      | 机器的状态,接收心跳 |            zk的客户端            |         |               |
 
 ### 配置环境变量
 
@@ -590,7 +600,7 @@ vi /etc/hosts    # 在每个容器修改/etc/hosts配置文件
 
 ```
 ssh-keygen        # 在每台主机都执行该操作
-for i in hadoop{0..3}; do ssh-copy-id root@$i; done    
+for i in master node{1..3}; do ssh-copy-id root@$i; done    
 # 将公钥传给包括自己的每台主机，三个容器都要做！！！确保最终每台主机都能免密访问其他主机包括自己
 ```
 
