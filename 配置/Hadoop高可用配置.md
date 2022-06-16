@@ -35,13 +35,13 @@ zkCli.sh -server node1:2181
 
 **修改core-site.xml配置**
 
-```shell
-#yc为服务名，因为HA机制，这个名字既不能是node1，也不能是node2
+```xml
+<!--yc为服务名，因为HA机制，这个名字既不能是node1，也不能是node2-->
 <property>
   <name>fs.defaultFS</name>
   <value>hdfs://yc</value>
 </property>
-#保证每台服务器/opt/hadoopdata目录为空,这个目录将来是namenode, datanode, journalnode等存数据的公共目录 
+<!--保证每台服务器/opt/hadoopdata目录为空,这个目录将来是namenode, datanode, journalnode等存数据的公共目录-->
 <property>
    <name>hadoop.tmp.dir</name>
    <value>/opt/hadoopdata</value>
@@ -55,8 +55,8 @@ zkCli.sh -server node1:2181
 
 **修改hdfs-site.xml配置**
 
-```shell
-#权限配置， 可以控制各用户之间的权限，这里先关掉 
+```xml
+<!--权限配置， 可以控制各用户之间的权限，这里先关掉--> 
 <property>
    <name>dfs.permissions</name>
    <value>false</value> 
@@ -65,17 +65,17 @@ zkCli.sh -server node1:2181
    <name>dfs.permissions.enabled</name>
    <value>false</value> 
 </property>
-#dfs.nameservices - the logical name for this new nameservice 服务名，与前面core-site.xml中一样
+<!--dfs.nameservices - the logical name for this new nameservice 服务名，与前面core-site.xml中一样-->
 <property>
   <name>dfs.nameservices</name>
   <value>yc</value>
 </property>
-#dfs.ha.namenodes.[nameservice ID] - unique identifiers for each NameNode in the nameservice ,两个nn的逻辑名
+<!--dfs.ha.namenodes.[nameservice ID] - unique identifiers for each NameNode in the nameservice ,两个nn的逻辑名-->
 <property>
   <name>dfs.ha.namenodes.yc</name>
   <value>nn1,nn2</value>
 </property>
-#注意: 这是client访问HDFS的RPC请求的端口（以前的是9000,注意修改eclipse插件配置)
+<!--注意: 这是client访问HDFS的RPC请求的端口（以前的是9000,注意修改eclipse插件配置)-->
 <property>
   <name>dfs.namenode.rpc-address.yc.nn1</name>
   <value>master:8020</value>
@@ -84,7 +84,7 @@ zkCli.sh -server node1:2181
   <name>dfs.namenode.rpc-address.yc.nn2</name>
   <value>node1:8020</value>
 </property>
-#浏览器端地址
+<!--浏览器端地址-->
 <property>
   <name>dfs.namenode.http-address.yc.nn1</name>
   <value>master:50070</value>
@@ -93,17 +93,17 @@ zkCli.sh -server node1:2181
   <name>dfs.namenode.http-address.yc.nn2</name>
   <value>node1:50070</value>
 </property>
-#指定jn,   它是hadoop自带的共享存储系统，主要用于两个namenode间数据的共享和同步，即指定 yc下的两个nn共享edits文件目录时，使用jn集群信息. 
+<!--指定jn,   它是hadoop自带的共享存储系统，主要用于两个namenode间数据的共享和同步，即指定 yc下的两个nn共享edits文件目录时，使用jn集群信息.--> 
 <property>
   <name>dfs.namenode.shared.edits.dir</name>
   <value>qjournal://node2:8485;node3:8485;node4:8485/yc</value>
 </property>
-# 自动故障迁移负责执行的类
+<!--自动故障迁移负责执行的类-->
 <property>
   <name>dfs.client.failover.proxy.provider.yc</name>
   <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
 </property>
-#需要nn切换时，使用sshfence方式，  所以要配置免密钥
+<!--需要nn切换时，使用sshfence方式，  所以要配置免密钥-->
 <property>
   <name>dfs.ha.fencing.methods</name>
   <value>sshfence</value>
@@ -112,7 +112,7 @@ zkCli.sh -server node1:2181
   <name>dfs.ha.fencing.ssh.private-key-files</name>
   <value>/root/.ssh/id_rsa</value>     //配置私钥位置
 </property>
-#指定jn集群对nn的目录进行共享时，自己存储数据的磁盘路径。  它会生成一个journal目录到此位置
+<!--指定jn集群对nn的目录进行共享时，自己存储数据的磁盘路径。  它会生成一个journal目录到此位置-->
 <property>
   <name>dfs.journalnode.edits.dir</name>
   <value>/opt/journal/node/local/data</value>
@@ -144,7 +144,7 @@ start-dfs.sh
 
 **修改yarn-site.xml配置**
 
-```shell
+```xml
 <property>
    <name>yarn.resourcemanager.ha.enabled</name>
    <value>true</value>

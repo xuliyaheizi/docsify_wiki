@@ -18,6 +18,7 @@
     * [GetWay服务网关](/框架/GetWay.md)
 * <i class="iconfont zhulin-dashuju"></i>大数据
     * [Hadoop配置](/配置/Hadoop配置)
+    * [Hadoop配置](/配置/Hadoop高可用配置)
     * [Hadoop](/大数据/Hadoop)
 * <i class="iconfont zhulin-shujujiegou"></i>数据结构
     * [链表](/数据结构与算法/链表)
