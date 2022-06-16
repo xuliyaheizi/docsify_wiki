@@ -22,4 +22,6 @@
 
 ## 🍖大数据
 
-[Hadoop配置](/配置/Hadoop配置)  [Hadoop](/大数据/Hadoop)
+[Hadoop配置](/配置/Hadoop配置)  [HadoopHA配置](/配置/Hadoop高可用配置)
+
+[Hadoop](/大数据/Hadoop)

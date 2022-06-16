@@ -91,7 +91,7 @@ HDFS将大规模的数据以分布式的方式均匀存储在集群中的各个�
   hadoop fs -cp har:///output/input.har/*  /wcinput
   ```
 
-- 不支持并发写入、文件随机修改：一个文件只能一个写，不允许多个线程同时写。仅支持数据追加，不支持文件的随机修改。
+- 不支持并发写入、文件随机修改：一个文件只能一个写，不允许多个线程同时写，多线程同时写会涉及多线程安全问题，要解决多线程安全问题会造成文件系统处理性能上的损失。仅支持数据追加，不支持文件的随机修改。因为HDFS的数据冗余设计，当对任意一个位置进行修改，那么备份的数据也会进行修改，如此HDFS的开销会很大，不利于对文件数据的访问和处理。
 
 ### 2.3、组成架构
 
@@ -104,11 +104,30 @@ HDFS将大规模的数据以分布式的方式均匀存储在集群中的各个�
 
 HDFS中的文件在物理上是分块存储的，块的大小可以通过配置参数来规定。
 
-如果寻址时间约为10ms，即查找到目标block的时间为10ms。
+```xml
+<!--配置hdfs-site.xml-->
+<property>
+	<name>dfs.block.size</name>
+	<value>134217728</value>   
+</property>
 
-寻址时间为传输时间的1%时，则为最佳状态。因此传输时间=10ms/0.01=1000ms=1s
+<!-- Java编程指定-->
+conf.set("dfs.block.size", args[0]);
+```
 
-HDFS的块设置太小，会增加寻址时间，若太大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。
+#### 为什么HDFS中的块大小设置为128M？
+
+HDFS中平均寻址时间大概为10ms，最佳状态是寻址时间为传输时间的1%，即最佳传输时间为10ms/0.01=1s。
+
+#### 为什么Block块不能设置太大，也不能设置太小？
+
+Block块设置太大，使得从磁盘传输数据的时间会明显大于寻址时间，导致程序在处理这个块数据时，变得非常慢。另一方面，MapReduce中的Map任务通常一次只处理一个块中的数据，若块过大运行速度也会非常慢。
+
+设置太小，存放大量小文件会占用NameNode中大量的内存来存储文件目录和块信息，另一方面文件快过小会导致寻址时间增大，导致程序一直在找block的开始位置。
+
+#### 数据块抽象设计带来的好处
+
+在企业生成实际环境中，因文件数据以数据块形式存储，一个文件的大小可以大于网络集群中任意一个磁盘的容量。使用块抽象而不是文件，简化了存储子系统，在集群的网络环境中，只需考虑文被切分后的数据块存储就可以了，对集群中任意一个节点上文件数据的存储就更易操作。数据块非常适用于数据的备份，从而提高数据的容错能力，当数据丢失时，可以以块为单位找回，而不涉及文件整体。当要使用一个文件时，只需要将这个文件对应的块进行临时的拼接。
 
 ### 2.5、常用命令
 
@@ -241,6 +260,179 @@ public void testDelete() throws URISyntaxException, IOException {
 7. 客户端开始往dn1上传第一个`Block`（先从磁盘读取数据放到一个本地内存缓存），以`Packet`为单位，dn1收到一个Packet就会传给dn2，然后dn2传给dn3。dn1每传一个packet会放入一个应答队列等待应答。
 8. 当一个`Block`传输完成后，客户端再次请求`Name Node`上传第二个Block的服务器。（依次重复3~7步）
 
+### 2.8、机架感知
+
+整个数据块副本存放的过程称为机架感知，默认是关闭的。
+
+```shell
+#查看机架感知
+hdfs  dfsadmin  -printTopology
+```
+
+**编写脚本 rackaware.sh**
+
+```shell
+#!/bin/bash
+HADOOP_CONF=/usr/hadoop/etc/hadoop/rackaware
+while [ $# -gt 0 ] ; do
+  nodeArg=$1
+  exec<${HADOOP_CONF}/topology.data
+  result=""
+  while read line ; do
+    ar=( $line )
+    if [ "${ar[0]}" = "$nodeArg" ]||[ "${ar[1]}" = "$nodeArg" ]; then
+      result="${ar[2]}"
+    fi
+  done
+  shift
+  if [ -z "$result" ] ; then
+    echo -n "/default-rack"
+  else
+    echo -n "$result"
+  fi
+done
+```
+
+**topoloy.data**
+
+```shell
+192.168.10.200 master /dc1/rack1
+192.168.10.201 node1 /dc1/rack2
+192.168.10.202 node2 /dc1/rack2
+192.168.10.203 node3 /dc1/rack3
+```
+
+**启用机架感知**
+
+```shell
+# 在core-site.xml中加入
+<property>
+	<name>net.topology.script.file.name</name>
+	<value>/home/zhulin/bin/rackaware.sh</value>
+</property>
+```
+
+```shell
+Rack: /dc1/rack1
+   192.168.10.200:9866 (master)
+
+Rack: /dc1/rack2
+   192.168.10.201:9866 (node1)
+   192.168.10.202:9866 (node2)
+
+Rack: /dc1/rack3
+   192.168.10.203:9866 (node3)
+```
+
+### 2.9、数据块副本的存放策略
+
+以副本数为3为例，第一个副本放置在客户端所在的DataNode节点（如客户端不在集群内，则第一个DataNode随机选，但原则上仍是选取距离客户端近的DataNode），第二个副本放置在与第一个节点不同机架的DataNode中（随机选），第三个副本放置在与第一个副本所在节点同一机架的另一个节点上，若还有更多副本，就随机放。
+
+可优先保证本机架下对该数据块所属文件的访问，即使机架发生故障，也可在另外的的机架上找到该数据块的副本。
+
+### 2.10、数据块的备份数
+
+```shell
+#修改hdfs-site.xml
+<property>
+	<name>dfs.replication</name>
+	<value>3</value>
+</property>
+
+#通过命令修改已经上传的文件的副本数
+hadoop fs -setrep -R 3 /test
+
+#上传文件的同时指定创建的副本数
+hdfs dfs -Ddfs.replication=1 -put  core-site.xml /
+
+#查看当前hdfs的副本数
+hdfs fsck -locations
+```
+
+### 2.11、安全模式
+
+```shell
+#退出安全模式
+hdfs dfsadmin -safemode leave
+#进入安全模式
+hdfs dfsadmin -safemode enter
+#查看安全模式状态
+hdfs dfsadmin -safemode get
+#等待，直到安全模式结束
+hdfs dfsadmin -safemode wait
+#对hdfs文件系统进行检查
+hdfs fsck /
+		-move: 移动损坏的文件到/lost+found目录下
+		-delete: 删除损坏的文件
+		-files: 输出正在被检测的文件
+		-openforwrite: 输出检测中的正在被写的文件
+		-includeSnapshots: 检测的文件包括系统snapShot快照目录下的
+		-list-corruptfileblocks: 输出损坏的块及其所属的文件
+		-blocks: 输出block的详细报告
+		-locations: 输出block的位置信息
+		-racks: 输出block的网络拓扑结构信息
+		-storagepolicies: 输出block的存储策略信息
+		-blockId: 输出指定blockId所属块的状况,位置等信息
+```
+
+### 2.12、负载均衡
+
+Hadoop的HDFS集群非常容易出现机器与机器之间磁盘利用率不平衡的情况，例如：当集群内新增、删除节点，或者某个节点机器内硬盘存储达到饱和值。当数据不平衡时，Map任务可能会分配到没有存储数据的机器，这将导致网络带宽的消耗，也无法很好的进行本地计算。
+
+当HDFS负载不均衡时，需要对HDFS进行数据的负载均衡调整，即对各节点机器上数据的存储分布进行调整。从而使数据均匀的分布在各个DataNode上，均衡IO性能，防止热点的发生。进行数据的负载均衡调整，必须满足以下原则：
+
+- 数据平衡不能导致数据块减少，数据块备份丢失。
+- 管理员可以中止数据平衡进程。
+- 每次移动的数据量以及占用的网络资源，必须是可控的。
+- 数据均衡过程，不能影响NameNode的工作。
+
+#### 负载均衡算法
+
+数据均衡过程的核心是一个数据均衡算法，该数据均衡算法将不断迭代数据均衡逻辑，直至集群内数据均衡为止。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220615161022417.png" alt="image-20220615161022417" width="50%;" />
+
+- 数据均衡服务（Rebalancing Server）首先要求NameNode生成DataNode数据分布分析报告，获取每个DataNode磁盘使用情况。
+- Rebalancing Server汇总需要移动的数据分布情况，计算具体数据块迁移路线图。数据块迁移路线图，确保网络内最短路径。
+  - 把当前的DataNode节点根据阈值的设定情况分到Over、Above、Below、Under四个组中。且在移动的过程中Over、Above组中的块向Below、Under组移动。
+  - Over组，此组的DataNode均满足：DataNode_usedSpace_percent > Cluster_usedSpace_percent + threshold
+  - Above组：Cluster_usedSpace_percent + threshold > DataNode_ usedSpace _percent > Cluster_usedSpace_percent
+  - Below组：Cluster_usedSpace_percent > DataNode_ usedSpace_percent > Cluster_ usedSpace_percent – threshold
+  - Under组：Cluster_usedSpace_percent – threshold > DataNode_usedSpace_percent
+- 开始数据块迁移任务，Proxy Source Data Node复制一块需要移动迁移的数据块。
+- 将复制的数据块复制到目标DataNode上。
+- 删除原始数据块。
+- 目标DataNode向Proxy Source Data Node确认该数据块迁移完成。
+- Proxy Source Data Node向Rebalancing Server确认本次数据块迁移完成。然后继续执行这个过程，直至集群达到数据均衡标准。
+
+#### 数据均衡命令
+
+```shell
+#数据自动平衡脚本
+start-balancer.sh –threshold
+		-threshold：默认设置：10，参数取值范围：0-100
+		#参数含义：判断集群是否平衡的阈值。理论上，该参数设置的越小，整个集群就越平衡
+		dfs.balance.bandwidthPerSec：默认设置：1048576（1M/S）
+		#参数含义：Balancer运行时允许占用的带宽
+		
+#在hdfs-site.xml中设置数据均衡占用的网络带宽限制
+<property>
+	<name>dfs.balance.bandwidthPerSec</name>
+	<value>1048576</value>
+</property>
+
+#设置定时任务来实现定时的负载均衡
+00 22 * * 5 hdfs balancer -Threshold 5 >>/home/logs/balancer_`date +"\%Y\%m\%d"`.log 2>&1
+```
+
+### 2.13、心跳机制
+
+主节点和从节点之间的通信是通过心跳机制（心跳实际上是一个RPC函数）实现的，master启动的时候，会开启一个RPC Server，slave启动时进行连接master，并每隔3秒钟主动向master发送一个“心跳”，将自己的状态信息告诉master，然后master通过这个心跳的返回值，向slave节点发送指令。
+
+- HDFS：DataNode默认向NameNode`每隔3秒汇报一次`，包括`DataNode的状态信息以及所持有的数据块的信息`。若NameNode连续`10次`没有收到汇报，则认为可能存在宕机的可能。在DataNode启动后，会专门启动一个`负责心跳数据包的线程`，如果整个DataNode没有任何问题，只是负责发送心跳数据包的线程挂了。NameNode会发送命令向DataNode确认，查看心跳数据包的服务是否正常，为保险起见，一般会确认2次，每5分钟一次，当两次都没有返回结果，则认为DataNode节点挂了。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220615163638693.png" alt="image-20220615163638693" width="50%;" />
+
 ## 三、集群高可用性
 
 Hadoop1.X中每个集群只有一个NaemNode，使得HDFS中存在单点故障，难以应用在线上场景。NameNode压力过大，内存受限，影响扩展性。
@@ -249,9 +441,9 @@ Hadoop1.X中每个集群只有一个NaemNode，使得HDFS中存在单点故障�
 - 解决内存受限问题：HDFS Federation（联邦），水平扩展，**支持多个Namenode**；同时对外提供服务，分治；
   每个Namenode分管一部分目录，所有的Namenode共享所有DataNode存储资源。
 
-### 实现手动HA
+### 3.1、实现手动HA
 
-![image-20220613210414833](https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220613210414833.png)
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220613210414833.png" alt="image-20220613210414833" width="50%;" />
 
 NameNode存了两类元数据：客户端产生的动态数据，生成的目录；DataNode汇报到block位置信息。Standby（备用NameNode）通过以下两种方式同步获取Active（主NameNode）上的元数据。
 
@@ -272,20 +464,14 @@ NameNode存了两类元数据：客户端产生的动态数据，生成的目录
 >
 > （过半机制）必须至少有 3 个 JournalNode 守护进程，因为编辑日志修改必须写入大多数 JN。这将允许系统容忍单台机器的故障。您也可以运行 3 个以上的 JournalNode，但为了实际增加系统可以容忍的故障数量，您应该运行奇数个 JN（即 3、5、7 等）。请注意，当使用 N 个 JournalNode 运行时，系统最多可以容忍 (N - 1) / 2 次故障并继续正常运行。
 
-| 节点名 |       IP       | NameNode | DataNode | JournalNodes (共享文件系统) |         ZK          |               ZKFC               |
-| :----: | :------------: | :------: | :------: | :-------------------------: | :-----------------: | :------------------------------: |
-| master | 192.168.10.200 |    1     |          |                             |          1          |                1                 |
-| node1  | 192.168.10.201 |    1     |    1     |              1              |          1          |                1                 |
-| node2  | 192.168.10.202 |          |    1     |              1              |          1          |                                  |
-| node3  | 192.168.76.203 |          |    1     |              1              |                     |                                  |
-|        |                |          |          |        轻量级,奇数个        |       奇数个        | zookeeper的 fail over controller |
-|        |                |          |          |      用于存editLog日志      | 机器的状态,接收心跳 |            zk的客户端            |
+### 3.2、实现自动HA
 
-```shell
-#启动
-myzk.sh start	#启动zookeeper集群
-myjn.sh start	#启动jn
-HDFS_JOURNALNODE_USER
-HDFS_ZKFC_USER
-```
+基于Zookeeper实现自动化集群高可用，Hadoop实现高可用主要有两种方式，一种是使用共享日志编辑系统(QJM)，另一种是基于网络文件系统(NFS)的高可用方案。基于NFS的高可用方案需要额外安装NFS服务器，而QJM的高可用方案不需要安装额外的服务器。
+
+1. 两台NN启动后都会去zk（zookeeper）进行注册，优先注册的为主节点（Active），另外一个为备节点（Standby），
+2. 主NN对外提供服务，备NN同步主NN元数据，以待切换，通过集群JN(JournalNode)，备用NN也会帮助主NN合并editsLog文件和fsimage产生新的fsimage，并推送ActiveNN。
+
+3. ZKFailover Controller(ZKFC，与NN在同一机器上)的作用是监控NameNode健康状态，当主NN挂掉之后，备用NN的ZKFC会得到消息，然后会将备用NN状态改为（Active），并是原来的主NN改为备用NN。
+
+4. DN（datenode)会同时把信息报告给主从NN。
 
