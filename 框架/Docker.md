@@ -139,7 +139,7 @@ sudo yum-config-manager \
 ```
 sudo yum makecache fast
 
-# docker-ce社区版(docker-ee企业版)
+# docker-ce社区版(docker-ee企业版) 安装docker（docker的引擎、操作docker的客户端、docker容器）
 sudo yum install docker-ce docker-ce-cli containerd.io
 ```
 #### 2.2.5 启动Docker

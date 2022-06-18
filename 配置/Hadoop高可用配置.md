@@ -136,6 +136,8 @@ hdfs namenode -format
 hdfs --daemon start namenode
 #在没有格式的namenode上执行格式化
 hdfs namenode -bootstrapStandby
+#在一台NN上注册zookeeper
+hdfs zkfc -formatZK
 #启动其他服务
 start-dfs.sh
 ```
