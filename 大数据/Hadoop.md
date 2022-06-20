@@ -15,7 +15,7 @@ Hadoop是一个由Apache基金会所开发的分布式系统基础架构，主�
 
 ### 1.3、组成
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608200350845.png" alt="image-20220608200350845" width="67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608200350845.png" alt="image-20220608200350845" width="50%;" />
 
 ### 1.4、HDFS架构概述
 
@@ -27,9 +27,9 @@ Hadoop Distributed File System，简称HDFS，是一个分布式文件系统。
 
 ### 1.5、YARN架构概述
 
-Yet Another Resource Negotiator 简称YARN ，另一种资源协调者，是Hadoop 的资源管理器。
+Yet Another Resource Negotiator 简称YARN ，另一种资源协调者，是`Hadoop`的资源管理器。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608200758870.png" alt="image-20220608200758870" width="67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220608200758870.png" alt="image-20220608200758870" width="50%;" />
 
 1. `ResourceManager(RM)`：整个集群资源（内存、CPU等）的管理者
 2. `NodeManager(NM)`：单个节点服务器资源的管理者。
@@ -433,7 +433,42 @@ start-balancer.sh –threshold
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220615163638693.png" alt="image-20220615163638693" width="50%;" />
 
-## 三、集群高可用性
+## 三、YARN资源管理
+
+YARN是一个通用的资源管理平台，为各类计算框架提供资源的管理和调度。可将多种计算框架（离线处理MapReduce、在线处理的Storm、内存计算框架Spark等）部署到一个公共集群中，共享集群的资源。
+
+- 资源的同一管理和调度：集群中所有节点的资源（内存、CPU、磁盘、网络等）抽象为Container（容器）。在资源进行运算任务时，计算框架需要向YARN申请Container，YARN按照策略对资源进行调度，进行Container的分配。
+- 资源隔离：YARN使用了轻量级资源隔离机制Cgroup进行资源隔离，以避免相互打扰，一旦Contariner使用的资源量超过事先定义的上限值，就将其杀死。
+
+### 体系结构
+
+- **ResourceManager（RM）**：负责对各`NM`上的资源进行统一管理和调度。给`AM`分配空闲的Container并监控其运行状态。对AM申请的资源请求分配相应的空闲Container。其主要由两个组件构成：调度器和应用程序管理器。
+  - `调度器（Scheduler）`：调度器根据容量、队列等限制条件，将系统中的资源分配给各个正在运行的应用程序。调度器仅根据各个应用程序的资源需求进行资源分配，而资源分配单位是Container，从而限定每个任务使用的资源量。
+  - `应用程序管理器（Applications Manager）`：应用程序管理器负责管理整个系统中所有的应用程序，包括应用程序提交，与调度器协商资源以启动`AM`，监控`AM`运行状态并在失败时重新启动等。
+- **NodeManager（NM）**：`NM`是每个节点上的资源和任务管理器。它会定时地向`RM`汇报本节点上的资源使用情况和各个Container的运行状态；同时会接收并处理来自`AM`的Container启动/停止等请求。
+- **ApplicationMaster（AM）**：用户提交的应用程序均包含一个`AM`，负责应用的监控，跟踪应用执行状态，重启失败任务等。
+- **Container**：Container封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，是YARN对资源的抽象。当AM向RM申请资源时，RM为AM返回的资源便是用Container表示的。YARN会为每个任务分配一个Container且该任务只能使用该Container中描述的资源。
+
+<img src="C:/Users/zhulin/AppData/Roaming/Typora/typora-user-images/image-20220618195053564.png" alt="image-20220618195053564" width="50%;" />
+
+### 调度模型
+
+采用了双层资源调度模型，RM中的资源调度器将资源分配给各个AM，资源分配过程是异步的。资源调度器将资源分配给一个应用程序后，不会立刻push给对应的AM，而是暂时放到一个缓冲区中，等待AM通过周期性的心跳主动来取。
+
+YARN目前采用的资源调度算法：
+
+- `先来先调度FIFO`：先按照优先级高低调度，如优先级相同则按照提交时间先后顺序调度，若提交时间相同则按照队列名或Application ID比较顺序调度。
+- `公平调度算法FAIR`：尽可能公平的调度，即已分配资源类少的优先级高。
+- `主资源公平调度DRF`：算法扩展了最大最小公平算法，使之能够支持多维资源，算法是配置资源百分比小的优先级高。
+
+### 优缺点和使用场景
+
+- YARN使用了轻量级资源隔离机制Cgroups进行资源隔离以避免资源之间相互干扰，实现对CPU和内存两种资源的隔离。
+- YARN上可以运行各种应用类型的计算框架，包括离线计算MapReduce、DAG计算框架Tez、基于内存的计算框架SPARK、实时计算框架Storm等。
+- 支持先进先出FIFO、公平调度FAIR、主资源公平调度DRF等分配算法。
+- 支持多租户资源调度，包括支持资源按比例分配、支持层级队列划分和支持资源抢占。
+
+##四、集群高可用性
 
 Hadoop1.X中每个集群只有一个NaemNode，使得HDFS中存在单点故障，难以应用在线上场景。NameNode压力过大，内存受限，影响扩展性。
 
@@ -475,3 +510,38 @@ NameNode存了两类元数据：客户端产生的动态数据，生成的目录
 
 4. DN（datenode)会同时把信息报告给主从NN。
 
+## 五、MapReduce
+
+MapReduce是一个软件框架，用于轻松编写应用程序，这些程序以可靠、容错的方式在大型商用硬件集群（数千个节点）上并行处理大量数据。
+
+可以分成Map和Reduce。
+
+- Map：映射过程，把一组数据按照某种Map函数映射成新的数据。一条数据进入map会被处理成多条数据，就是1进N出。
+- Reduce：归纳过程，把若干组映射结果进行汇总进行输出。一组数据进入Reduce会被归纳为一组数据（或者多组数据），也就是一组进N出。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220618201951389.png" alt="image-20220618201951389" width="50%;" />
+
+### 工作流程
+
+**分片、格式化数据源**
+
+输入 Map 阶段的数据源，必须经过分片和格式化操作。
+
+- 分片操作：指的是将源文件划分为大小相等的小数据块( Hadoop 2.x 中默认 128MB )，也就是分片( split )，Hadoop 会为每一个分片构建一个 Map 任务，并由该任务运行自定义的 map() 函数，从而处理分片里的每一条记录。
+- 格式化操作：将划分好的分片( split )格式化为键值对<key,value>形式的数据，其中， key 代表偏移量， value 代表每一行内容。
+
+**执行 MapTask**
+
+每个 Map 任务都有一个内存缓冲区(缓冲区大小 100MB )，输入的分片( split )数据经过 Map 任务处理后的中间结果会写入内存缓冲区中。如果写人的数据达到内存缓冲的阈值( 80MB )，会启动一个线程将内存中的溢出数据写入磁盘，同时不影响 Map 中间结果继续写入缓冲区。在溢写过程中， MapReduce 框架会对 key 进行排序，如果中间结果比较大，会形成多个溢写文件，最后的缓冲区数据也会全部溢写入磁盘形成一个溢写文件，如果是多个溢写文件，则最后合并所有的溢写文件为一个文件。
+
+**执行 Shuffle 过程**
+
+MapReduce 工作过程中， Map 阶段处理的数据如何传递给 Reduce 阶段，这是 MapReduce 框架中关键的一个过程，这个过程叫作 Shuffle 。Shuffle 会将 MapTask 输出的处理结果数据分发给 ReduceTask ，并在分发的过程中，对数据按 key 进行分区和排序。
+
+**执行 ReduceTask**
+
+输入 ReduceTask 的数据流是<key, {value list}>形式，用户可以自定义 reduce()方法进行逻辑处理，最终以<key, value>的形式输出。
+
+**写入文件**
+
+MapReduce 框架会自动把 ReduceTask 生成的<key, value>传入 OutputFormat 的 write 方法，实现文件的写入操作。

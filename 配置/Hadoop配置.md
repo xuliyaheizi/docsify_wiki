@@ -549,14 +549,15 @@ RUN yum -y install which sudo vim bash-completion
 ```
 
 ```shell
+docker network create --subnet=172.172.0.0/24 docker-br0
 //启动容器
-docker run --restart always --name dkmaster --hostname master --net docker-br0 --ip 172.172.0.10 -d --add-host=node1:172.172.0.11 --add-host=node2:172.172.0.12 --add-host=node3:172.172.0.13 -p 8210:22 -p 8211:8020 -p 8212:8042 -p 8214:9864 -p 8215:50070 -p 8218:8088 -p 9866:9866  zhulins/myhadoop
+docker run --restart always --name hdmaster --hostname master --net docker-br0 --ip 172.172.0.10 -d --add-host=node1:172.172.0.11 --add-host=node2:172.172.0.12 --add-host=node3:172.172.0.13 -p 8210:22 -p 8211:8020 -p 8212:8042 -p 8214:9864 -p 8215:50070 -p 8218:8088 -p 9866:9866  zhulins/myhadoop
 
-docker run --restart always --name dknode1 --hostname node1 --net docker-br0 --ip 172.172.0.11 -d --add-host=master:172.172.0.10 --add-host=node2:172.172.0.12 --add-host=node3:172.172.0.13 -p 8310:22 -p 8311:8020 -p 8312:8042 -p 8314:9864 -p 8315:50070 -p 8318:8088 zhulins/myhadoop
+docker run --restart always --name hdnode1 --hostname node1 --net docker-br0 --ip 172.17.0.3 -d --add-host=master:172.172.0.10 --add-host=node2:172.172.0.12 --add-host=node3:172.172.0.13 -p 8310:22 -p 8311:8020 -p 8312:8042 -p 8314:9864 -p 8315:50070 -p 8318:8088 zhulins/myhadoop
 
 docker run --restart always --name dknode2 --hostname node2 --net docker-br0 --ip 172.172.0.12 -d --add-host=node1:172.172.0.11 --add-host=master:172.172.0.10 --add-host=node3:172.172.0.13 -p 8410:22 -p 8411:8020 -p 8412:8042 -p 8413:9864 -p 8415:50070 -p 8418:8088 zhulins/myhadoop
 
-docker run --restart always --name dknode3 --hostname node3 --net docker-br0 --ip 172.172.0.13 -d --add-host=node1:172.172.0.11 --add-host=node2:172.172.0.12 --add-host=master:172.172.0.10 -p 8510:22 -p 8511:8020 -p 8512:8042 -p 8513:9864 -p 8515:50070 -p 8518:8088 zhulins/myhadoop 
+docker run --restart always --name dknode5 --hostname node5 --net docker-br0 --ip 172.172.0.5 -d --add-host=node1:172.172.0.11 --add-host=node2:172.172.0.12 --add-host=master:172.172.0.10 -p 8510:22 -p 8511:8020 -p 8512:8042 -p 8513:9864 -p 8515:50070 -p 8518:8088 zhulins/myhadoop 
 
 ```
 

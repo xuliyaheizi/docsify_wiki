@@ -2,9 +2,11 @@
 
 ## 一、概念
 
-  一款产品的开发往往需要多套环境，比如开发环境、测试环境以及最终的上线环境；环境的配置是时分麻烦的，每一个机器都要部署环境（Redis、ES、Hadoop集群…），尤其是各种集群的部署特别浪费时间，常常会遇到 ”在我电脑上可以运行，在你电脑上不能运行“、”版本更新导致服务不用“、”不能跨平台“ 等等大量问题，这对运维人员来说就十分棘手。在以前，开发人员发开完成就发布一个jar或者war包，其他的都交给运维人员来做；而现在，开发即运维，打包部署上线一套流程走完：开发人员会将项目及其附带的环境一起打包jar+(Redis Jdk ES MySQL)成一整套发布，称为镜像，这样就不再需要再配置环境，直接执行一整套即可，省去环境配置的麻烦且保证了一致性；
-  Docker 的思想**来源于集装箱**，打包装箱，每个箱子互相隔离
-  Docker 通过**隔离机制**，可以将服务器运行到极致
+一款产品的开发往往需要多套环境，比如开发环境、测试环境以及最终的上线环境；环境的配置是时分麻烦的，每一个机器都要部署环境（Redis、ES、Hadoop集群…），尤其是各种集群的部署特别浪费时间，常常会遇到 ”在我电脑上可以运行，在你电脑上不能运行“、”版本更新导致服务不用“、”不能跨平台“ 等等大量问题，这对运维人员来说就十分棘手。在以前，开发人员发开完成就发布一个jar或者war包，其他的都交给运维人员来做；而现在，开发即运维，打包部署上线一套流程走完：开发人员会将项目及其附带的环境一起打包jar+(Redis Jdk ES MySQL)成一整套发布，称为镜像，这样就不再需要再配置环境，直接执行一整套即可，省去环境配置的麻烦且保证了一致性；
+
+Docker 的思想来源于集装箱，打包装箱，每个箱子互相隔离
+
+Docker 通过隔离机制，可以将服务器运行到极致
 
 ### 1.2 Docker的应用场景
 
@@ -146,6 +148,17 @@ sudo yum install docker-ce docker-ce-cli containerd.io
 
 ```
 sudo systemctl start docker
+
+systemctl enable docker.service
+//设置开机启动
+启动脚本
+# docker.service
+#!/bin/sh
+sudo systemctl enable docker
+sudo systemctl start docker
+
+将脚本放置在/etc/init.d/目录下，修改成root执行权限，然后输入
+sysv-rc-conf
 ```
 #### 2.2.6 运行Hello World映像测试
 
@@ -633,7 +646,7 @@ ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
 
 ```
 //docker network create
-docker network create --driver bridge --subnet 192.168.1.0/16 --gateway 192.168.1.0 hadoop
+docker network create --driver bridge --subnet 172.172.0.0/16 hadoopnet
 解析：
 --driver bridge 表示使用桥接模式
 --subnet 192.168.1.0/16 表示子网ip 可以分配 192.168.1.2 到 192.168.255.255
