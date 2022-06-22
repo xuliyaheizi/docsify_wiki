@@ -249,7 +249,7 @@ public void testDelete() throws URISyntaxException, IOException {
 
 #### 写数据流程
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220609164200158.png" alt="image-20220609164200158" width="67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220609164200158.png" alt="image-20220609164200158" width="50%;" />
 
 1. 客户端通过`Distributed FileSystem`模块向`Name Node`请求上传文件，`Name Node`检查目标文件是否存在，父目录是否存在。
 2. `Name Node`向客户端响应是否可以上传文件。
@@ -259,6 +259,15 @@ public void testDelete() throws URISyntaxException, IOException {
 6. `Data Node`节点依次应答客户端。
 7. 客户端开始往dn1上传第一个`Block`（先从磁盘读取数据放到一个本地内存缓存），以`Packet`为单位，dn1收到一个Packet就会传给dn2，然后dn2传给dn3。dn1每传一个packet会放入一个应答队列等待应答。
 8. 当一个`Block`传输完成后，客户端再次请求`Name Node`上传第二个Block的服务器。（依次重复3~7步）
+
+#### 读数据流程
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220622135826883.png" alt="image-20220622135826883" width="50%;" />
+
+1. 客户端通过 DistributedFileSystem 向 NameNode 请求下载文件，NameNode 通过查询元数据，找到文件块所在的 DataNode 地址。
+2. 挑选一台 DataNode（就近原则，然后随机）服务器，请求读取数据。 
+3. DataNode 开始传输数据给客户端（从磁盘里面读取数据输入流，以 Packet 为单位来做校验）。
+4. 客户端以 Packet 为单位接收，先在本地缓存，然后写入目标文件。
 
 ### 2.8、机架感知
 
@@ -433,7 +442,45 @@ start-balancer.sh –threshold
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220615163638693.png" alt="image-20220615163638693" width="50%;" />
 
-## 三、YARN资源管理
+### 2.14、NN和2NN的工作机制
+
+NameNode中的元数据存储在哪里？
+
+如果元数据存储在NameNode节点的磁盘中，经常需要进行随机访问，还有响应客户请求，必然导致效率过低。因此元数据需要存储在内存中。但是如果只存储在内存中，不做数据备份，一旦由于故障断电，会导致数据丢失，整个集群就无法工作。`因此产生在磁盘中备份元数据的FsImage`。
+
+但是如果在当内存中的元数据进行更新时，也同时更新FsImage，就会导致效率过低，若不更新也会导致数据不一致性问题，最终会产生数据丢失。`因此需引入Edits文件（只进行追加操作，效率很高，该文件只记录操作的行为，不进行数据备份），每当元数据有更新或者添加数据的时候，修改内存中的元数据并追加到Edits中。`如此，一旦断电，可通过FsImage和Edits的合并，合成元数据。
+
+但是如果长时间添加数据到Edits中，会导致文件越来越大，效率降低，并且一旦断电，恢复元数据的时间也会加长。因此需要定期的进行FsImaeg和Edits的合并。为了不给NameNode带来压力，`引入SecondaryNameNode专门用于FsImage和Edits的合并。`
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220622193402229.png" alt="image-20220622193402229" width="50%;" />
+
+### 2.15、FsImage和Edits解析
+
+NameNode被格式化后，会在存储数据文件中（hdfs配置文件配置的目录）产生如下文件
+
+fsimage_0000000000000000000
+
+fsimage_0000000000000000000.md5
+
+seen_txid
+
+VERSION
+
+1. FsImage文件：HDFS文件系统元数据的一个永久性的检查点，其中包含HDFS文件系统的所有目录和文件inode的序列化信息。
+2. Edits文件：存放HDFS文件系统的所有更新操作的路径，文件系统客户端执行的所有写操作首先会被记录到Edits文件中。
+3. seen_txid文件：保存的是一个数字，就是最后一个edits_的数字。
+4. 每此NameNode启动的时候都会将FsImage文件读入内存，加载Edits里面的更新操作，保存内存中的元数据信息是最新的、同步的，可以看成NameNode启动的时候就将FsImage和Edits进行了合并。
+
+### 2.16、DataNode工作进制
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220622194020802.png" alt="image-20220622194020802" width="50%;" />
+
+1. 一个数据块在DataNode上以文件形式存在在磁盘上，包括两个文件：一个是数据本身，一个是元数据包括数据块的长度，块数据的校验和，以及时间戳。
+2. DataNode启动后会向NameNode注册，通过后，周期性（默认6小时）的向NameNode上报所有的块信息。
+3. 心跳是每3秒一次，心跳返回结果带有NameNode给该DataNode的命令如复制块数据到另一台机器，或删除某个数据块。如果超过10分钟没有收到某个DataNode的心跳，则认为该节点不可用。
+4. 集群运行中可安全加入和退出一些机器。
+
+## 三、YARN资源调度器
 
 YARN是一个通用的资源管理平台，为各类计算框架提供资源的管理和调度。可将多种计算框架（离线处理MapReduce、在线处理的Storm、内存计算框架Spark等）部署到一个公共集群中，共享集群的资源。
 
@@ -449,7 +496,7 @@ YARN是一个通用的资源管理平台，为各类计算框架提供资源的�
 - **ApplicationMaster（AM）**：用户提交的应用程序均包含一个`AM`，负责应用的监控，跟踪应用执行状态，重启失败任务等。
 - **Container**：Container封装了某个节点上的多维度资源，如内存、CPU、磁盘、网络等，是YARN对资源的抽象。当AM向RM申请资源时，RM为AM返回的资源便是用Container表示的。YARN会为每个任务分配一个Container且该任务只能使用该Container中描述的资源。
 
-<img src="C:/Users/zhulin/AppData/Roaming/Typora/typora-user-images/image-20220618195053564.png" alt="image-20220618195053564" width="50%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220622195121351.png" alt="image-20220622195121351" width="50%;" />
 
 ### 调度模型
 
@@ -521,27 +568,85 @@ MapReduce是一个软件框架，用于轻松编写应用程序，这些程序�
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220618201951389.png" alt="image-20220618201951389" width="50%;" />
 
-### 工作流程
+### 作业的生命周期
 
-**分片、格式化数据源**
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220621142426729.png" alt="image-20220621142426729" width="50%;" />
 
-输入 Map 阶段的数据源，必须经过分片和格式化操作。
+- **作业的提交与初始化**：用户提交作业后，首先由JobClient实例将作业相关信息上传到分布式文件系统HDFS上（一般为HDFS），然后JobClient通过RPC框架通知 JobTracker（ResourceManager）。 JobTracker收到新作业提交请求之后，由作业调度模块对作业进行初始化：为作业创建一个JobInProgress对象来跟踪作业的运行状况，而JobInProgress则会为每个Task创建一个TaskInProgress对象来跟踪每个Task的运行状况，TaskInProgress可能需要管理多个Task Attempt。
 
-- 分片操作：指的是将源文件划分为大小相等的小数据块( Hadoop 2.x 中默认 128MB )，也就是分片( split )，Hadoop 会为每一个分片构建一个 Map 任务，并由该任务运行自定义的 map() 函数，从而处理分片里的每一条记录。
-- 格式化操作：将划分好的分片( split )格式化为键值对<key,value>形式的数据，其中， key 代表偏移量， value 代表每一行内容。
+> **作业的提交**：JobClient的runjob()方法是用于新建JobClient实例并调用其submitjob()方法。提交作业后，runjob()每秒轮询作业的进度。如果发现自上次报告后有改变，便把进度报告到控制台。作业完成后，成功则显示作业计数器。失败则记录导致失败的原因到控制台。`submitjob()提交的过程：`
+>
+> - 向JobTracker（RM）请求一个新的作业ID，通过调用RM的getNewJobId()方法获取。
+> - 检查作业的输出说明。例如，如果没有指定输出目录或输出目录已经存在，作业就不提交，错误抛回给MapReduce程序。
+> - 计算作业的`输入分片`。如果分片无法计算，比如因为输入路径不存在，作业不提交，错误抛出。
+> - 将运行作业所需要的资源（包括作业JAR文件、配置文件和计算所得的输入分片）复制到一个以作业ID命名的目录下RM的文件系统中。作业JAR的副本较多，因此在运行作业的任务时，集群中有很多个副本可供NM（NodeManager）访问。
+> - 告知RM作业准备执行（通过调用RM的submitjob()方法实现）。
+>
+> **作业的初始化**：当RM接收到对其submitjob()方法的调用后，会把此调用放入一个内部队列中，交由`作业调度器`进行调度，并对其进行初始化。初始化包括创建一个正在运行作业的对象--封装任务和记录信息，以便跟踪任务的状态和进程。为了创建任务运行列表，作业调度器会从共享文件系统中获取客户端已`计算好的输入分片信息`，然后为每个分片创建一个map。创建的reduce任务数量由Job的mapred.reduce.task属性决定(setNumReduceTasks()设置)，schedule创建相应数量的reduce任务。 任务在此时被指定ID。除了map和reduce任务，还有setupJob和cleanupJob需要建立：由tasktrackers在所有map开始前和所有reduce结束后分别执行，这两个方法在OutputCommitter中(默认是FileOutputCommitter)。setupJob()创建输出目录和任务的临时工作目录，cleanupJob()删除临时工作目录。
 
-**执行 MapTask**
+- **作业分配**：tasktracker运行一个简单的循环来定期发送“心跳”(heartbeat)给jobtracker。“心跳”告知jobtracker，tasktracker是否还存活，同时也充当两者之间的消息通道。作为“心跳”的一部分，tasktracker是指明它是否已经准备好运行新的任务，如果是jobtracker会为它分配一个任务，并使用“心跳”的返回值与tasktracker进行通信。每个tasktracker会有固定数量的map和reduce任务槽，数量有tasktracker核的数量和内存大小来决定。jobtracker会先将tasktracker的所有的map槽填满，然后才填此tasktracker的reduce任务槽。Jobtracker分配map任务时会选取与输入分片最近的tasktracker，分配reduce任务用不着考虑数据本地化。
+- **任务的执行**：通过从共享文件系统把作业的JAR文件(wc.jar) 复制到tasktracker所在的文件系统，从而实现作业的JAR文件本地化( 分布式运算移动运算，而不移动数据)。同时，tasktracker将应用程序所需要的全部文件从分布式缓存复制到本地磁盘。tasktracker为任务新建一个本地工作目录，并把JAR文件中的内容解压到这个文件夹下。tasktracker新建一个TaskRunner实例( JVM实例 )来运行该任务。 TaskRunner启动一个新的JVM来运行每个任务(步骤10)，以便客户的map/reduce不会影响tasktracker。
+- **进度和状态的更新**：MapReduce作业是长时间运行的批量作业，运行时间范围从数秒到数小时。这是一个很长的时间段，所以对于用户而言，能够得知作业进展是很重要的。一个作业Job和它的每个任务task都有一个状态(status)，包括：作业或任务的状态（比如，运行状态，成功完成，失败状态）、map和reduce的进度、作业计数器的值、状态消息或描述（可以由用户代码来设置）。map进度标准是处理输入所占比例，reduce是copy\merge\reduce（与shuffle的三个阶段相对应）整个进度的比例。Child JVM有独立的线程每隔3秒检查任务更新标志，如果有更新就会报告给此tasktracker；tasktracker每隔5秒给jobtracker发心跳；job tracker合并这些更新，产生一个表明所有运行作业及其任务状态的全局试图。JobClient通过每秒查询Jobtracker来接收最新状态。
+- **作业的完成**：当jobtracker收到作业最后一个任务已完成的通知后，便把作业的状态设置为“成功”。然后，在JobClient查询状态时，便知道任务已成功完成，于是JobClient打印一条消息告知用户，然后从runjob()方法返回。如果jobtracker有相应的设置，也会发送一个HTTP作业通知。希望收到回调指令的客户端可以通过job．end．notification．url属性来进行这项设置。最后，jobtracker清空作业的工作状态，指示tasktracker也清空作业的工作状态。
 
-每个 Map 任务都有一个内存缓冲区(缓冲区大小 100MB )，输入的分片( split )数据经过 Map 任务处理后的中间结果会写入内存缓冲区中。如果写人的数据达到内存缓冲的阈值( 80MB )，会启动一个线程将内存中的溢出数据写入磁盘，同时不影响 Map 中间结果继续写入缓冲区。在溢写过程中， MapReduce 框架会对 key 进行排序，如果中间结果比较大，会形成多个溢写文件，最后的缓冲区数据也会全部溢写入磁盘形成一个溢写文件，如果是多个溢写文件，则最后合并所有的溢写文件为一个文件。
+### 分区操作
 
-**执行 Shuffle 过程**
+Map阶段处理的数据，在向`环形缓冲区`写的时候是以分区的方式写的。一般情况下，MR程序分区数有多少`reduceTask`数量就应该有多少 ，一个分区的数据一个reduceTask去处理，reduceTask处理完成之后都会生成一个结果文件。
 
-MapReduce 工作过程中， Map 阶段处理的数据如何传递给 Reduce 阶段，这是 MapReduce 框架中关键的一个过程，这个过程叫作 Shuffle 。Shuffle 会将 MapTask 输出的处理结果数据分发给 ReduceTask ，并在分发的过程中，对数据按 key 进行分区和排序。
+**MR的默认分区**
 
-**执行 ReduceTask**
+```java
+// 默认分区是根据key的hashCode对reduceTasks个数取模得到的。用户没法控制哪个key存储到哪个分区。默认类为HashPartitioner。
+public class HashPartitioner<K, V> extends Partitioner<K, V> {
+  /** Use {@link Object#hashCode()} to partition. */
+  public int getPartition(K key, V value, int numReduceTasks) {
+    return (key.hashCode() & Integer.MAX_VALUE) % numReduceTasks;
+  }
+}
+```
 
-输入 ReduceTask 的数据流是<key, {value list}>形式，用户可以自定义 reduce()方法进行逻辑处理，最终以<key, value>的形式输出。
+**自定义分区**
 
-**写入文件**
+```java
+/**
+ * 自定义分区机制
+ *    1、继承我们的Partitioner这个类
+ *    2、重写里面的getPartition方法 返回值是一个int类型 返回值就是我的分区
+ *
+ *继承Partitioner之后 需要区传递一个key-value键值对的泛型 代表的是我们的数据
+ * 那么需要传递的是map阶段输出的key-value类型 因为分区是在map阶段执行结束输出数据的时候执行的
+ */
+public class MyPartitioner extends Partitioner<Text,Text> {
+ 
+    /**
+     * @param key  map阶段输出的key值
+     * @param value  map阶段输出的value值
+     * @param numReduceTasks 定义的reduceTask的任务数据 默认是1
+     * @return 数字  代表的是我要将当前的这条key-value数据输送到哪个分区？
+     */
+    @Override
+    public int getPartition(Text key, Text value, int numReduceTasks) {
+        String s = key.toString();
+        switch(s){
+            case "136":
+                return 0;
+            case "137":
+                return 1;
+            case "138":
+                return 2;
+            case "139":
+                return 3;
+            default:
+                return 4;
+        }
+    }
+}
 
-MapReduce 框架会自动把 ReduceTask 生成的<key, value>传入 OutputFormat 的 write 方法，实现文件的写入操作。
+//在Driver类中job任务里设置，设置自定义分区类
+job.setPartitionerClass(MyPartitioner.class);
+//设置reducetask数量
+job.setNumReduceTasks(5);
+```
+
+!> 注意：<br>如果reduceTask的数量 > getPartition的结果数，则会多产生几个空的输出文件part-r-000xx；<br>如果1<reduceTask的数量<getPartition的结果数，则有一部分分区数据无处安放，会Exception；<br>如果reduceTask的数量=1，则不管mapTask端输出多少个分区文件，最终结果都交给这一个reduceTask，最终也就只会产生一个结果文件 part-r-00000；
+
