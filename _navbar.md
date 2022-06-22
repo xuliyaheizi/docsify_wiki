@@ -22,7 +22,5 @@
     * [Hadoop](/大数据/Hadoop)
 * <i class="iconfont zhulin-shujujiegou"></i>数据结构
     * [链表](/数据结构与算法/链表)
-
 * [<i class="iconfont zhulin-zongjie"></i>每日一结](/每日一结/README.md)
-* [<i class="iconfont zhulin-kebiao1"></i>课表](/课表)
 * [<i class="iconfont zhulin-zuozhe"></i>关于作者](/简历.md)
