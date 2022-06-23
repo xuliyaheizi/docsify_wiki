@@ -14,7 +14,7 @@
 
 [Mybatis](/1-Java/11、Mybatis)  [Docker容器](/2-框架/7、Docker)
 
-[Eureka服务注册与发现](/2-框架/1、Eureka.md)  [Zookeeper服务注册中心](/2-框架/2、Zookeeper.md)  [Ribbon负载均衡](/2-框架/3、Ribbon.md)  [OpenFeign服务调用](/2-框架/4、OpenFeign.md)  [Hystrix服务降级](/2-框架/5、Hystrix.md)  [GetWay服务网关](/2-框架/6、GetWay.md)
+[Eureka服务注册与发现](/2-框架/1、Eureka.md)  [Zookeeper服务注册中心](/2-框架/2、Zookeeper.md)  [Ribbon负载均衡](/2-框架/3、Ribbon.md)  [OpenFeign服务调用](/2-框架/4、OpenFeign.md)  [Hystrix服务降级](/2-框架/5、Hystrix.md)  [GetWay服务网关](/2-框架/6、GetWay.md)
 
 [Redis缓存数据库](/2-框架/8、Redis.md)
 
