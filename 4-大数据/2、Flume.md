@@ -19,3 +19,87 @@ Source采集数据并包装成Event，并将Event缓存在Channel中，Sink不�
   - Memory Channel是内存中的队列，在不需要关系数据丢失的情景下适用。若需要关心数据丢失，那么Memory Channel就不适合使用，因为程序死亡、机器宕机或者重启都会导致数据丢失。
   - File Channel将所有事件写到磁盘，因此在程序关闭或者机器宕机的情况下不会丢失数据。
 - `Event`：传输单元，Flume数据传输的基本单元，以Event的形式将数据从源头送至目的地。Event由Header和Body两部分组成，Header用来存放该event的一些属性，为K-V结构，Body用来存放该条数据，形式为字节数组。
+
+## 二、多数据源合并案列
+
+**案例**：node1、node2、node3节点运行tomcat项目，flume采集tomcat运行日志，发送给master节点，master将最终数据存入hdfs
+
+node1、node2、node3上Flume配置（tomcatlogs-hdfs.conf） t1
+
+```shell
+t1.sources=r1
+t1.sinks=k1
+t1.channels=c1
+
+#配置Sources
+t1.sources.r1.type=exec
+t1.sources.r1.command=tail -F /usr/local/tomcat/logs/localhost_access_log.txt
+t1.sources.r1.shell=/bin/bash -c
+t1.sources.r1.batchSize=10
+t1.sources.r1.batchTimeout=2000
+
+#配置Sink
+t1.sinks.k1.type=avro
+t1.sinks.k1.hostname=master
+t1.sinks.k1.port=4141
+
+#配置Channel
+t1.channels.c1.type=memory
+t1.channels.c1.capacity=1000
+t1.channels.c1.transactionCapacity=1000
+
+#连接
+t1.sources.r1.channels=c1
+t1.sinks.k1.channel=c1
+```
+
+master上配置
+
+```shell
+t1.sources=r1
+t1.sinks=k1
+t1.channels=c1
+
+t1.sources.r1.type=avro
+t1.sources.r1.bind=0.0.0.0
+t1.sources.r1.port=4141
+t1.sources.r1.threads=10
+t1.sources.r1.batchSize=1000
+
+#配置Sink
+t1.sinks.k1.type=hdfs
+t1.sinks.k1.hdfs.path=hdfs://master:8020/flume/tomcat/%Y-%m-%d
+t1.sinks.k1.hdfs.filePrefix=log-%Y-%m-%d
+t1.sinks.k1.hdfs.round=true
+t1.sinks.k1.hdfs.roundValue=1
+#指定每个HDFS块的最小配置数。如果没有指定，则来着类路径中的默认  Hadoop配置
+t1.sinks.k1.hdfs.minBlockReplicas=1
+t1.sinks.k1.hdfs.fileType=DataStream
+#序列文件格式
+t1.sinks.k1.hdfs.writeFormat=Text
+#重新定义时间单位
+t1.sinks.k1.hdfs.roundUnit=hour
+#是否使用本地时间戳
+t1.sinks.k1.hdfs.useLocalTimeStamp=true
+#积攒多少个Event才flush到hdfs一次
+t1.sinks.k1.hdfs.batchSize=1000
+#设置文件类型，可支持压缩
+1.sinks.k1.hdfs.codeC=gzip
+t1.sinks.k1.hdfs.fileType=CompressedStream
+#多久生成一个新的文件
+t1.sinks.k1.hdfs.rollInterval=600
+#设置每个文件的滚动大小
+t1.sinks.k1.hdfs.rollSize=134217700
+#文件的滚动与Event数量无关
+t1.sinks.k1.hdfs.rollCount=0
+
+#配置Channel
+t1.channels.c1.type=memory
+t1.channels.c1.capacity=1000
+t1.channels.c1.transactionCapacity=100
+
+#连接
+t1.sources.r1.channels=c1
+t1.sinks.k1.channel=c1
+```
+
