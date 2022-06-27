@@ -23,6 +23,6 @@
 
 ## 🍖大数据
 
-[Hadoop配置](/5-配置/1、Hadoop配置)  [HadoopHA配置](/5-配置/2、Hadoop高可用配置)
+[Hadoop配置](/5-配置/1、Hadoop配置)  [HadoopHA配置](/5-配置/2、Hadoop高可用配置)  [云盘项目总结](/5-配置/3、云盘项目总结)
 
 [Hadoop](/4-大数据/1、Hadoop)  [Flume](/4-大数据/2、Flume)

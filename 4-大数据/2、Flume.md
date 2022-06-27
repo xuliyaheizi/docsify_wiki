@@ -103,3 +103,57 @@ t1.sources.r1.channels=c1
 t1.sinks.k1.channel=c1
 ```
 
+## 三、Fluem采集日志上传到HDFS
+
+```shell
+# Name the components on this agent
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+
+# Describe/configure the source
+## exec表示flume调用给的命令，然后从给的命令的结果中去拿数据
+a1.sources.r1.type = exec
+## 使用tail这个命令来读数据
+a1.sources.r1.command = tail -F /home/hadoop/testdir/flumedata/test.log
+a1.sources.r1.channels = c1
+
+# Describe the sink
+## 表示下沉到hdfs，类型决定了下面的参数
+a1.sinks.k1.type = hdfs
+## sinks.k1只能连接一个channel，source可以配置多个
+a1.sinks.k1.channel = c1
+## 下面的配置告诉用hdfs去写文件的时候写到什么位置，下面的表示不是写死的，而是可以动态的变化的。表示输出的目录名称是可变的
+a1.sinks.k1.hdfs.path = hdfs://master:9000/flume/tailout/%y-%m-%d/%H%M/
+##表示最后的文件的前缀
+a1.sinks.k1.hdfs.filePrefix = events-
+## 表示到了需要触发的时间时，是否要更新文件夹，true:表示要
+a1.sinks.k1.hdfs.round = true
+## 表示每隔1分钟改变一次
+a1.sinks.k1.hdfs.roundValue = 1
+## 切换文件的时候的时间单位是分钟
+a1.sinks.k1.hdfs.roundUnit = minute
+## 表示只要过了3秒钟，就切换生成一个新的文件
+a1.sinks.k1.hdfs.rollInterval = 3
+## 如果记录的文件大于20字节时切换一次
+a1.sinks.k1.hdfs.rollSize = 20
+## 当写了5个事件时触发
+a1.sinks.k1.hdfs.rollCount = 5
+## 收到了多少条消息往dfs中追加内容
+a1.sinks.k1.hdfs.batchSize = 10
+## 使用本地时间戳
+a1.sinks.k1.hdfs.useLocalTimeStamp = true
+#生成的文件类型，默认是Sequencefile，可用DataStream：为普通文本
+a1.sinks.k1.hdfs.fileType = DataStream
+
+# Use a channel which buffers events in memory
+##使用内存的方式
+a1.channels.c1.type = memory
+a1.channels.c1.capacity = 1000
+a1.channels.c1.transactionCapacity = 100
+
+# Bind the source and sink to the channel
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel = c1
+```
+
