@@ -114,6 +114,8 @@
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/sweetalert2%408.js"></script>
 
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify-sidebar-collapse.min.js"></script>
+  <!-- vue.js -->
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/vue.min.js"></script>
 
 
   <script type="text/javascript">
@@ -127,16 +129,16 @@
       });
     });
 
-    setTimeout(() => {
+    window.addEventListener("load", function (event) {
       var buttons = document.getElementsByClassName("label");
       for (let i = 0; i < buttons.length; i++) {
         buttons[i].innerHTML = '<i class="iconfont zhulin-fuzhi"></i>';
       }
-    }, 1000)
-
-    document.oncopy = function () {
-      console.log("复制成功");
-    }
+      var bus = document.getElementsByClassName("success");
+      for (let i = 0; i < bus.length; i++) {
+        bus[i].innerHTML = "复制成功";
+      }
+    });
 
   </script>
 </body>

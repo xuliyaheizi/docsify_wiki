@@ -226,3 +226,7 @@ li {
 .markdown-section blockquote {
     border-left: 4px solid #42b983;
 }
+
+.docsify-copy-code-button .success {
+    color: rgba(56, 58, 66, .67);
+}
