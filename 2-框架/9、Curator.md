@@ -55,7 +55,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-### Curator加锁流程
+### 1.1、Curator加锁流程
 
 ```java
 //获取锁
@@ -263,6 +263,140 @@ public static List<String> getSortedChildren(CuratorFramework client, String bas
         return sortedList;
     } catch (KeeperException.NoNodeException var6) {
         return Collections.emptyList();
+    }
+}
+```
+
+### 1.2、实现可重入加锁
+
+LockData主要封装了当前线程、加锁的次数、加锁的节点。第二次来加锁的时候，就会从threadData中获取线程加锁的信息，然后将加锁次数加1。
+
+存储LockData的是`ConcurrentMap<Thread, LockData> threadData`，这是一个线程安全、高效的HashMap，支持并发访问。
+
+```java
+//存储锁信息，zk中一个临时顺序节点对应一个锁，但让锁生效激活需要排队
+private static class LockData {
+    final Thread owningThread;
+    final String lockPath;
+    final AtomicInteger lockCount;
+
+    private LockData(Thread owningThread, String lockPath) {
+        this.lockCount = new AtomicInteger(1); //分布式锁重入次数
+        this.owningThread = owningThread;
+        this.lockPath = lockPath;
+    }
+}
+
+private boolean internalLock(long time, TimeUnit unit) throws Exception {
+    //获取当前线程
+    Thread currentThread = Thread.currentThread();
+    //使用threadData存储线程重入的情况  ConcurrentMap<Thread, LockData> threadData 一个线程安全，并且是一个高效的HashMap，支持并发访问
+    LockData lockData = (LockData)this.threadData.get(currentThread);
+    if (lockData != null) {
+        //同一线程再次acquire，首先判断当前的映射表内（threadData）是否有该线程的锁信息，如果有则原子+1，然后返回
+        lockData.lockCount.incrementAndGet();
+        return true;
+    } else {
+        // 映射表内没有对应的锁信息，尝试通过LockInternals获取锁
+        String lockPath = this.internals.attemptLock(time, unit, this.getLockNodeBytes());
+        if (lockPath != null) {
+            // 成功获取锁，记录信息到映射表	
+            LockData newLockData = new LockData(currentThread, lockPath);
+            this.threadData.put(currentThread, newLockData);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+```
+
+### 1.3、加锁失败后阻塞等待加锁
+
+通过`predicateResults`判断是否加锁成功，加锁失败则会监听上一个临时顺序节点，然后判断是否有超时机制，根据时间对节点进行阻塞等待，当上一个临时顺序节点被删除，会回调监听器watcher的方法，来唤醒当前线程进行竞争锁。若超时时间的，会指定一段时间的等待，当等待时间一到，线程就会醒过来去尝试加锁，一旦加锁失败，就会放弃加锁。
+
+```java
+else {
+    //加锁失败，监听上一临时顺序节点
+    String previousSequencePath = this.basePath + "/" + predicateResults.getPathToWatch();
+    //同步锁（同步代码块）
+    synchronized(this) {
+        try {
+            //exists()会导致导致资源泄漏，因此exists()可以监听不存在的 ZNode，因此采用getData() 
+            //上一临时顺序节点如果被删除，会唤醒当前线程继续竞争锁，正常情况下 能直接获得锁，因为锁是公平的
+            ((BackgroundPathable)this.client.getData().usingWatcher(this.watcher)).forPath(previousSequencePath);
+            //判断是否有超时机制
+            if (millisToWait == null) {
+                //不限时等待
+                this.wait();
+            } else {
+                millisToWait = millisToWait - (System.currentTimeMillis() - startMillis);
+                startMillis = System.currentTimeMillis();
+                if (millisToWait > 0L) {
+                    //限时等待被唤醒
+                    this.wait(millisToWait);
+                } else {
+                    //获取锁超时，标记删除之前创建的临时顺序节点
+                    doDelete = true;
+                    break;
+                }
+            }
+        } catch (KeeperException.NoNodeException var19) {
+            
+        }
+    }
+}
+
+//监听器
+private final Watcher watcher = new Watcher() {
+    public void process(WatchedEvent event) {
+        LockInternals.this.notifyFromWatcher();
+    }
+};
+
+private synchronized void notifyFromWatcher() {
+    this.notifyAll();
+}
+```
+
+### 1.4、释放锁
+
+获取当前线程对应的LockData，如果没有，说明当前线程没有加锁，就会抛出异常。
+
+如果加锁了，就将加锁次数减1，得到`newLockCount`，然后判断剩下的加锁次数
+
+- 如果newLockCount > 0，说明锁没释放完，有可重入加锁，然后什么事都不干，直接返回了。
+- 如果newLockCount < 0，就抛异常，但是一般不会出现。
+- 剩下的一种情况就是newLockCount == 0 ，说明锁已经完完全全释放完了，然后通过internals.releaseLock删除加锁的节点。
+
+服务端删除节点之后，就会通知监听该节点的客户端，然后客户端就会回调watcher监听器，唤醒阻塞等待的线程，线程被唤醒后再进行一次判断就能加锁成功。
+
+```java
+public void release() throws Exception {
+    //获取当前线程
+    Thread currentThread = Thread.currentThread();
+    //获取当前线程的LockData
+    LockData lockData = (LockData)this.threadData.get(currentThread);
+    //判断当前线程是否加锁
+    if (lockData == null) {
+        throw new IllegalMonitorStateException("You do not own the lock: " + this.basePath);
+    } else {
+        //加锁次数减1
+        int newLockCount = lockData.lockCount.decrementAndGet();
+        //判断剩余的加锁次数
+        if (newLockCount <= 0) {
+            if (newLockCount < 0) {
+                throw new IllegalMonitorStateException("Lock count has gone negative for lock: " + this.basePath);
+            } else {
+                //加锁次数为0，释放锁
+                try {
+                    this.internals.releaseLock(lockData.lockPath);
+                } finally {
+                    this.threadData.remove(currentThread);
+                }
+
+            }
+        }
     }
 }
 ```
