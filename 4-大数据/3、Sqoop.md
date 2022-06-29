@@ -40,13 +40,89 @@ Sqoop可以将数据从关系数据库系统或大型机导入 HDFS。导入过�
 | --compression-codec <c>                                 | 使用Hadoop编解码器(默认为gzip)                     |
 | --where <where clause>                                  | 导入期间使用where判断                              |
 | --boundary-query                                        | 导入的边界值                                       |
+| --query                                                 | 自定义sql语句                                      |
 
 ```shell
-1、sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin -P --table project --target-dir /mysql/project --direct --delete-target-dir
+1、$ sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin -P --table project --target-dir /mysql/project --delete-target-dir
+
+2、$ sqoop import \
+  --query 'SELECT a.*, b.* FROM a JOIN b on (a.id == b.id) WHERE $CONDITIONS' \
+  --split-by a.id --target-dir /mysql/
+  # --query不能与--table、--colum合用    指定$CONDITIONS表明分区列
+  
+3、$ sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin -P --table project --warehouse-dir /mysql/projects
+#分析：将导入的文件 保存到 hdfs://zy2/input/project
+#与上面的对比： 在   指定的   /zy2/input下创建一个目录，名字为表名.    此时这个表名就当成了一个数据仓库名  (warehouse )
+
+4、$ sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804 --table project  --warehouse-dir /mysql/input  --columns  'id,name,type' -m 1 --delete-target-dir
+#分析：-m 1 表示只用到一个mapper, 一个mapper对应一个切片，对应一个输出文件. 
+       --columns   指定列名
+       --where    指定条件
+       因为用了  --table, 所以以上会自动地拼装sql 语句. , 不能与    -e or -query 合用. 
+       
+5、$ sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804 --target-dir /zy5/input  --query 'select id,name,type from project where id>2 and  $CONDITIONS'  --split-by project.id -m 1
+#分析:-query 不能与 --table, --column 合用. 
+      指定  $CONDITIONS  表明分区列.
+      --target-dir  保存数据的数仓名字. 
+      
+6、$ sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804 --table project --target-dir /mysql/input1  --direct   -m 1
+#分析:  --direct    使用    mysqldump   命令完成导入工作    因为是集群，map任务是分配到每个节点运行，所以每个节点都要有mysqldump命令.
+
+==================================增量导入===================================
+7、$ sqoop import --connect jdbc:mysql://zhulinz:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804  --target-dir /zy7/input  --table project -m 1 --check-column id   --incremental append --last-value 3
+
+insert into project( name,type,description,create_at,status)
+values( 'project5',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project6',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project7',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project8',5,'project5 zy','2019-07-25',0);
+
+8、$ sqoop import --connect jdbc:mysql://zhulinz:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804  --target-dir /zy7/input  --table project -m 1 --check-column id   --incremental append --last-value 7
+
+insert into project( name,type,description,create_at,status)
+values( 'project6',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project7',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project8',5,'project5 zy','2019-07-25',0);
+insert into project( name,type,description,create_at,status)
+values( 'project9',5,'project5 zy','2019-07-25',0);
+
+分析：以上运行 增量导入两次，生成了两个文件.   均按  last-value 导入. 
+
+9、$ sqoop import   --connect jdbc:mysql://zhulinz:3306/testsqoop?serverTimezone=UTC --username zhulin --password zhulin0804  --target-dir /zy8/input  --table project -m 1 --check-column update_at  --incremental lastmodified  --last-value "2022-06-28 16:45:12" --append
 ```
 
+## 三、Sqoop安装
 
+### 3.1、配置环境变量
 
 ```shell
-sqoop-list-databases --connect jdbc:mysql://zhulinz.top:3306/mysql?serverTimezone=UTC --username zhulin -P --verbose
+#进入配置文件
+$ vim /etc/profile
+
+#Sqoop
+export SQOOP_HOME=/usr/local/sqoop147
+export PATH=$PATH:$SQOOP_HOME/bin
 ```
+
+### 3.2、配置Sqoop的配置
+
+```shell
+#进入Sqoop配置文件
+$ cd /usr/local/sqoop147/conf
+$ vim sqoop-env.sh
+
+#Set path to where bin/hadoop is available
+export HADOOP_COMMON_HOME=/usr/local/hadoop
+
+#Set path to where hadoop-*-core.jar is available
+export HADOOP_MAPRED_HOME=/usr/local/hadoop
+```
+
+### 3.3、复制驱动包
+
+将mysql的驱动包放到sqoop的lib目录下，将sqoop的驱动包放到hadoop的lib目录下
