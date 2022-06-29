@@ -42,7 +42,7 @@ Sqoop可以将数据从关系数据库系统或大型机导入 HDFS。导入过�
 | --boundary-query                                        | 导入的边界值                                       |
 
 ```shell
-1、sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin -P --table project --target-dir /mysql/project
+1、sqoop import --connect jdbc:mysql://zhulinz.top:3306/testsqoop?serverTimezone=UTC --username zhulin -P --table project --target-dir /mysql/project --direct --delete-target-dir
 ```
 
 
