@@ -178,23 +178,46 @@ li {
 
 /* 代码块  */
 .markdown-section pre>code {
+    font-family: Inconsolata,
+        Consolas,
+        Menlo,
+        Monaco,
+        "Andale Mono WT",
+        "Andale Mono",
+        "Lucida Console",
+        "DejaVu Sans Mono",
+        "Bitstream Vera Sans Mono",
+        "Courier New",
+        Courier,
+        monospace;
     white-space: pre-wrap;
-    display: block;
-    overflow-x: auto;
-    padding: 15px;
-    color: #383a42;
-    background: #ecf4fa !important;
-    border-radius: 6px;
+    /* color: #383a42; */
+    color: #ffffff;
+    background: #282c34 !important;
+    font-weight: normal;
+    letter-spacing: normal;
+    line-height: 1.7;
+    tab-size: 4;
+    text-align: left;
+    word-spacing: normal;
+    word-wrap: normal;
+    word-break: normal;
+    hyphens: none;
 }
 
 .markdown-section pre {
-    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-    font-size: 15px;
-    line-height: 1.4;
-    color: #000;
-    padding: 0.5rem;
-    margin: 0 0 24px;
-    background-color: #fafafa !important;
+    padding: 0;
+    margin: 1em 0;
+    background-color: #282c34 !important;
+    color: #ffffff !important;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.markdown-section pre[data-lang] code {
+    display: block;
+    overflow: auto;
+    padding: 1.75em 1.5em 1.5em 1.5em;
 }
 
 .markdown-section code {
@@ -202,22 +225,22 @@ li {
 }
 
 .markdown-section pre:after {
+    content: attr(data-lang);
     position: absolute;
-    top: 0.8em;
-    right: 1em;
-    z-index: 3;
-    color: rgba(56, 58, 66, .67);
-    font-size: .75rem;
-    transition: color .3s ease;
+    top: 0.65em;
+    right: 0.65em;
+    opacity: 0.6;
+    color: #ffffff;
+    font-size: 0.1rem;
+    line-height: 1;
 }
 
 /* 代码复制按钮 */
 .docsify-copy-code-button {
-    right: 2.5em !important;
-    top: 4px !important;
-    padding: 2px 8px !important;
+    right: 3em !important;
+    top: 0.4em !important;
+    padding: 0 !important;
     background-color: transparent !important;
-    margin: 8px !important;
     border-radius: 4px !important;
     cursor: pointer !important;
 }
@@ -228,5 +251,10 @@ li {
 }
 
 .docsify-copy-code-button .success {
-    color: rgba(56, 58, 66, .67);
+    color: #ffffff;
+}
+
+/* 代码样式 */
+.token.punctuation {
+    color: #999999 !important;
 }
