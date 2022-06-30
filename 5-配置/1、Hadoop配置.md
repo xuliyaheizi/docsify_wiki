@@ -612,7 +612,7 @@ for i in master node{1..3}; do ssh-copy-id root@$i; done
 
 ### 安装配置Hadoop
 
-```
+```shell
 //修改 hadoop-env.sh
 vim etc/hadoop/hadoop-env.sh
 修改   export JAVA_HOME=/usr/local/jdk1.8
@@ -631,7 +631,7 @@ YARN_NODEMANAGER_USER=root
 
 ### 配置文件
 
-```
+```xml
 //修改配置文件core-site.xml
 vim etc/hadoop/core-site.xml 
 在 <configuration> 块儿中添加：
@@ -705,7 +705,7 @@ vim etc/hadoop/mapred-site.xml
 
 ### 配置历史服务器与日志聚集
 
-```
+```xml
 //配置 mapred-site.xml  历史服务器
 vim etc/hadoop/mapred-site.xml
 //输入以下内容
@@ -747,7 +747,7 @@ vim etc/hadoop/yarn-site.xml
 
 **文件分发脚本**
 
-```
+```shell
 //进入用户目录
 cd /home/zhulin/bin
 vim xsync
@@ -795,7 +795,7 @@ sudo cp xsync /bin
 
 **启动脚本**
 
-```
+```shell
 //进入用户目录
 cd /home/zhulin/bin
 vim myhadoop.sh
@@ -847,7 +847,7 @@ myhadoop.sh start
 
 **查看进程脚本**
 
-```
+```shell
 //用户目录 写入脚本文件
 cd /home/zhulin/bin
 vim jpsall
@@ -868,7 +868,7 @@ sudo cp jpsall /bin
 
 ### 集群启动
 
-```
+```shell
 //初始化（注意：只有第一次的时候才需要）
 hdfs namenode -format
 
