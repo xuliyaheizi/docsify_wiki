@@ -191,7 +191,6 @@ li {
         Courier,
         monospace;
     white-space: pre-wrap;
-    /* color: #383a42; */
     color: #ffffff;
     background: #282c34 !important;
     font-weight: normal;
@@ -203,6 +202,7 @@ li {
     word-wrap: normal;
     word-break: normal;
     hyphens: none;
+    font-size: .9rem !important;
 }
 
 .markdown-section pre {

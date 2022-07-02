@@ -1,6 +1,6 @@
 <!-- _coverpage.md -->
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/favicon.ico" alt="" style="border-radius: 100px;">
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207021619264.ico" alt="" style="border-radius: 100px;">
 
 <br>
 
