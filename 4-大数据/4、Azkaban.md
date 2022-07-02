@@ -1,16 +1,95 @@
 # Azkaban工作流调度系统
 
-1. 
+## 一、概述
 
-## 安装过程
+### 1.1、工作流调度系统
 
-### 上传安装包
+一个完整的数据分析系统通常都是由大量任务单元组成：shell脚本程序、java程序、mapreduce程序、hive脚本等。各任务单元之间存在时间先后及前后依赖关系。为了很好地组织起这样的复杂执行计划，需要一个工作流调度系统来调度执行。
+
+需求：某个业务系统每天产生20G原始数据，每天都要对其进行处理，步骤如下：
+
+1. 通过Hadoop先将原始数据上传到Hdfs上（HDFS的操作）
+2. 使用MapReduce对原始数据进行清洗（MapReduce的操作）
+3. 将清洗后的数据导入到hive表中（hive导入操作）
+4. 对hive中多个表的数据进行JOIN处理，得到一张hive的明细表（创建中间表）
+5. 通过对明细表的统计和分析，得到结果报表信息（hive的查询操作）
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207021826058.png" alt="image-20220702182602757" width="50%;" />
+
+### 1.2、适用场景
+
+根据以上业务场景： （2）任务依赖（1）任务的结果，（3）任务依赖（2）任务的结果，（4）任务依赖（3）任务的结果，（5）任务依赖（4）任务的结果。一般的做法是，先执行完（1）再执行（2），再一次执行（3）（4）（5）。
+
+这样的话，整个的执行过程都需要人工参加，并且得盯着各任务的进度。但是我们的很多任务都是在深更半夜执行的，通过写脚本设置crontab执行。其实，整个过程类似于一个有向无环图（DAG）。每个子任务相当于大任务中的一个节点，也就是，我们需要的就是一个工作流的调度器，而Azkaban就是能解决上述问题的一个调度器。
+
+### 1.3、特点
+
+- 兼容任何版本的hadoop
+- 易于使用的Web用户界面
+- 简单的工作流的上传
+- 方便设置任务之间的关系
+- 调度工作流
+- 模块化和可插拔的插件机制
+- 认证/授权(权限的工作)
+- 能够杀死并重新启动工作流
+- 有关失败和成功的电子邮件提醒
+
+## 二、架构
+
+`Azkaban`在LinkedIn上实施，以解决`Hadoop`作业依赖问题。从ETL工作到数据分析产品，工作都有需要按顺序运行。最初是单一服务器解决方案，随着多年来Hadoop用户数量的增加，Azkaban 已经发展成为一个更强大的解决方案。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207021830407.png" alt="image-20220702183009719" width="50%;" />
+
+Azkaban由三个关键组件构成：元数据、AzkabanWebServer、AzkabanExecutorServer。
+
+### 2.1、元数据
+
+使用关系型数据库存储元数据和执行状态。
+
+`AzkabanWebServer`
+
+- **项目管理**：项目、项目权限以及上传的文件。
+- **作业状态**：跟踪执行流程以及执行程序正在运行的流程。
+- **以前的流程/作业**：通过以前的作业和流程执行以及访问其日志文件进行搜索。
+- **计划程序**：保留计划作业的状态。
+- **SLA**：保持所有的SLA规则
+
+`AzkabanExecutorServer`
+
+- **访问项目**：从数据库检索项目文件。
+- **执行流程/作业**：检索和更新正在执行的作业流的数据
+- **日志**：将作业和工作流的输出日志存储到数据库中。
+- **交互依赖关系**：如果一个工作流在不同的执行器上运行，它将从数据库中获取状态。
+
+### 2.2、AzkabanWebServer
+
+`AzkabanWebServer`是整个Azkaban工作流系统的主要管理者，它负责Project管理、用户登录认证、定时执行工作流、跟踪工作流执行进度等一系列任务。同时，它还提供Web服务操作接口，利用该接口，用户可以使用curl或其他Ajax的方式，来执行Azkaban的相关操作。操作包括：用户登录、创建Project、上传Workflow、执行Workflow、查询Workflow的执行进度、杀掉Workflow等一系列操作，且这些操作的返回结果均是JSON格式。并且Azkaban使用方便，Azkaban使用以.job为后缀名的键值属性文件来定义工作流中的各个任务，以及使用dependencies属性来定义作业间的依赖关系链。这些作业文件和关联的代码最终以*.zip的方式通过Azkaban UI上传到Web服务器上。
+
+### 2.3、AzkabanExecutorServer
+
+以前版本的Azkaban在单个服务中具有AzkabanWebServer和AzkabanExecutorServer功能，目前Azkaban已将AzkabanExecutorServer分离成独立的服务器，拆分AzkabanExecutorServer的原因有如下几点：
+
+- 某个任务流失败后，可以更方便将其重新执行
+- 便于Azkaban升级
+
+AzkabanExecutorServer主要负责具体的工作流`提交、执行`，可以启动多个执行服务器，它们通过`关系型数据库`来协调任务的执行。
+
+### 2.4、作业流执行过程
+
+- WebServer根据内存中缓存的各Executor的资源（WebServer有一个线程会遍历各个Active Executor，去发送Http请求获取其资源状态信息缓存到内存中），按照选择策略（包括executor资源状态、最近执行流个数等）选择一个Executor下发作业流。
+- Executor判断是否设置作业粒度分配，如果未设置作业粒度分配，则在当前Executor执行所有作业；如果设置了作业粒度分配，则当前节点会成为作业分配的决策者，即分配节点。
+- 分配节点从Zookeeper获取各个Executor的资源状态信息，然后根据策略选择一个Executor分配作业。
+- 被分配到作业的Executor即成为执行节点，执行作业，然后更新数据库。
+
+## 三、Azkaban安装
+
+### 3.1、上传安装包
 
 将Azkaban Web服务器、Azkaban执行服务器、Azkaban的sql执行脚本及MySQL安装包拷贝到`master`虚拟机/user/local/azkaban目录下
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202206300914647.png" alt="image-20220630091249409" width="50%;" />
 
-### 安装
+### 3.2、安装
 
 ```shell
 #解压路径下的安装包
@@ -24,12 +103,12 @@ $ mv azkaban-executor-2.5.0/ executor
 
 #azkaban脚本导入 进入mysql，创建azkaban数据库，并将解压的脚本导入到azkaban数据库
 $ mysql -uroot -p
-$mysql> create database azkaban;
-$mysql> use azkaban;
-$mysql> source /usr/local/azkaban/azkaban-2.5.0/create-all-sql-2.5.0.sql
+$ mysql> create database azkaban;
+$ mysql> use azkaban;
+$ mysql> source /usr/local/azkaban/azkaban-2.5.0/create-all-sql-2.5.0.sql
 ```
 
-### 生成密钥库
+### 3.3、生成密钥库
 
 - Keytool是java数据证书的管理工具，使用户能够管理自己的公/私钥对及相关证书。
 - -keystore  指定密钥库的名称及位置(产生的各类信息将不在.keystore文件中)
@@ -65,7 +144,7 @@ Re-enter new password:
 $ mv keystore web/
 ```
 
-### 时间同步配置
+### 3.4、时间同步配置
 
 ```shell
 #先配置好服务器节点上的时区
@@ -136,9 +215,9 @@ $ cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 $ sudo date -s '2018-10-18 16:39:30'
 ```
 
-### 配置文件
+### 3.5、配置文件
 
-#### Web服务器配置
+#### 3.5.1、Web服务器配置
 
 ```shell
 #进入azkaban web服务器安装目录 conf目录，打开azkaban.properties文件
@@ -230,7 +309,7 @@ $  vim azkaban-users.xml
 </azkaban-users>
 ```
 
-#### 执行服务器executor配置
+#### 3.5.2、执行服务器executor配置
 
 ```shell
 #进入执行服务器executor安装目录conf，打开azkaban.properties
@@ -267,7 +346,7 @@ $ vim azkaban.properties
     executor.flow.threads=30
 ```
 
-#### 启动executor服务器
+#### 3.5.3、启动executor服务器
 
 ```shell
 #在executor服务器目录下执行启动命令
@@ -284,7 +363,7 @@ $ azkaban-executor-start.sh
 $ azkaban-executor-shutdown.sh
 ```
 
-#### 启动web服务器
+#### 3.5.4、启动web服务器
 
 ```shell
 #在azkaban web服务器目录下执行启动命令
@@ -296,5 +375,37 @@ $ vim /etc/profile
     #Azkaban
     export AZKABAN_WEB_HOME=/usr/local/azkaban/web
     export PATH=$PATH:$AZKABAN_WEB_HOME/bin
+```
+
+## 四、Azkaban Job
+
+### 4.1、串行定时任务工作流
+
+```shell
+#zip目录结构
+|--start.job
+|--finish.job
+
+#执行脚本
+# start.job
+type=command
+command=hadoop jar /opt/mapreduce/cloudMap.jar com.zhulin.Webwork /flume/nginxlogs/access/2022-07-02 /flume/nginxlogs/mapaccess/site /flume/nginxlogs/mapaccess/client /flume/nginxlogs/mapaccess/os
+
+# sqoop1.job 导入dao
+type=command
+dependencies=start
+command=sqoop export --connect jdbc:mysql://121.36.215.98:3306/sqoop --username lijie -export-dir /flume/nginxlogs/mapaccess/site/part-r-00000 --table cloud_disk_log --input-fields-terminated-by '\t' --columns="type,name,num,time"
+
+# sqoop2.job
+type=command
+dependencies=start
+command=sqoop export --connect jdbc:mysql://121.36.215.98:3306/sqoop --username lijie -export-dir /flume/nginxlogs/mapaccess/client/part-r-00000 --table cloud_disk_log --input-fields-terminated-by '\t' --columns="type,name,num,time"
+
+# finsh.job
+type=command
+dependencies=sqoop1,sqoop2
+command=sqoop export --connect jdbc:mysql://121.36.215.98:3306/sqoop --username lijie -export-dir /flume/nginxlogs/mapaccess/os/part-r-00000 --table cloud_disk_log --input-fields-terminated-by '\t' --columns="type,name,num,time"
+successEmail=2107450246@qq.com
+failureEmail=2107450246@qq.com
 ```
 
