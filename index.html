@@ -27,9 +27,9 @@
       plugins: [
         function (hook, vm) {
           hook.beforeEach(function (html) {
-            var url = 'https://github.com/xuliyaheizi/myWiki/blob/master/' + vm.route.file
-            var editHtml = '[📝 EDIT DOCUMENT](' + url + ')\n'
-            var editHtml_end = '[🖊 Edit Document](' + url + ')\n'
+            const url = 'https://github.com/xuliyaheizi/myWiki/blob/master/' + vm.route.file;
+            const editHtml = '[📝 EDIT DOCUMENT](' + url + ')\n';
+            const editHtml_end = '[🖊 Edit Document](' + url + ')\n';
             return editHtml
               + html
               + '\n----\n'
@@ -39,7 +39,7 @@
         }
         ,
         function (hook) {
-          var footer = [
+          const footer = [
             '<hr/>',
             '<footer>',
             '<span><a href="https://github.com/xuliyaheizi">ZhuLin</a> &copy;2022.</span>',
@@ -62,7 +62,7 @@
       loadNavbar: true,       //导航栏
       auto2top: true,         //当路线改变时,滚动到屏幕的顶部
       topMargin: 60,          //调整top
-      hideSidebar: false,     //完全隐藏侧边栏，侧边栏的任何内容都不会被渲染
+      // hideSidebar: false,     //完全隐藏侧边栏，侧边栏的任何内容都不会被渲染
       executeScript: true,    //执行文档里的 script 标签里的脚本，只执行第一个 script (demo)。
       count: {
         countable: true,
@@ -82,8 +82,9 @@
     }
   </script>
   <!-- Docsify v4 -->
-  <!-- <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify.js"></script> -->
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify%404.js"></script>
+  <!--<script src="//cdn.jsdelivr.net/npm/docsify@4"></script>-->
+  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify.js"></script>
+  <!--<script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/docsify%404.js"></script>-->
   <!-- 字数统计 -->
   <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
   <!-- 图片缩放 -->
@@ -95,10 +96,10 @@
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-textile.min.js"></script>
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-yaml.min.js"></script>
   <script src="//polyfill.io/v3/polyfill.min.js?features=String.prototype.normalize"></script>
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-t4-cs.min.js"></script>
+  <!--<script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-t4-cs.min.js"></script>-->
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-t4-templating.min.js"></script>
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-t4-vb.min.js"></script>
-  <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-tsx.min.js"></script>
+  <!--<script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-tsx.min.js"></script>-->
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-bash.min.js"></script>
   <script src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/docsify/prism-shell-session.min.js"></script>
   <!-- 分页 -->
@@ -130,11 +131,11 @@
     });
 
     window.addEventListener("load", function (event) {
-      var buttons = document.getElementsByClassName("label");
+      const buttons = document.getElementsByClassName("label");
       for (let i = 0; i < buttons.length; i++) {
         buttons[i].innerHTML = '<i class="iconfont zhulin-fuzhi"></i>';
       }
-      var bus = document.getElementsByClassName("success");
+      const bus = document.getElementsByClassName("success");
       for (let i = 0; i < bus.length; i++) {
         bus[i].innerHTML = "复制成功";
       }

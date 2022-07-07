@@ -3,28 +3,28 @@
     padding-top: 6px;
 }
 
-aside.sidebar ul li {
+.sidebar ul li {
     margin: 0;
     position: relative;
 }
 
-aside.sidebar ul li ul {
+.sidebar ul li ul {
     margin: 6px 0;
 }
 
-aside.sidebar ul li p {
+.sidebar ul li p {
     padding-left: 22px;
     font-size: 18px;
     font-weight: normal;
 }
 
-aside.sidebar ul li a {
+.sidebar ul li a {
     line-height: 35px;
     font-size: 14px;
     padding: 3px 0 3px 22px;
 }
 
-aside.sidebar ul li.active>a {
+.sidebar ul li.active>a {
     font-size: 16px !important;
 }
 
@@ -40,7 +40,7 @@ body {
 .markdown-section h2,
 .markdown-section h3,
 .markdown-section h4 {
-    position: relative;
+    /*position: relative;*/
     margin-top: 1.2rem;
     margin-bottom: 1rem;
     font-weight: bold;
