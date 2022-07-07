@@ -27,7 +27,7 @@
       plugins: [
         function (hook, vm) {
           hook.beforeEach(function (html) {
-            const url = 'https://github.com/xuliyaheizi/myWiki/blob/master/' + vm.route.file;
+            const url = 'https://github.com/xuliyaheizi/docsify_wiki/blob/master/' + vm.route.file;
             const editHtml = '[📝 EDIT DOCUMENT](' + url + ')\n';
             const editHtml_end = '[🖊 Edit Document](' + url + ')\n';
             return editHtml
