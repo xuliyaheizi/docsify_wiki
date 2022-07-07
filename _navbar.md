@@ -20,14 +20,14 @@
     * [Hystrix服务降级](/2-框架/5、Hystrix.md)
     * [GetWay服务网关](/2-框架/6、GetWay.md)
 * <i class="iconfont zhulin-dashuju"></i>大数据
-    *[Hadoop](/4-大数据/1、Hadoop)
-    *[Flume](/4-大数据/2、Flume)
-    *[Sqoop](/4-大数据/3、Sqoop)
-    *[Azkaban](/4-大数据/4、Azkaban)
-* <i class="iconfont zhulin-dashuju"></i>配置
-    *[Hadoop集群配置](/5-配置/1、Hadoop集群配置)
-    *[云盘项目总结](/5-配置/2、云盘项目总结)
-    *[cloudreve搭建配置](/5-配置/4、cloudreve搭建配置)
+    * [Hadoop](/4-大数据/1、Hadoop)
+    * [Flume](/4-大数据/2、Flume)
+    * [Sqoop](/4-大数据/3、Sqoop)
+    * [Azkaban](/4-大数据/4、Azkaban)
+* <i></i>配置
+    * [Hadoop集群配置](/5-配置/1、Hadoop集群配置)
+    * [云盘项目总结](/5-配置/2、云盘项目总结)
+    * [cloudreve搭建配置](/5-配置/4、cloudreve搭建配置)
 * <i class="iconfont zhulin-shujujiegou"></i>数据结构
     * [链表](/3-数据结构与算法/1、链表)
 * [<i class="iconfont zhulin-zongjie"></i>每日一结](/6-每日一结/README.md)
