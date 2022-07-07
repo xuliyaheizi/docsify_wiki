@@ -34,7 +34,7 @@ $ vim /etc/hostname
 
 $ systemctl stop NetworkManager     #临时关闭
 $ systemctl disable NetworkManager  #永久关闭网络管理命令
-$systemctl start network.service    #开启网络服务
+$ systemctl start network.service    #开启网络服务
 ```
 
 ### 1.3、配置SFTP
