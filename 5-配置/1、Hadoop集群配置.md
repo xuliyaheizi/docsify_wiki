@@ -89,11 +89,11 @@ $ systemctl enable firewalld.service
 ### 1.5、设置时间和时区
 
 ```shell
-1、安装ntp服务软件包：yum install ntp
-2、将ntp设置为缺省启动：systemctl enable ntpd
-3、启动ntp服务：service ntpd restart
-4.  将系统时区改为上海时间（即CST时区）：ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-5. 输入date命令查看时间是否正确
+安装ntp服务软件包：yum install ntp
+将ntp设置为缺省启动：systemctl enable ntpd
+启动ntp服务：service ntpd restart
+将系统时区改为上海时间（即CST时区）：ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+输入date命令查看时间是否正确
 ```
 
 ### 1.6、配置JDK

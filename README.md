@@ -10,7 +10,7 @@
 
 [多线程与并发](/1-Java/7、多线程与并发)  [并发编程JUC](/1-Java/8、并发编程JUC)  [Shiro](/1-Java/9、Shiro)  [Swagger&Kinfe4j接口文档](/1-Java/10、Swagger%26Kinfe4j)  
 
-[分布式锁](/1-Java/12、分布式锁)
+[分布式锁](/1-Java/12、分布式锁)  [MySql](/1-Java/13、Mysql)
 
 ## 🥊框架|中间件
 
@@ -27,6 +27,6 @@
 
 ## 🍖大数据
 
-[Hadoop集群配置](/5-配置/1、Hadoop集群配置)  [云盘项目总结](/5-配置/2、云盘项目总结)  [cloudreve搭建配置](/5-配置/4、cloudreve搭建配置)
+[Hadoop集群配置](/5-配置/1、Hadoop集群配置)  [云盘项目总结](/5-配置/2、云盘项目总结)  [cloudreve搭建配置](/5-配置/4、cloudreve搭建配置)  [CDH安装配置](/5-配置/5、CDH安装配置)
 
 [Hadoop](/4-大数据/1、Hadoop)  [Flume](/4-大数据/2、Flume)  [Sqoop](/4-大数据/3、Sqoop)  [Azkaban](/4-大数据/4、Azkaban)
