@@ -560,7 +560,8 @@ FROM centos:7                       # 基于centos镜像
 MAINTAINER  zhulin                  # 创建者信息
 
 # 执行的命令
-RUN  yum -y install openssh-server sudo  
+RUN  
+-y install openssh-server sudo  
 RUN  sed -i 's/UsePAM yes/UsePAM no/g'  /etc/ssh/sshd_config
 RUN  yum -y install openssh-clients
 RUN  yum -y install net-tools
