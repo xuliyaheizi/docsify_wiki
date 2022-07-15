@@ -30,5 +30,7 @@
     * [cloudreve搭建配置](/5-配置/4、cloudreve搭建配置)
 * <i class="iconfont zhulin-shujujiegou"></i>数据结构
     * [链表](/3-数据结构与算法/1、链表)
-* [<i class="iconfont zhulin-zongjie"></i>每日一结](/6-每日一结/README.md)
+* <i class="iconfont zhulin-zongjie"></i>面试
+    * [计算机网络](/7-八股文/1、计算机网络)
+    * [java集合](/7-八股文/2、Java集合面试题)
 * [<i class="iconfont zhulin-zuozhe"></i>关于作者](/简历.md)
