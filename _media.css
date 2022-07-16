@@ -245,3 +245,7 @@ li {
 .token.punctuation {
     color: #999999 !important;
 }
+
+img {
+    width: 50%;
+}

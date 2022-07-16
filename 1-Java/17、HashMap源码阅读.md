@@ -373,12 +373,7 @@ final Node<K,V> getNode(int hash, Object key) {
 
 ## 总结
 
-```mermaid
-graph TD;
-    HashMap-->结构;
-    HashMap-->put方法;
-    结构-->JDK1.7;
-```
+<img src="http://assets.processon.com/chart_image/62d22f307d9c08119ce25236.png">
 
-<iframe id="embed_dom" name="embed_dom" frameborder="0" style="display:block;width:525px; height:245px;" src="https://www.processon.com/embed/62d22f307d9c08119ce25233"></iframe>
+
 
