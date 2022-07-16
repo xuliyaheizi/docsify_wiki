@@ -68,8 +68,6 @@ static class Node<K,V> implements Map.Entry<K,V> {
 }
 ```
 
-
-
 ## 数据常量
 
 ```java
@@ -144,6 +142,37 @@ public HashMap(Map<? extends K, ? extends V> m) {
     putMapEntries(m, false);
 }
 ```
+
+## 数组容量的初始方法tableSizeFor
+
+```java
+static final int tableSizeFor(int cap) {
+    //首先将容量减一，为了不管传进来的cap是2的幂次方还是不是，都会得到离cap最近的那个2的幂次方
+   int n = cap - 1;
+   n |= n >>> 1;
+   n |= n >>> 2;
+   n |= n >>> 4;
+   n |= n >>> 8;
+   n |= n >>> 16;
+   return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+}
+```
+
+> / >>> 运算符表示无符号右移，也叫逻辑右移，即若该数为正，则高位补0；7的二进制是111，7>>>2表示右移2位，变成001，即1。
+
+**计算流程：**先来假设n的二进制为01xxx...xxx。接着
+
+对n右移1位：001xx...xxx，再位或：011xx...xxx
+
+对n右移2为：00011...xxx，再位或：01111...xxx
+
+此时前面已经有四个1了，再右移4位且位或可得8个1
+
+同理，有8个1，右移8位肯定会让后八位也为1。
+
+综上可得，该算法让最高位的1后面的位全变为1。
+
+最后再让结果n+1，即得到了2的整数次幂的值了。
 
 ## 链表转红黑树
 
