@@ -119,6 +119,18 @@ Big-O 表示法根据数据结构中元素的数量来描述算法的性能。�
 -  Iterator有fail-fast机制，比Enumeration更安全 
 -  Iterator能够删除元素，Enumeration并不能删除元素
 
+### 1.23、说说什么是fail-fast机制？
+
+fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错误检测机制**。多线程下用`迭代器遍历一个集合对象时`，如果遍历过程中对集合对象的内容进行了`修改（增加、删除）`，则会抛出`Concurrent Modification Exception`。fail-fast机制并不保证在不同步的修改下一定会抛出异常，这种机制一般仅用于检测bug。
+
+原理：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 modCount 变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测modCount变量是否为expectedmodCount值，是的话就返回遍历；否则抛出异常，终止遍历。
+
+例如：当某一个线程A通过iterator去遍历某集合的过程中，若集合的内容被其他的线程所改变了，那么线程A访问集合时，就会抛出ConcurrentModifificationException异常，产生fail-fast事件。这里的操作主要是指add、remove和clear，对集合元素个数进行修改。
+
+解决办法：使用java.util.concurrent包下的类去取代java.util包下的类。
+
+可以这么理解：在遍历之前，把 modCount 记下来 expectModCount，后面 expectModCount 去和 modCount 进行比较，如果不相等了，证明已并发了，被修改了，于是抛出ConcurrentModifificationException 异常。
+
 ## 二、Map
 
 ### 2.1、HashMap 在 Java 中是如何工作的？
@@ -133,7 +145,12 @@ HashMap的初始容量设置计算：（需要存储的元素个数/负载因子
 
 ### 2.2、可以使用任何类作为 Map 键吗？
 
-可以使用任何类作为 Map Key，但是如果类重写了equals()方法，也应该重写hashCode()方法。
+可以`使用任何类`作为 Map `Key`，但是如果类`重写了equals()方法`，也应该重写`hashCode()方法`。
+
+- 如果类重写了 equals 方法，它也应该重写 hashCode 方法。
+- 类的所有实例需要遵循与 equals 和 hashCode 相关的规则。
+- 如果一个类没有使用 equals，你不应该在 hashCode 中使用它。
+- 咱们自定义 key 类的最佳实践是使之为不可变的，这样，hashCode 值可以被缓存起来，拥有更好的性能。不可变的类也可以确保 hashCode 和 equals 在未来不会改变，这样就会解决与可变相关的问题了。
 
 ### 2.3、Map 接口提供了哪些不同的 Collection 视图？
 
@@ -149,8 +166,10 @@ Map 接口提供了三个集合视图：
 
 HashMap和HashTable都实现了Map接口，两者的区别：
 
-- HashMap的键和值都允许有null值存在；而Hashtable不允许
-- HashMap是非线程安全的；Hashtable是线程安全的（方法都有synchronized）。由于线程安全的问题，HashMap的效率要比Hashtable高
+- HashMap的键和值都允许有null值存在；而Hashtable不允许。
+- 都实现了Map、Cloneable、Serializbale。
+- HashMap继承的是`AbstractMap`，并且AbstractMap也实现了Map接口。Hashtable继承的是`Dictionary`。
+- HashMap是非线程安全的；Hashtable是线程安全的（大部分 public 修饰普通方法都是 synchronized 字段修饰的）。由于线程安全的问题，HashMap的效率要比Hashtable高。
 - HashMap提供了一组键来迭代，因此它是快速失败的，但Hashtable提供了不支持此功能的键的枚举
 
 一般现在不建议用Hashtable:
@@ -186,6 +205,8 @@ JDK1.8 之前 HashMap 底层是`数组和链表`结合在一起使用也就是`�
 
 为了能让 HashMap `存取高效`，`尽量较少碰撞`，也就是要`尽量把数据分配均匀`。Hash 值的范围值`-2147483648 到 2147483647`，前后加起来大概 40 亿的映射空间，只要哈希函数映射得比较均匀松散，一般应用是很难出现碰撞的。但问题是一个 40 亿长度的数组，内存是放不下的。所以这个散列值是不能直接拿来用的。用之前还要先做对数组的长度取模运算，得到的余数才能用来要存放的位置也就是对应的数组下标。这个数组下标的计算方法是“ `(n - 1) & hash`”。（n 代表数组长度）。这也就解释了 HashMap 的长度为什么是 2 的幂次方。
 
+在hash值的运算中，取余（%）操作中如果除数是2的幂次，则等价于与其除数减1的（&）操作，相当于hash%length=hash&(length-1)的前提length是2的幂次。并且采用二进制位操作（&），相对于取余操作能够提高运算效率。
+
 ### 2.10、Java中HashMap的key值要是为类对象则该类需要满足什么条件？
 
 **需要同时重写该类的hashCode()方法和它的equals()方法**。 
@@ -207,7 +228,21 @@ JDK1.8 之前 HashMap 底层是`数组和链表`结合在一起使用也就是`�
 
 - 哈希表的查找、添加、删除的时间复杂度都是O(1)
 
+### 2.13、HashMap与ConcurrentHashMap的异同？
 
+- 都是`Key-Value`形式的存储数据
+- HashMap是`线程不安全`的，ConcurrentHashMap是`JUC下的线程安全`
+- HashMap的底层数据结构是`数组、链表（JDK1.8之前）`，JDK1.8之后，底层数据结构是`数组、链表、红黑树`。当`链表的长度达到8`的时候，且`数组的元素个数大于等于64`的时候，链表的`查询速度不如红黑树`，因此链表会转化为红黑树。
+- HashMap的`初始容量为16`，当添加后数组的元素个数达到原数组的`长度*负载因子（0.75）`的时候，会进行`扩容`，以`数组的2倍长度`进行扩容。
+- `ConcurrentHashMap`在JDK1.8之前是用`分段锁`来实现的`Segment+HashEntry`，Segment数组大小默认为`16`，`2的n次方`。JDK1.8之后采用`node+CAS+Synchronized`来保证并发安全进行实现。
+
+### 2.14、红黑树的特征？
+
+- 每个节点是黑色或红色
+- 根节点是黑色
+- 每个叶子节点都黑色（指向空的叶子节点）
+- 如果一个叶子节点是红色，那么其子节点必须都是黑色的
+- 从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑i
 
 ## 三、List（有序可重复）
 
@@ -236,6 +271,23 @@ ArrayList 和 Vector 在许多方面都是相似的类。
 - 如果您正在处理固定的多维情况，使用 [][] 远比 List<List<>>
 
 ### 3.4、ArrayList 和 LinkedList 有什么区别？
+
+**ArrayList**
+
+- 优点：ArrayList是实现了`基于动态数组`的数据结构，因为地址连续，一旦数据存储好了，查询效率会比较高（在内存里是连续的）
+- 缺点：由于`地址连续，插入和删除操作后`，`ArrayList需要移动数据`，因此效率会比较低。
+
+**LinkedList**
+
+- 优点：LinkedList是`基于链表`的数据结构，`地址是任意`的，在开辟内存空间的时候不需要等一个连续的地址。对于新增和删除操作，LinkedList比较占优势。LinkedList适用于要头尾操作或插入指定位置的场景。
+- 缺点：由于LinkedList需要移动指针，查询操作性能比较低。
+
+**使用场景分析**
+
+- 当需要对数据进行对`随机访问`的时候，选用ArrayList
+- 当需要对数据进行`多次增加删除修改`时，采用LinkedList
+
+
 
 - ArrayList 和 LinkedList 都实现了 List 接口，但它们之间存在一些差异。 
 - ArrayList 是由 Array 支持的基于索引的数据结构，因此它提供对其元素的随机访问，性能为 O(1)，但 LinkedList 将数据存储为节点列表，其中每个节点都链接到它的前一个节点和下一个节点。所以即使有一种使用索引获取元素的方法，但在内部它是从开始遍历到索引节点然后返回元素，所以性能是O(n)，比ArrayList慢。 

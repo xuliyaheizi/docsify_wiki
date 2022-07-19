@@ -2,7 +2,7 @@
 
 ## 一、NoSql
 
-  NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关系型的数据库**。NoSQL 不依赖业务逻辑方式存储，而以简单的 `key-value` 模式存储。因此大大的增加了数据库的扩展能力。
+NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关系型的数据库**。NoSQL 不依赖业务逻辑方式存储，而以简单的 `key-value` 模式存储。因此大大的增加了数据库的扩展能力。
 
 - 不遵循 SQL 标准。 
 - 不支持 ACID。 
