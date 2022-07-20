@@ -4,17 +4,17 @@
 
 ### 1.1、什么是 Java 集合框架？
 
-集合代表了一组对象（和数组一样，但是数组长度不能变，集合可以），Java集合框架定义了一套规范，用来表示、操作集合，是具体操作与实现细节解耦。
+集合代表了一组`对象`（和数组一样，但是数组长度不能变，集合可以），Java集合框架定义了一套规范，用来表示、操作集合，是具体操作与实现细节解耦。
 
-- 必须是高性能的。基本集合（动态数组、链表、树、哈希表）的实现也必须是高效的。
-- 允许不同类型的集合，以类似的方式工作，具有高度的互操作性。
-- 对一个集合的扩展与适应必须是简单的。
+- 必须是`高性能`的。基本集合（`动态数组、链表、树、哈希表`）的实现也必须是高效的。
+- 允许不同类型的集合，以类似的方式工作，具有高度的`互操作性`。
+- 对一个集合的`扩展与适应`必须是简单的。
 
 Java集合有Collection、Map；Java集合框架的内容：
 
-- 接口：代表集合的抽象数据类型。例如Collection、List、Set、Map等。定义多个接口的意义是为了以不同的方式操作集合对象。
-- 实现（类）：是集合接口的具体实现。可重复使用的数据结构，例如：ArrayList、LinkedList、HashSet、HashMap。
-- 算法：实现集合接口的对象里的方法执行的一些有用的计算，例如：搜索和排序。这些算法称为多态，那是因为相同的方法可以在相似的接口上有着不同的实现。
+- **接口：**代表集合的抽象数据类型。例如Collection、List、Set、Map等。定义多个接口的意义是为了以`不同的方式操作集合对象`。
+- **实现（类）：**是集合接口的具体实现。可重复使用的数据结构，例如：`ArrayList、LinkedList、HashSet、HashMap`。
+- **算法：**实现集合接口的对象里的方法执行的一些有用的计算，例如：`搜索和排序`。这些算法称为`多态`，那是因为相同的方法可以在相似的接口上有着不同的实现。
 
 ### 1.2、为什么 Collection 不扩展 Cloneable 和 Serializable 接口？
 
@@ -24,7 +24,7 @@ List：无序、可重复；Set：有序、不可重复；
 
 ### 1.3、为什么 Map 接口不扩展 Collection 接口？
 
-尽管 Map 接口及其实现是 Collections Framework 的一部分，但 Map 不是集合，集合也不是 Map。因此 Map 扩展 Collection 没有意义，反之亦然。如果 Map 扩展了 Collection 接口，那么元素在哪里？Map 包含键值对，它提供了检索键或值列表作为集合的方法，但它不适合“元素组”范式。
+尽管 Map 接口及其实现是 `Collections Framework` 的一部分，但 Map 不是集合，集合也不是 Map。因此 Map 扩展 Collection 没有意义，反之亦然。如果 Map 扩展了 Collection 接口，那么元素在哪里？Map 包含键值对，它提供了检索键或值列表作为集合的方法，但它不适合“元素组”范式。
 
 ### 1.4、什么是迭代器？
 
@@ -44,7 +44,7 @@ Iterator 接口声明了用于迭代集合的方法，但它的实现由 Collect
 
 ### 1.8、哪些集合类提供对其元素的随机访问？
 
-ArrayList、HashMap、TreeMap、Hashtable 类提供对其元素的随机访问。
+`ArrayList`、`HashMap`、`TreeMap`、`Hashtable `类提供对其元素的随机访问。
 
 ### 1.9、什么是枚举集？
 
@@ -52,7 +52,7 @@ java.util.EnumSet是设置实现以与枚举类型一起使用。枚举集合中
 
 ### 1.10、哪些集合类是线程安全的？
 
-Vector、Hashtable、Properties 和 Stack 是同步类，因此它们是线程安全的，可以在多线程环境中使用。Java 1.5 Concurrent API 包括一些允许在迭代时修改集合的集合类，因为它们在集合的克隆上工作，因此它们在多线程环境中使用是安全的。
+`Vector`、`Hashtable`、`Properties `和 `Stack `是同步类，因此它们是线程安全的，可以在多线程环境中使用。Java 1.5 Concurrent API 包括一些允许在迭代时修改集合的集合类，因为它们在集合的克隆上工作，因此它们在多线程环境中使用是安全的。
 
 ### 1.11、什么是并发集合类？
 
@@ -73,9 +73,9 @@ Java 提供了 Comparable 接口，如果我们想使用 Arrays 或 Collections 
 Comparable 和 Comparator 接口用于对对象的集合或数组进行排序。Comparable 接口用于提供对象的自然排序，我们可以使用它来提供基于单一逻辑的排序。
 Comparator 接口用于提供不同的排序算法，我们可以选择我们想要使用的比较器来对给定的对象集合进行排序。
 
-### 1.15、我们如何对对象列表进行[排序](https://www.nowcoder.com/jump/super-jump/word?word=排序)？
+### 1.15、我们如何对对象列表进行排序？
 
-如果我们需要对一个对象数组进行排序，我们可以使用Arrays.sort(). 如果我们需要对对象列表进行排序，我们可以使用Collections.sort(). 这两个类都重载了 sort() 方法，用于自然排序（使用 Comparable）或基于标准排序（使用 Comparator）。Collections 内部使用 Arrays 排序方法，因此两者具有相同的性能，只是 Collections 需要一些时间来将列表转换为数组。
+如果我们需要对一个`对象数组进行排序`，我们可以使用`Arrays.sort()`。 如果我们需要对对象列表进行排序，我们可以使用`Collections.sort`。这两个类都重载了 sort() 方法，用于`自然排序（使用 Comparable）或基于标准排序（使用 Comparator）`。Collections 内部使用 Arrays 排序方法，因此两者具有相同的性能，只是 Collections 需要一些时间来将列表转换为数组。
 
 ### 1.16、在将 Collection 作为参数传递给函数时，我们如何确保函数无法修改它？
 
@@ -86,7 +86,7 @@ UnsupportedOperationException。
 
 我们可以Collections.synchronizedCollection(Collection c)用来获取由指定集合支持的同步（线程安全）集合。
 
-### 1.18、Collections Framework 中实现的常用[算法](https://www.nowcoder.com/jump/super-jump/word?word=算法)有哪些？
+### 1.18、Collections Framework 中实现的常用算法有哪些？
 
 Java Collections Framework 提供了排序和搜索等常用的算法实现。Collections 类包含这些方法实现。这些算法中的大多数都适用于 List，但其中一些适用于所有类型的集合。其中一些是排序、搜索、改组、最小值-最大值。
 
@@ -106,7 +106,7 @@ Big-O 表示法根据数据结构中元素的数量来描述算法的性能。�
 
 ### 1.22、Enumeration和Iterator接口的区别
 
-这个我在前面的文章中也没有详细去讲它们，只是大概知道的是：Iterator替代了Enumeration，Enumeration是一个旧的迭代器了。 
+Iterator替代了Enumeration，Enumeration是一个旧的迭代器了。 
 
  与Enumeration相比，Iterator更加安全，**因为当一个集合正在被遍历的时候，它会阻止其它线程去修改集合**。 
 
@@ -121,9 +121,9 @@ Big-O 表示法根据数据结构中元素的数量来描述算法的性能。�
 
 ### 1.23、说说什么是fail-fast机制？
 
-fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错误检测机制**。多线程下用`迭代器遍历一个集合对象时`，如果遍历过程中对集合对象的内容进行了`修改（增加、删除）`，则会抛出`Concurrent Modification Exception`。fail-fast机制并不保证在不同步的修改下一定会抛出异常，这种机制一般仅用于检测bug。
+fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错误检测机制**。`多线程`下用`迭代器遍历一个集合对象时`，如果遍历过程中对集合对象的内容进行了`修改（增加、删除）`，则会抛出`Concurrent Modification Exception`。fail-fast机制并不保证在不同步的修改下一定会抛出异常，这种机制一般仅用于检测bug。
 
-原理：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 modCount 变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测modCount变量是否为expectedmodCount值，是的话就返回遍历；否则抛出异常，终止遍历。
+原理：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 `modCount `变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测`modCount变量是否为expectedmodCount值`，是的话就返回遍历；否则抛出异常，终止遍历。
 
 例如：当某一个线程A通过iterator去遍历某集合的过程中，若集合的内容被其他的线程所改变了，那么线程A访问集合时，就会抛出ConcurrentModifificationException异常，产生fail-fast事件。这里的操作主要是指add、remove和clear，对集合元素个数进行修改。
 
@@ -135,7 +135,7 @@ fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错
 
 ### 2.1、HashMap 在 Java 中是如何工作的？
 
-Map.EntryHashMap 在静态嵌套类实现中存储键值对。HashMap 做`散列算法`，在`put and get`方法中使用`hashCode()`和`equals()`方法。当我们通过传递键值对调用put方法时，HashMap使用Key hashCode()和散列来找出索引来存储键值对. 条目存储在 LinkedList 中，因此如果已经存在条目，则使用 equals() 方法检查传递的键是否已存在，如果存在则覆盖值，否则创建新条目并存储此键值条目.当我们通过传递Key调用get方法时，它再次使用hashCode()来查找数组中的索引，然后使用equals()方法找到正确的Entry并返回它的值。下图将清楚地解释这些细节。
+Map.EntryHashMap 在静态嵌套类实现中存储键值对。HashMap 做`散列算法`，在`put and get`方法中使用`hashCode()`和`equals()`方法。当我们通过传递键值对调用put方法时，HashMap使用Key hashCode()和散列来找出索引来存储键值对. 条目存储在 LinkedList（数组每个位置存储链表）中，因此如果已经存在条目，则使用 equals() 方法检查传递的键是否已存在，如果`存在则覆盖值`，否则创建新条目并存储此键值条目.当我们通过传递Key调用get方法时，它再次使用hashCode()来查找数组中的索引，然后使用equals()方法找到正确的Entry并返回它的值。下图将清楚地解释这些细节。
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207131853000.png" alt="image-20220713185302133" style="width:50%;" />
 
@@ -166,10 +166,10 @@ Map 接口提供了三个集合视图：
 
 HashMap和HashTable都实现了Map接口，两者的区别：
 
-- HashMap的键和值都允许有null值存在；而Hashtable不允许。
-- 都实现了Map、Cloneable、Serializbale。
+- `HashMap`的键和值都允许有`null值`存在；而`Hashtable`不允许。
+- 都实现了`Map`、`Cloneable`、`Serializbale`。
 - HashMap继承的是`AbstractMap`，并且AbstractMap也实现了Map接口。Hashtable继承的是`Dictionary`。
-- HashMap是非线程安全的；Hashtable是线程安全的（大部分 public 修饰普通方法都是 synchronized 字段修饰的）。由于线程安全的问题，HashMap的效率要比Hashtable高。
+- HashMap是`非线程安全`的；Hashtable是`线程安全`的（大部分 public 修饰的普通方法都是 `synchronized `字段修饰的）。由于线程安全的问题，HashMap的效率要比Hashtable高。
 - HashMap提供了一组键来迭代，因此它是快速失败的，但Hashtable提供了不支持此功能的键的枚举
 
 一般现在不建议用Hashtable:
@@ -238,37 +238,38 @@ JDK1.8 之前 HashMap 底层是`数组和链表`结合在一起使用也就是`�
 
 ### 2.14、红黑树的特征？
 
-- 每个节点是黑色或红色
-- 根节点是黑色
-- 每个叶子节点都黑色（指向空的叶子节点）
+- 每个节点是`黑色或红色`
+- 根节点是`黑色`
+- 每个叶子节点都黑色（指向空的叶子节点）,红黑树的叶子节点是`null节点`且为`黑色`
 - 如果一个叶子节点是红色，那么其子节点必须都是黑色的
-- 从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑i
+- 从一个节点到该节点的子孙节点的所有路径上包含相同数目的黑色节点
+- 同一路径，不存在连续的红色节点
 
 ## 三、List（有序可重复）
 
 ### 3.1、ArrayList和Vector有什么异同？
 
-ArrayList 和 Vector 在许多方面都是相似的类。 
+`ArrayList `和 `Vector `在许多方面都是相似的类。 
 
-- 两者都是基于索引的，并由内部数组备份。 
-- 两者都保持插入顺序，我们可以按插入顺序获取元素。 
-- ArrayList 和 Vector 的迭代器实现在设计上都是快速失败的。 
-- ArrayList 和 Vector 都允许空值和使用索引号随机访问元素。 
+- 两者都是`基于索引`的，并由`内部数组备份`。 
+- 两者都`保持插入顺序`，我们可以按`插入顺序获取元素`。 
+- ArrayList 和 Vector 的`迭代器`实现在设计上都是`快速失败`的。 
+- ArrayList 和 Vector 都`允许空值和使用索引号`随机访问元素。 
 
 这些是 ArrayList 和 Vector 之间的区别。 
 
-- Vector 是同步的，而 ArrayList 是不同步的。但是，如果您在迭代时寻找列表的修改，您应该使用 CopyOnWriteArrayList。 
-- ArrayList 比 Vector 快，因为它不会因为同步而产生任何开销。 
+- `Vector `是同步的，而 `ArrayList `是不同步的。但是，如果您在迭代时寻找列表的修改，您应该使用 `CopyOnWriteArrayList`。 
+- ArrayList 比 Vector 快，因为它`不会因为同步而产生任何开销`。 
 - ArrayList 更加通用，因为我们可以使用 Collections 实用程序类轻松地从中获取同步列表或只读列表。
 
 ### 3.2、Array 和 ArrayList 有什么区别？什么时候使用 Array 而不是 ArrayList？
 
-- 数组可以包含原始对象或对象，而 ArrayList 只能包含对象。（数组支持基本数据类型和引用类型；ArrayList支持引用类型）
-- 数组是固定大小的，而 ArrayList 大小是动态的。（ArrayList可以根据自身的情况对数组进行扩容，达到动态数组的作用）
+- 数组可以包含`原始对象或对象`，而 ArrayList `只能包含对象`。（`数组支持基本数据类型和引用类型；ArrayList支持引用类型`）
+- 数组是`固定大小`的，而 ArrayList 大小是`动态`的。（ArrayList可以根据`自身的情况对数组进行扩容`，达到动态数组的作用）
 - 数组并没有像ArrayList那样提供很多特性，比如addAll、removeAll、iterator等。虽然ArrayList是我们处理list时的明显选择，但很少有时候数组很好用。 
-- 如果列表的大小是固定的，并且主要用于存储和遍历它们。 
+- 如果列表的大小是固定的，并且主要用于`存储和遍历`它们。 
 - 对于原始数据类型的列表，虽然集合使用自动装箱来减少编码工作，但在处理固定大小的原始数据类型时仍然会使它们变慢。 
-- 如果您正在处理固定的多维情况，使用 [][] 远比 List<List<>>
+- 如果您正在处理固定的多维情况，使用远比 List<List<>>
 
 ### 3.4、ArrayList 和 LinkedList 有什么区别？
 
@@ -316,10 +317,10 @@ ArrayList的默认初始容量为10，要插入大量数据的时候需要不断
 
 ### 3.7、说出ArrayList,LinkedList的存储性能和特性
 
- ArrayList的底层是数组，LinkedList的底层是双向[链表]()。 
+ ArrayList的底层是数组，LinkedList的底层是双向链表。 
 
--  ArrayList它支持以角标位置进行索引出对应的元素(随机访问)，而LinkedList则需要遍历整个[链表]()来获取对应的元素。因此**一般来说ArrayList的访问速度是要比LinkedList要快的** 
--  ArrayList由于是数组，对于删除和修改而言消耗是比较大(复制和移动数组实现)，LinkedList是双向[链表]()删除和修改只需要修改对应的指针即可，消耗是很小的。因此**一般来说LinkedList的增删速度是要比ArrayList要快的** 
+-  ArrayList它支持以角标位置进行索引出对应的元素(随机访问)，而LinkedList则需要遍历整个链表来获取对应的元素。因此一般来说ArrayList的访问速度是要比LinkedList要快的 
+-  ArrayList由于是数组，对于删除和修改而言消耗是比较大(复制和移动数组实现)，LinkedList是双向链表删除和修改只需要修改对应的指针即可，消耗是很小的。因此一般来说LinkedList的增删速度是要比ArrayList要快的 
 
 ####  扩展：
 
