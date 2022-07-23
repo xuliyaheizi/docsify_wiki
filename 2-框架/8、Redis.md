@@ -16,7 +16,7 @@ NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关
 
 ## 二、Redis
 
-  Redis 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它支持存储的 value 类型相对更多，包括 string(字符串)、list(链表)、set(集合)、zset(sorted set --有序集合)和 hash（哈希类型）。这些数据类型都支持 `push/pop、add/remove` 及取交集并集和差集及更丰富的操作，而且这些操作都是**原子性**的。在此基础上，Redis 支持各种不同方式的排序。与 memcached 一样，为了保证效率，数据都是缓存在内存中。区别的是 Redis 会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件。并且在此基础上实现了`master-slave(主从)同步`。
+**Redis** 是一个开源的 `key-value 存储系统`。和 `Memcached `类似，它支持存储的 value 类型相对更多，包括 `string(字符串)`、`list(链表)`、`set(集合)`、`zset(sorted set --有序集合)`和 `hash（哈希类型）`。这些数据类型都支持 `push/pop、add/remove` 及取交集并集和差集及更丰富的操作，而且这些操作都是**原子性**的。在此基础上，Redis 支持各种不同方式的排序。与 memcached 一样，为了保证效率，数据都是**缓存在内存中**。区别的是 Redis 会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件。并且在此基础上实现了`master-slave(主从)同步`。
 
 **配合关系型数据库做高速缓存**
 
@@ -25,7 +25,7 @@ NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关
 
 **多样的数据结构存储持久化数据**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521193155461.png" alt="image-20220521193155461" width="50%" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521193155461.png" alt="image-20220521193155461"/>
 
 **redis介绍**
 
@@ -36,60 +36,60 @@ NoSQL(NoSQL = **Not Only SQL** )，意即“不仅仅是 SQL”，泛指**非关
 - flushdb 清空当前库 
 - flushall 通杀全部库
 
-  Redis 是**单线程+多路 IO 复用技术** 
+Redis 是**单线程+多路 IO 复用技术** 
 
-  `多路复用`是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select 和 poll 函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池） 串行 vs 多线程+锁（memcached） vs 单线程+多路 IO 复用(Redis)。
+`多路复用`是指使用一个线程来检查多个文件描述符（Socket）的就绪状态，比如调用select 和 poll 函数，传入多个文件描述符，如果有一个文件描述符就绪，则返回，否则阻塞直到超时。得到就绪状态后进行真正的操作可以在同一个线程里执行，也可以启动线程执行（比如使用线程池） 串行 vs 多线程+锁（memcached） vs 单线程+多路 IO 复用(Redis)。
 
-  （与 Memcache 三点不同: 支持多数据类型，支持持久化，单线程+多路 IO 复用）
+（与 Memcache 三点不同: `支持多数据类型`，`支持持久化`，`单线程+多路 IO 复用`）。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521194217299.png" alt="image-20220521194217299" width="50%" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220521194217299.png" alt="image-20220521194217299"/>
 
 ## 三、常用五大数据类型
 
 ### 键（key）
 
 ```tex
-keys *			查看当前库所有 key (匹配：keys *1) 
-exists key		判断某个 key 是否存在 
-type key		  查看你的 key 是什么类型 
-del key			删除指定的 key 数据 
-unlink key		根据 value		选择非阻塞删除		仅将 keys 从 keyspace 元数据中删除，真正的删除会在后续异步操作。 
-expire key 10	10 秒钟：为给定的 key 设置过期时间 
-ttl key			查看还有多少秒过期，-1 表示永不过期，-2 表示已过期 
-select			 命令切换数据库 
-dbsizex			查看当前数据库的 key 的数量 
-flushdb			清空当前库 
-flushall		  通杀全部库 
+keys *				查看当前库所有 key (匹配：keys *1) 
+exists key			判断某个 key 是否存在 
+type key		  	查看你的 key 是什么类型 
+del key				删除指定的 key 数据 
+unlink key			根据 value		选择非阻塞删除		仅将 keys 从 keyspace 元数据中删除，真正的删除会在后续异步操作。 
+expire key 10		10 秒钟：为给定的 key 设置过期时间 
+ttl key				查看还有多少秒过期，-1 表示永不过期，-2 表示已过期 
+select			 	命令切换数据库 
+dbsizex				查看当前数据库的 key 的数量 
+flushdb				清空当前库 
+flushall		  	通杀全部库 
 ```
 
-### 字符串（String）
+### 3.1、字符串（String）
 
-- String 是 Redis 最基本的类型，你可以理解成与 Memcached 一模一样的类型，一个 key对应一个 value。 
+- String 是 Redis 最基本的类型，你可以理解成与 Memcached 一模一样的类型，`一个 key对应一个 value`。 
 - String 类型是**二进制安全**的。意味着 Redis 的 string 可以**包含任何数据**。比如 jpg 图片或者序列化的对象。 
-- String 类型是 Redis 最基本的数据类型，一个 Redis 中字符串 value 最多可以是 **512M**
+- String 类型是 Redis 最基本的数据类型，一个 Redis 中字符串 value 最多可以是 **512M**。
 
 ```tex
 set <key><value>							添加键值对
-get <key>				                 	查询对应键值 
-append <key><value>				         	将给定的<value> 追加到原值的末尾 
-strlen <key>					  			获得值的长度 
+get <key>									查询对应键值 
+append <key><value>				  			将给定的<value> 追加到原值的末尾 
+strlen <key>								获得值的长度 
 setnx <key><value>							只有在 key 不存在时 设置 key 的值
-incr <key> 			                     	将 key 中储存的数字值增 1 只能对数字值操作，如果为空，新增值为 1 
-decr <key> 				      		    	将 key 中储存的数字值减 1 只能对数字值操作，如果为空，新增值为-1 
-incrby / decrby <key><步长>		  	   	将 key 中储存的数字值增减。自定义步长。
-mset <key1><value1><key2><value2> .....	  	同时设置一个或多个 key-value 对 
-mget <key1><key2><key3> .....			 	同时获取一个或多个 value 
-msetnx <key1><value1><key2><value2> ..... 	同时设置一个或多个 key-value 对，当且仅当所有给定 key 都不存在。
+incr <key> 			        				将 key 中储存的数字值增 1 只能对数字值操作，如果为空，新增值为 1 
+decr <key> 				 					将 key 中储存的数字值减 1 只能对数字值操作，如果为空，新增值为-1 
+incrby / decrby <key><步长>				   将 key 中储存的数字值增减。自定义步长。
+mset <key1><value1><key2><value2> .....		同时设置一个或多个 key-value 对 
+mget <key1><key2><key3> .....				同时获取一个或多个 value 
+msetnx <key1><value1><key2><value2> .....	同时设置一个或多个 key-value 对，当且仅当所有给定 key 都不存在。
 			原子性，有一个失败则都失败
-getrange <key><起始位置><结束位置> 	       	获得值的范围，类似 java 中的 substring，前包，后包 
-setrange <key><起始位置><value> 		  	用 <value> 覆写<key>所储存的字符串值，从<起始位置>开始(索引从 0 开始)。 
-setex <key><过期时间><value> 		      	设置键值的同时，设置过期时间，单位秒。 
-getset <key><value> 				     	以新换旧，设置了新值同时获得旧值。
+getrange <key><起始位置><结束位置>			  获得值的范围，类似 java 中的 substring，前包，后包 
+setrange <key><起始位置><value>				 用 <value> 覆写<key>所储存的字符串值，从<起始位置>开始(索引从 0 开始)。 
+setex <key><过期时间><value>				 设置键值的同时，设置过期时间，单位秒。 
+getset <key><value>							以新换旧，设置了新值同时获得旧值。
 ```
 
 **原子性** 
 
-  所谓**原子**操作是指不会被线程调度机制打断的操作；这种操作一旦开始，就一直运行到结束，中间不会有任何 context switch （切换到另一个线程）。 
+所谓**原子**操作是指不会被线程调度机制打断的操作；这种操作一旦开始，就一直运行到结束，中间不会有任何 context switch （切换到另一个线程）。 
 
 - 在单线程中， 能够在单条指令中完成的操作都可以认为是"原子操作"，因为中断只能发生于指令之间。 
 - 在多线程中，不能被其它进程（线程）打断的操作就叫原子操作。Redis 单命令的原子性主要得益于 Redis 的单线程。 
@@ -100,72 +100,72 @@ java 中的 i++是否是原子操作？**不是**
 
 i=0;两个线程分别对 i 进行++100 次,值是多少？ **2~200**
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112446066.png" alt="image-20220522112446066" width="15%" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112446066.png" alt="image-20220522112446066"/>
 
 #### 数据结构
 
-  String 的数据结构为`简单动态字符串`(Simple Dynamic String,缩写 SDS)。是可以修改的字符串，内部结构实现上类似于 Java 的 `ArrayList`，采用**预分配冗余空间**的方式来减少内存的频繁分配.
+String 的数据结构为`简单动态字符串`(Simple Dynamic String,缩写 SDS)。是可以修改的字符串，内部结构实现上类似于 Java 的 `ArrayList`，采用**预分配冗余空间**的方式来减少内存的频繁分配.
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112539492.png" alt="image-20220522112539492" width="50%" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112539492.png" alt="image-20220522112539492"/>
 
-  如图中所示，内部为当前字符串实际分配的空间 `capacity `一般要**高于实际字符串长度len**。当字符串长度小于 1M 时，扩容都是加倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间。需要注意的是字符串最大长度为 `512M`。
+如图中所示，内部为当前字符串实际分配的空间 `capacity `一般要**高于实际字符串长度len**。当字符串长度小于 1M 时，扩容都是加倍现有的空间，如果超过 1M，扩容时一次只会多扩 1M 的空间。需要注意的是字符串最大长度为 `512M`。
 
-### 链表（List）
+### 3.2、链表（List）
 
 **单键多值Redis** 
 
-  链表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。它的底层实际是个双向链表，对两端的操作性能很高，通过索引下标的操作中间的节点性能会较差。
+`链表`是简单的`字符串列表`，按照`插入顺序排序`。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。它的底层实际是个`双向链表`，对两端的操作性能很高，通过索引下标的操作中间的节点性能会较差。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112807853.png" alt="image-20220522112807853" width="50%"/>
-
-```
-lpush/rpush <key><value1><value2><value3> .... 	   从左边/右边插入一个或多个值。 
-lpop/rpop <key>									从左边/右边吐出一个值。值在键在，值光键亡。 
-rpoplpush <key1><key2>						     从<key1>列表右边吐出一个值，插到<key2>列表左边。 
-lrange <key><start><stop> 						 按照索引下标获得元素(从左到右) 
-lrange mylist 0 -1 						         0 左边第一个，-1 右边第一个，（0-1 表示获取所有） 
-lindex <key><index>						         按照索引下标获得元素(从左到右) 
-llen <key>								        获得列表长度 
-linsert <key> before <value><newvalue>			  在<value>的后面插入<newvalue>插入值 
-lrem <key><n><value>			                  从左边删除 n 个 value(从左到右) 
-lset<key><index><value>					    	 将列表 key 下标为 index 的值替换成 value
-```
-
-#### 数据结构
-
-  List 的数据结构为`快速链表 quickList`。首先在列表元素较少的情况下会使用一块连续的内存存储，这个结构是 `ziplist`，也即是**压缩列表**。它将所有的元素紧挨着一起存储，分配的是一块连续的内存。当数据量比较多的时候才会改成 quicklist。因为普通的链表需要的附加指针空间太大，会比较浪费空间。比如这个列表里存的只是 int 类型的数据，结构上还需要两个额外的指针 prev 和 next。 
-
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113324227.png" alt="image-20220522113324227" width="50%" />
-
-  Redis 将链表和 ziplist 结合起来组成了 quicklist。也就是将多个 ziplist 使用双向指针串起来使用。这样既满足了快速的插入删除性能，又不会出现太大的空间冗余。
-
-### 集合（Set）
-
-  Redis set 对外提供的功能与 list 类似是一个列表的功能，特殊之处在于 set 是可以**自动排重**的，当你需要存储一个列表数据，又不希望出现重复数据时，set 是一个很好的选择，并且 set 提供了判断某个成员是否在一个 set 集合内的重要接口，这个也是 list 所不能提供的。Redis 的 Set 是 string 类型的无序集合。它底层其实是一个 value 为 null 的 hash 表，所以添加，删除，查找的**复杂度都是** **O(1)**。一个算法，随着数据的增加，执行时间的长短，如果是 O(1)，数据增加，查找数据的时间不变 
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522112807853.png" alt="image-20220522112807853"/>
 
 ```tex
-sadd <key><value1><value2> .....        将一个或多个 member 元素加入到集合 key 中，已经存在的 member 元素将被忽略 
-smembers <key>				           取出该集合的所有值。 
-sismember <key><value>			       判断集合<key>是否为含有该<value>值，有 1，没有 0 
-scard<key>			                   返回该集合的元素个数。
-srem <key><value1><value2> .... 	    删除集合中的某个元素。 
-spop <key>				               随机从该集合中吐出一个值。 
-srandmember <key><n>		            随机从该集合中取出 n 个值。不会从集合中删除 。 
-smove <source><destination>value         把集合中一个值从一个集合移动到另一个集合 
-sinter <key1><key2>			            返回两个集合的交集元素。 
-sunion <key1><key2>			            返回两个集合的并集元素。 
-sdiff <key1><key2>			            返回两个集合的差集元素(key1 中的，不包含 key2 中的)
+lpush/rpush <key><value1><value2><value3> ....	从左边/右边插入一个或多个值。 
+lpop/rpop <key>									从左边/右边吐出一个值。值在键在，值光键亡。 
+rpoplpush <key1><key2>							从<key1>列表右边吐出一个值，插到<key2>列表左边。 
+lrange <key><start><stop>						按照索引下标获得元素(从左到右) 
+lrange mylist 0 -1								0 左边第一个，-1 右边第一个，（0-1 表示获取所有） 
+lindex <key><index>								按照索引下标获得元素(从左到右) 
+llen <key>										获得列表长度 
+linsert <key> before <value><newvalue>			在<value>的后面插入<newvalue>插入值 
+lrem <key><n><value>			        		从左边删除 n 个 value(从左到右) 
+lset<key><index><value>							将列表 key 下标为 index 的值替换成 value
 ```
 
 #### 数据结构
 
-  Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 HashSet 的内部实现使用的是 `HashMap`，只不过所有的 value 都指向同一个对象。Redis 的 set 结构也是一样，它的内部也使用 hash 结构，所有的 value 都指向同一个内部值。
+List 的数据结构为`快速链表 quickList`。首先在列表元素较少的情况下会使用一块连续的内存存储，这个结构是 `ziplist`，也即是**压缩列表**。它将所有的元素紧挨着一起存储，分配的是一块连续的内存。当`数据量比较多`的时候才会改成` quicklist`。因为普通的链表需要的`附加指针空间太大`，`会比较浪费空间`。比如这个列表里存的只是 int 类型的数据，结构上还需要两个额外的指针` prev `和` next`。 
 
-### 哈希（Hash）
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113324227.png" alt="image-20220522113324227"/>
 
-- Redis hash 是一个键值对集合。 
-- Redis hash 是一个 string 类型的 field 和 value 的映射表，hash 特别适合用于存储对象。 
-- 类似 Java 里面的 Map<String,Object> 
+Redis 将`链表`和` ziplist `结合起来组成了` quicklist`。也就是将多个 ziplist 使用`双向指针`串起来使用。这样既满足了`快速的插入删除性能`，又不会出现`太大的空间冗余`。
+
+### 3.3、集合（Set）
+
+`Redis set `对外提供的功能与 list 类似是一个列表的功能，特殊之处在于` set `是可以**自动去重**的，当你需要存储一个`列表数据`，又不希望出现`重复数据`时，set 是一个很好的选择，并且 set 提供了`判断某个成员是否在一个 set 集合内的重要接口`，这个也是 list 所不能提供的。Redis 的` set `是` string `类型的`无序集合`。它底层其实是一个` value 为 null 的 hash 表`，所以`添加，删除，查找`的**复杂度都是** **O(1)**。一个算法，随着数据的增加，执行时间的长短，如果是 O(1)，数据增加，查找数据的时间不变。
+
+```tex
+sadd <key><value1><value2> ....			将一个或多个 member 元素加入到集合 key 中，已经存在的 member 元素将被忽略 
+smembers <key>				           	取出该集合的所有值。 
+sismember <key><value>			       	判断集合<key>是否为含有该<value>值，有 1，没有 0 
+scard<key>			                   	返回该集合的元素个数。
+srem <key><value1><value2> .... 	    删除集合中的某个元素。 
+spop <key>				               	随机从该集合中吐出一个值。 
+srandmember <key><n>		            随机从该集合中取出 n 个值。不会从集合中删除 。 
+smove <source><destination>value		把集合中一个值从一个集合移动到另一个集合 
+sinter <key1><key2>			      		返回两个集合的交集元素。 
+sunion <key1><key2>			    		返回两个集合的并集元素。 
+sdiff <key1><key2>						返回两个集合的差集元素(key1 中的，不包含 key2 中的)
+```
+
+#### 数据结构
+
+Set 数据结构是 `dict 字典`，字典是用`哈希表`实现的。Java 中 HashSet 的内部实现使用的是 `HashMap`，只不过所有的` value 都指向同一个对象`。Redis 的 set 结构也是一样，它的内部也使用 hash 结构，所有的 value 都指向同一个内部值。
+
+### 3.4、哈希（Hash）
+
+- `Redis hash `是一个`键值对集合`。 
+- `Redis hash `是一个` string `类型的` field `和` value `的映射表，hash 特别适合用于存储对象。 
+- 类似 Java 里面的` Map<String,Object> `。
 - 用户 ID 为查找的 key，存储的 value 用户对象包含姓名，年龄，生日等信息，如果用普通的 key/value 结构来存储 
 
 主要有以下 2 种存储方式：
@@ -173,55 +173,53 @@ sdiff <key1><key2>			            返回两个集合的差集元素(key1 中的�
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522113735993.png" alt="image-20220522113735993" width="45%" />
 
 ```tex
-hset <key><field><value>			  	          给<key>集合中的 <field>键赋值<value> 
-hget <key1><field>					  		     从<key1>集合<field>取出 value 
-hmset <key1><field1><value1><field2><value2>...    批量设置 hash 的值 
-hexists<key1><field>				       		 查看哈希表 key 中，给定域 field 是否存在。 
-hkeys <key>						           	     列出该 hash 集合的所有 field 
-hvals <key>							             列出该 hash 集合的所有 value 
-hincrby <key><field><increment>				      为哈希表 key 中的域 field 的值加上增量 1 -1 
-hsetnx <key><field><value>						 将哈希表 key 中的域 field 的值设置为 value ，当且仅当域 field 不存在 .
+hset <key><field><value>			  	          	给<key>集合中的 <field>键赋值<value> 
+hget <key1><field>					  		     	从<key1>集合<field>取出 value 
+hmset <key1><field1><value1><field2><value2>...    	批量设置 hash 的值 
+hexists<key1><field>				       		 	查看哈希表 key 中，给定域 field 是否存在。 
+hkeys <key>						           	     	列出该 hash 集合的所有 field 
+hvals <key>							             	列出该 hash 集合的所有 value 
+hincrby <key><field><increment>				      	为哈希表 key 中的域 field 的值加上增量 1 -1 
+hsetnx <key><field><value>						 	将哈希表 key 中的域 field 的值设置为 value ，当且仅当域 field 不存在 .
 ```
 
 #### 数据结构
 
-  Hash 类型对应的数据结构是两种：ziplist（压缩列表），hashtable（哈希表）。当field-value 长度较短且个数较少时，使用 ziplist，否则使用 hashtable。
+Hash 类型对应的数据结构是两种：`ziplist（压缩列表）`，`hashtable（哈希表）`。当`field-value `长度较短且个数较少时，使用` ziplist`，否则使用` hashtable`。
 
-### 有序集合Zset（sorted set）
+### 3.5、有序集合Zset（sorted set）
 
-  Redis **有序集合 zset 与普通集合 set** 非常相似，是一个没有重复元素的字符串集合。不同之处是有序集合的每个成员都关联了一个**评分（score）**,这个评分（score）被用来按照从`最低分到最高分`的方式排序集合中的成员。集合的成员是唯一的，但是评分可用是重复的 。因为元素是`有序`的, 所以你也可以很快的根据评分（score）或者次序（position）来获取一个范围的元素。访问有序集合的中间元素也是非常快的,因此你能够使用有序集合作为一个没有重复成员的智能列表。
+Redis **有序集合 zset 与普通集合 set** 非常相似，是一个`没有重复元素的字符串集合`。不同之处是`有序集合的每个成员`都关联了一个**评分（score）**，这个评分（score）被用来按照从`最低分到最高分`的方式排序集合中的成员。集合的成员是唯一的，但是评分可用是重复的 。因为元素是`有序`的, 所以你也可以很快的根据评分（score）或者次序（position）来获取一个范围的元素。访问有序集合的中间元素也是非常快的,因此你能够使用有序集合作为一个没有重复成员的智能列表。
 
-```
-zadd <key><score1><value1><score2><value2>… 	将一个或多个 member 元素及其 score 值加入到有序集 key 当中。 
-zrange <key><start><stop> [WITHSCORES] 	        
-返回有序集 key 中，下标在<start><stop>之间的元素 带 WITHSCORES，可以让分数一起和值返回到结果集。 
-
+```tex
+zadd <key><score1><value1><score2><value2>… 		将一个或多个 member 元素及其 score 值加入到有序集 key 当中。 
+zrange <key><start><stop> [WITHSCORES] 	        	返回有序集 key 中，下标在<start><stop>之间的元素 带 WITHSCORES，可以让分数一起和值返回到结果集。 
 zrangebyscore key minmax [withscores] [limit offset count] 				
 返回有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。 有序集成员按 score 值递增(从小到大)次序排列。 
 
-zrevrangebyscore key maxmin [withscores] [limit offset count] 同上，改为从大到小排列。
-zincrby <key><increment><value> 		       	为元素的 score 加上增量 
-zrem <key><value>			                   	删除该集合下，指定值的元素 
-zcount <key><min><max>					      	统计该集合，分数区间内的元素个数 
-zrank <key><value>							 	返回该值在集合中的排名，从 0 开始。
+zrevrangebyscore key maxmin [withscores] [limit offset count] 	同上，改为从大到小排列。
+zincrby <key><increment><value> 		       					为元素的 score 加上增量 
+zrem <key><value>			                   					删除该集合下，指定值的元素 
+zcount <key><min><max>					      					统计该集合，分数区间内的元素个数 
+zrank <key><value>							 					返回该值在集合中的排名，从 0 开始。
 ```
 
 #### 数据结构
 
-  SortedSet(zset)是 Redis 提供的一个非常特别的数据结构，一方面它等价于 Java的数据结构 Map<String, Double>，可以给每一个元素 value 赋予一个权重 score，另一方面它又类似于 TreeSet，内部的元素会按照权重 score 进行排序，可以得到每个元素的名次，还可以通过 score 的范围来获取元素的列表。 
+`SortedSet(zset) `是 Redis 提供的一个非常特别的数据结构，一方面它`等价于 Java的数据结构 Map<String, Double>`，可以给每一个元素 value 赋予一个**权重 score**，另一方面它又类似于` TreeSet`，内部的元素会按照`权重 score 进行排序`，可以得到每个元素的名次，还可以通过` score 的范围来获取元素的列表`。 
 
 zset 底层使用了两个数据结构 
 
-- hash，hash的作用就是**关联元素 value 和权重 score**，保障元素 value 的`唯一性`，可以通过元素 value 找到相应的 score 值。 
-- 跳跃表，跳跃表的目的在于给元素 value 排序，根据 score 的范围获取元素列表。
+- `hash`，hash的作用就是**关联元素 value 和权重 score**，保障元素 value 的`唯一性`，可以通过元素 value 找到相应的 score 值。 
+- `跳跃表`，跳跃表的目的`在于给元素 value 排序`，根据 score 的范围获取元素列表。
 
 #### 跳跃表（跳表）
 
-  有序集合在生活中比较常见，例如根据成绩对学生排名，根据得分对玩家排名等。对于有序集合的底层实现，可以用数组、平衡树、链表等。数组不便元素的插入、删除；平衡树或红黑树虽然效率高但结构复杂；链表查询需要遍历所有效率低。Redis采用的是跳跃表。跳跃表效率堪比红黑树，实现远比红黑树简单。
+有序集合在生活中比较常见，例如根据成绩对学生排名，根据得分对玩家排名等。对于有序集合的底层实现，可以用数组、平衡树、链表等。数组不便元素的插入、删除；平衡树或红黑树虽然效率高但结构复杂；链表查询需要遍历所有效率低。Redis采用的是跳跃表。跳跃表效率堪比红黑树，实现远比红黑树简单。
 
 2、实例
 
-  对比有序链表和跳跃表，从链表中查询出 51 
+对比有序链表和跳跃表，从链表中查询出 51 
 
 （1） 有序链表 
 
@@ -238,7 +236,7 @@ zset 底层使用了两个数据结构
 
 ## 四、Redis的发布与订阅
 
-  Redis 发布订阅 (pub/sub) 是一种**消息通信模式**：发送者 (pub) 发送消息，订阅者(sub) 接收消息。Redis 客户端可以订阅任意数量的频道。 
+Redis 发布订阅 (pub/sub) 是一种**消息通信模式**：`发送者 (pub) 发送消息`，`订阅者(sub) 接收消息`。Redis 客户端可以订阅任意数量的频道。 
 
 客户端可以订阅频道如下图 
 
@@ -249,20 +247,20 @@ zset 底层使用了两个数据结构
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522121201473.png" alt="image-20220522121201473" width="40%" />
 
 ```
-SUBSCRIBE channel1		 客户端订阅 channel1
-publish channel1 hello	 另一个客户端，给 channel1 发布消息 hello
+SUBSCRIBE channel1		 	客户端订阅 channel1
+publish channel1 hello	 	另一个客户端，给 channel1 发布消息 hello
 发布的消息没有持久化，如果在订阅的客户端收不到 hello，只能收到订阅后发布 的消息
 ```
 
 ## 五、Redis新数据类型
 
-### Bitmaps
+### 5.1、Bitmaps
 
-  现代计算机用二进制（位） 作为信息的基础单位， 1 个字节等于 8 位， 例如“abc” 字符串是由 3 个字节组成， 但实际在计算机存储时将其用二进制表示， “abc”分别对应的 ASCII 码分别是 97、 98、 99， 对应的二进制分别是 01100001、 01100010和 01100011，如下图 
+现代计算机用二进制（位） 作为信息的基础单位， 1 个字节等于 8 位， 例如“abc” 字符串是由 3 个字节组成， 但实际在计算机存储时将其用二进制表示， “abc”分别对应的 ASCII 码分别是 97、 98、 99， 对应的二进制分别是 01100001、 01100010和 01100011，如下图 
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184731379.png" alt="image-20220522184731379" width="50%" />
 
-  合理地使用操作位能够有效地提高内存使用率和开发效率。Redis 提供了 Bitmaps 这个“数据类型”可以实现对位的操作： 
+合理地使用操作位能够有效地提高内存使用率和开发效率。Redis 提供了 Bitmaps 这个“数据类型”可以实现对位的操作： 
 
 - Bitmaps 本身不是一种数据类型， 实际上它就是字符串（key-value） ，但是它可以对字符串的位进行操作。 
 - Bitmaps 单独提供了一套命令， 所以在 Redis 中使用 Bitmaps 和使用字符串的方法不太相同。 可以把 Bitmaps 想象成一个以位为单位的数组，数组的每个单元只能存储 0 和 1， 数组的下标在 Bitmaps 中叫做偏移量。
@@ -270,20 +268,20 @@ publish channel1 hello	 另一个客户端，给 channel1 发布消息 hello
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220522184824449.png" alt="image-20220522184824449" width="50%" />
 
 ```
-setbit<key><offset><value>			设置 Bitmaps 中某个偏移量的值（0 或 1）
+setbit<key><offset><value>				设置 Bitmaps 中某个偏移量的值（0 或 1）
 注： 
 很多应用的用户 id 以一个指定数字（例如 10000） 开头， 直接将用户 id 和 Bitmaps 的偏移量对应势必会造成一定的浪费， 通常的做法是每次做 setbit 操作时将 用户 id 减去这个指定数字。 在第一次初始化 Bitmaps 时， 假如偏移量非常大， 那么整个初始化过程执行会 比较慢， 可能会造成 Redis 的阻塞。
 
-getbit<key><offset>					获取 Bitmaps 中某个偏移量的值
+getbit<key><offset>						获取 Bitmaps 中某个偏移量的值
 
-bitcount<key>[start end] 			统计字符串从 start 字节到 end 字节比特值为 1 的数量
+bitcount<key>[start end] 				统计字符串从 start 字节到 end 字节比特值为 1 的数量
 统计字符串被设置为 1 的 bit 数。一般情况下，给定的整个字符串都会被进行计数，通 过指定额外的 start 或 end 参数，可以让计数只在特定的位上进行。start 和 end 参数 的设置，都可以使用负数值：比如 -1 表示最后一个位，而 -2 表示倒数第二个位， start、end 是指 bit 组的字节的下标数，二者皆包含。
 
 bitop and(or/not/xor) <destkey> [key…]
 bitop 是一个复合操作， 它可以做多个 Bitmaps 的 and（交集） 、 or（并集） 、 not （非） 、 xor（异或） 操作并将结果保存在 destkey 中。
 ```
 
-### HyperLogLog
+### 5.2、HyperLogLog
 
   在工作当中，我们经常会遇到与统计相关的功能需求，比如统计网站 PV（PageView 页面访问量）,可以使用 Redis 的 incr、incrby 轻松实现。 但像 UV（UniqueVisitor，独立访客）、独立 IP 数、搜索记录数等需要去重和计数的问题如何解决？这种求集合中不重复元素个数的问题称为基数问题。 解决基数问题有很多种方案： 
 
@@ -301,10 +299,10 @@ bitop 是一个复合操作， 它可以做多个 Bitmaps 的 and（交集） �
   基数(不重复元素)为 5。 基数估计就是在误差可接受的范围内，快速计算基数。
 
 ```
-pfadd <key>< element> [element ...] 			    添加指定元素到 HyperLogLog 中
+pfadd <key>< element> [element ...] 			    	添加指定元素到 HyperLogLog 中
 执行命令后 HLL 估计的 近似基数发生变化，则返回 1，否则返回 0。
-pfcount<key> [key ...] 						       计算 HLL 的近似基数，可以计算多个 HLL，比如用 HLL 存储每 天的 UV，计算一周的 UV 可以使用 7 天的 UV 合并计算即可
-pfmerge<destkey><sourcekey> [sourcekey ...] 		将一个或多个 HLL 合并后的结果存 储在另一个 HLL 中，比如每月活跃用户可以使用每天的活跃用户来合并计算可得
+pfcount<key> [key ...] 						       		计算 HLL 的近似基数，可以计算多个 HLL，比如用 HLL 存储每 天的 UV，计算一周的 UV 可以使用 7 天的 UV 合并计算即可
+pfmerge<destkey><sourcekey> [sourcekey ...] 			将一个或多个 HLL 合并后的结果存 储在另一个 HLL 中，比如每月活跃用户可以使用每天的活跃用户来合并计算可得
 ```
 
 ## 六、Jedis测试
@@ -521,15 +519,15 @@ public class RedisController {
 
 ## 八、Redis事务操作、锁机制、秒杀案例
 
-  Redis 事务是一个单独的**隔离操作**：事务中的所有命令都会**序列化**、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。 
+Redis 事务是一个单独的**隔离操作**：事务中的所有命令都会**序列化**、按顺序地执行。事务在执行的过程中，不会被其他客户端发送来的命令请求所打断。 
 
-  Redis 事务的主要作用**就是串联多个命令防止别的命令插队**。
+Redis 事务的主要作用**就是串联多个命令防止别的命令插队**。
 
 ### Multi、Exec、discard
 
-  Multi命令：输入的命令都会依次进入命令队列中，不会执行，直到输入`exec`后才会依次执行命令。组队过程可通过`discard`放弃组队。
+Multi命令：输入的命令都会依次进入命令队列中，不会执行，直到输入`exec`后才会依次执行命令。组队过程可通过`discard`放弃组队。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220523234928318.png" alt="image-20220523234928318" width="50%" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220523234928318.png" alt="image-20220523234928318"/>
 
 **错误处理**
 
@@ -540,19 +538,19 @@ public class RedisController {
 
 **悲观锁**
 
-  定义：每次去拿数据时都认为别人会修改，所以每次拿数据时都会给数据上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，**读锁**，**写锁**等，都是在做操作之前先上锁。
+定义：每次去拿数据时都认为别人会修改，所以每次拿数据时都会给数据上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁等，**读锁**，**写锁**等，都是在做操作之前先上锁。
 
 **乐观锁**
 
-  定义：每次拿数据时都认为别人不会修改，因此不会上锁，只是在更新的时候会判断在此期间数据有没有更新，可用使用版本号等机制。**乐观锁适用于多读的应用类型，这样可以提高吞吐量。Redis 就是利用这种 check-and-set 机制实现事务的。**
+定义：每次拿数据时都认为别人不会修改，因此不会上锁，只是在更新的时候会判断在此期间数据有没有更新，可用使用版本号等机制。**乐观锁适用于多读的应用类型，这样可以提高吞吐量。Redis 就是利用这种 check-and-set 机制实现事务的。**
 
 **WATCH** **key** **[key ...]** 
 
-  在执行 multi 之前，先执行 watch key1 [key2],可以监视一个(或多个) key ，如果在事务**执行之前这个****(****或这些****) key** **被其他命令所改动，那么事务将被打断。**
+在执行 multi 之前，先执行 watch key1 [key2],可以监视一个(或多个) key ，如果在事务**执行之前这个****(****或这些****) key** **被其他命令所改动，那么事务将被打断。**
 
 **unwatch**
 
-  取消 WATCH 命令对所有 key 的监视。如果在执行 WATCH 命令之后，EXEC 命令或 DISCARD 命令先被执行了的话，那么就不需要再执行 UNWATCH 了。
+取消 WATCH 命令对所有 key 的监视。如果在执行 WATCH 命令之后，EXEC 命令或 DISCARD 命令先被执行了的话，那么就不需要再执行 UNWATCH 了。
 
 ### 事务三特性
 
@@ -570,18 +568,18 @@ public class RedisController {
 
 ## 九、持久化
 
-### 持久化之RDB
+### 9.1、持久化之RDB
 
-  在指定的时间间隔内将内存中的数据集快照写入磁盘， 也就是行话讲的 `Snapshot`快照，它恢复时是将快照文件直接读到内存里。
+在`指定的时间间隔内`将`内存中的数据集快照写入磁盘`， 也就是行话讲的 `Snapshot`快照，它恢复时是将快照文件直接读到内存里。
 
 #### 备份是如何执行的
 
-  Redis 会单独创建（fork）一个子进程来进行持久化，会先将数据写入到 一个**临时文件**中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。 整个过程中，主进程是不进行任何 IO 操作的，这就确保了极高的性能 如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常敏感，那 RDB 方式要比 AOF 方式更加的高效。RDB的缺点**是最后一次持久化后的数据可能丢失**。
+Redis 会`单独创建（fork）一个子进程来进行持久化`，会先将数据写入到 一个**临时文件**中，待持久化过程都结束了，再用这个临时文件替换上次持久化好的文件。 整个过程中，主进程是`不进行任何 IO 操作的`，这就`确保了极高的性能 `，如果需要进行大规模数据的恢复，且对于数据恢复的完整性不是非常敏感，那 RDB 方式要比 AOF 方式更加的高效。RDB的缺点**是最后一次持久化后的数据可能丢失**。
 
 #### Fork
 
-- Fork 的作用是复制一个与当前进程一样的进程。新进程的所有数据（变量、环境变量、程序计数器等）数值都和原进程一致，但是是一个全新的进程，并作为原进程的子进程。
-- 在 `Linux`程序中，fork()会产生一个和父进程完全相同的子进程，但子进程在此后多会 exec 系统调用，出于效率考虑，Linux 中引入了“**写时复制技术**” 。
+- Fork 的作用是`复制一个与当前进程一样的进程`。新进程的`所有数据（变量、环境变量、程序计数器等）`数值都和原进程一致，但是是一个全新的进程，并作为原进程的子进程。
+- 在 `Linux`程序中，fork() 会产生一个和父进程完全相同的子进程，但子进程在此后多会 exec 系统调用，出于效率考虑，Linux 中引入了“**写时复制技术**” 。
 - **一般情况父进程和子进程会共用同一段物理内存**，只有进程空间的各段的内容要发生变化时，才会将父进程的内容复制一份给子进程。
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220524000140862.png" alt="image-20220524000140862" width="45%" />
@@ -598,25 +596,25 @@ public class RedisController {
 #### 劣势
 
 - Fork 的时候，内存中的数据被克隆了一份，大致 2 倍的膨胀性需要考虑 
-- 虽然 Redis 在 fork 时使用了**写时拷贝技术**,但是如果数据庞大时还是比较消耗性能。 
+- 虽然 Redis 在 fork 时使用了**写时拷贝技术**，但是如果数据庞大时还是比较消耗性能。 
 - 在备份周期在一定间隔时间做一次备份，所以如果 Redis 意外 down 掉的话，就会丢失最后一次快照后的所有修改。 
 
 ## 十、主从复制
 
-  将一台Redis服务的数据，复制到其他Redis服务器上。前者称为主节点（master），后者称为从节点（slave）。数据的复制是单向的，只能从主节点到从节点。
+将一台Redis服务的数据，复制到其他Redis服务器上。前者称为`主节点（master）`，后者称为`从节点（slave）`。数据的复制是`单向`的，只能从主节点到从节点。
 
-- 读写分离，性能扩展
-- 容灾快速恢复。防止数据丢失，redis可以实现高可用，同时实现数据的冗余备份。
+- `读写分离`，性能扩展（应用读取多个从节点的数据，只能往主节点中写数据）
+- `容灾快速恢复`。防止数据丢失，redis可以实现`高可用`，同时实现`数据的冗余备份`。
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220531231808630.png" alt="image-20220531231808630" width="50%;" />
 
 **主从复制的作用：**
 
-- 数据冗余，实现数据的热备份，也是持久化的另一种方式。
-- 针对单机故障问题，一个节点故障，其他节点可以继续提供服务，不影响用户使用。实现快速恢复故障，这也是服务冗余。
-- 读写分离，master服务主要用来写，slave服务主要读数据。提高服务的负载能力。
-- 负载均衡，同时配合读写分离，由主节点提供写服务，从节点提供读服务，分担服务器的负载。大大提高Redis服务的并发量和负载。
-- 高可用的基石，主从复制是哨兵和集群模式能够实施的基础。
+- `数据冗余`：实现数据的热备份，也是持久化的另一种方式。
+- `针对单机故障问题`：一个节点故障，其他节点可以继续提供服务，不影响用户使用。实现`快速恢复故障`，这也是服务冗余。
+- `读写分离`：master服务主要用来写，slave服务主要读数据。提高服务的负载能力。
+- `负载均衡`：同时配合读写分离，由主节点提供写服务，从节点提供读服务，分担服务器的负载。大大提高Redis服务的并发量和负载。
+- `高可用的基石`：主从复制是哨兵和集群模式能够实施的基础。
 
 ### docker配置redis主从复制
 
@@ -649,43 +647,57 @@ masterauth 123456		//主机密码
 - Master 接到命令启动后台的存盘进程，同时收集所有接收到的用于修改数据集命令， 在后台进程执行完毕之后，master 将传送整个数据文件到 slave,以完成一次完全同步。
 - 全量复制：而 slave 服务在接收到数据库文件数据后，将其存盘并加载到内存中。 
 - 增量复制：Master 继续将新的所有收集到的修改命令依次传给 slave,完成同步。
-- 但是只要是重新连接 master,一次完全同步（全量复制)将被自动执行。
+- 但是只要是重新连接 master,`一次完全同步（全量复制)`将被自动执行。
 
 <img src="https://img-blog.csdnimg.cn/20210823213605854.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDE0MzExNA==,size_16,color_FFFFFF,t_70" alt="img" width="67%;" />
 
 ## 十一、应用场景
 
+使用缓存大多的目的是为了提升响应效率和并发量，减轻数据库的压力。
+
+缓存穿透、缓存雪崩和缓存击穿的发生，都是因为在某些特殊情况下，缓存失去了预期的功能所致。当缓存失效或没有抵挡住流量，流量直接涌入到数据库中，在高并发情况下，可能直接击垮数据库，导致整个系统崩溃。
+
 ### 缓存穿透
 
-  缓存穿透是指缓存和数据库中都没有的数据，而用户不断发起请求。由于缓存是不命中时被动写的，并且出于容错考虑，如果从存储层查不到数据则不写入缓存，这将导致这个不存在的数据每次请求都要到存储层去查询，失去了缓存的意义。
+通常流程是：一个请求过来，先查询是否在`缓存`中，如果缓存中存在，则直接返回。如果缓存中不存在对应的数据，则检索数据库，如果数据库中存在对应的数据，则更新缓存并返回结果。如果数据库中也不存在对应的数据，则`返回空或错误`。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220602150658494.png" alt="image-20220602150658494" width="67%;" />
+**缓存穿透**是指`缓存`和`数据库`中都没有的数据，而用户不断发起请求。由于缓存是`不命中时被动写`的。并且出于`容错考虑`，如果从`底层数据库`中查不到数据则不写入`缓存`，这将导致这个不存在的数据每次请求都要到底层数据库中去查询，失去了缓存的意义。当高并发或有人利用不存在的Key频繁攻击时，数据库的压力骤增，甚至崩溃，这就是`缓存穿透`问题。
+
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220602150658494.png"/>
+
+**发生的场景：**
+
+- 原来数据是存在的，但由于某些原因（`误删除、主动清理`等）在缓存和数据库层面被删除了，但前端和前置的应用程序依旧保有这些数据。
+- 恶意攻击行为，利用不存在的Key或者恶意尝试导致产生`大量不存在的业务`数据请求。
 
 **解决方案：**
 
-- 设置并发锁，防止大量请求数据库
-- 对空值缓存：如果一个查询返回的数据为空（不管是数据是否不存在），把这个空结果（null）进行缓存，设置空结果的过期时间会很短，最长不超过五分钟。
-- 设置白名单：利用bitmaps类型定义一个可访问的名单，名单id作为bitmaps的偏移量，每次访问和bitmaps的id进行比较，如果不对则进行拦截，不允许访问。
-- 采用布隆过滤器：布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难。
-- 进行实时监控：当发现 Redis 的命中率开始急速降低，需要排查访问对象和访问的数据，和运维人员配合，可以设置黑名单限制服务。
+- `设置并发锁`，防止大量请求数据库
+- `对空值缓存`：如果一个查询返回的数据为空（不管是数据是否不存在），把这个空结果（null）进行缓存，设置空结果的过期时间会很短，最长不超过五分钟。当数据库被`写入或更新`该key的新数据时，缓存必须同时被刷新，避免数据不一致。
+- `设置白名单`：利用`bitmaps`类型定义一个可访问的名单，`名单id作为bitmaps的偏移量`，每次访问和bitmaps的id进行比较，如果不对则进行拦截，不允许访问。
+- `采用布隆过滤器`：布隆过滤器可以用于检索一个元素是否在一个集合中。它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难。
+- `进行实时监控`：当发现 Redis 的命中率开始急速降低，需要排查访问对象和访问的数据，和运维人员配合，可以设置黑名单限制服务。
 
 ### 缓存击穿
 
-缓存击穿是指缓存中没有但数据库中有的数据（一般是缓存时间到期，单个key），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力。
+缓存击穿是指`缓存中没有但数据库中有的数据`（一般是缓存时间到期，`单个key`），这时由于并发用户特别多，同时读缓存没读到数据，又同时去数据库去取数据，引起数据库压力瞬间增大，造成过大压力。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220602150915573.png" alt="image-20220602150915573" width="67%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220602150915573.png" alt="image-20220602150915573"/>
 
 **解决方案：**
 
-- 预先设置热门数据：在redis高峰访问之前，把一些热门数据提前存入到redis里面，加大这些热门数据key的时长。
-- 实时调整：现场监控哪些数据热门，实时调整key的过期时长。
-- 使用锁：在缓存失效的时候（判断拿出来的值为空），不是立即去load db，先使用缓存工具的某些带成功操作返回值的操作（比如Redis的SETNX）去set一个mutex key，当操作返回成功时，再进行load db操作，并回设缓存，最后删除mutex key。当操作返回失败，证明有线程在load db，当前线程睡眠一段时间再去重试整个get缓存的方法。
+- `预先设置热门数据`：在redis高峰访问之前，把一些热门数据提前存入到redis里面，加大这些热门数据key的时长。
+- `实时调整`：现场监控哪些数据热门，实时调整key的过期时长。
+- `使用互斥锁（Mutex Key）`：在缓存失效的时候（判断拿出来的值为空），不是立即去load db，先使用缓存工具的某些带成功操作返回值的操作（比如Redis的SETNX）去set一个mutex key，当操作返回成功时，再进行load db操作，并回设缓存，最后删除mutex key。当操作返回失败，证明有线程在load db，当前线程睡眠一段时间再去重试整个get缓存的方法。
+- `提前使用互斥锁（Mutex Key）`：在value内部设置一个比缓存（Redis）过期时间短的过期时间标识，当异步线程发现该值快过期了，马上延长内置的这个时间，并重新从数据库中加载数据，设置到缓存中去。
 
-<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220601230545180.png" alt="image-20220601230545180" width="50%;" />
+<img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/image-20220601230545180.png" alt="image-20220601230545180"/>
 
 ### 缓存雪崩
 
-缓存雪崩是指redis服务器在某个时间大量失效（针对多个key缓存），突然造成数据库访问压力急剧增大，像雪崩一样，redis雪崩危害巨大，甚至有可能服务器宕机，给公司造成巨大的经济损失。
+在使用缓存时，通常会对`缓存设置过期时间`，一方面目的是`保持缓存与数据库数据的一致性`，另一方面是`减少冷缓存占用过多的内存空间`。
+
+缓存雪崩是指` Redis 服务器`在某个时间大量失效（针对`多个key缓存`），突然造成数据库访问压力急剧增大，像雪崩一样，redis雪崩危害巨大，甚至有可能服务器宕机，给公司造成巨大的经济损失。
 
 正常情况
 
@@ -697,7 +709,8 @@ masterauth 123456		//主机密码
 
 **解决方案：**
 
-- 构建多级缓存架构：nginx 缓存 + redis 缓存 +其他缓存（ehcache 等）。
-- 使用锁或队列：用锁或队列保证不会有大量的线程对数据库一次性进行读写，从而避免失效时大量的并发请求落到底层存储系统上。不适用高并发情况。
-- 设置过期标志更新缓存：记录缓存数据是否过期（设置提前量），若过期会触发通知另外的线程在后台去更新实际key的缓存。
-- 将缓存失效时间分散开：比如我们可以在原有的失效时间基础上增加一个随机值，比如 1-5 分钟随机，这样每一个缓存的过期时间的重复率就会降低，就很难引发集体失效的事件。
+- `构建多级缓存架构`：nginx 缓存 + redis 缓存 +其他缓存（ehcache 等）。
+- `使用锁或队列`：用锁或队列保证不会有`大量的线程对数据库一次性进行读写`，从而避免失效时大量的并发请求落到底层存储系统上。不适用高并发情况。
+- `设置过期标志更新缓存`：记录`缓存数据是否过期（设置提前量）`，若过期会触发通知另外的线程在后台去更新实际key的缓存。
+- `将缓存失效时间分散开`：比如我们可以在原有的失效时间基础上增加一个随机值，比如 1-5 分钟随机，这样每一个缓存的过期时间的重复率就会降低，就很难引发集体失效的事件。
+- 双Key策略：主Key设置过期时间，备Key不设置过期时间，当主Key失效时，直接返回备Key值。
