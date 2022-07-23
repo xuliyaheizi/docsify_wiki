@@ -651,6 +651,85 @@ masterauth 123456		//主机密码
 
 <img src="https://img-blog.csdnimg.cn/20210823213605854.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDE0MzExNA==,size_16,color_FFFFFF,t_70" alt="img" width="67%;" />
 
+### Redis的同步机制
+
+redis的主从同步机制可以确保redis的master和slave之间的数据同步。同步方式包括全量复制和增量复制。
+
+#### 全量拷贝
+
+![image-20220723161923695](https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207231619761.png)
+
+1. `Slave`第一次启动时，连接`Master`，发送`psync`命令，格式为` psync {runId} {offset}`
+
+   > `{runId}` 为master的`运行id`；`{offset}`为slave自己的`复制偏移量`。
+   > slave第一次连接master时，slave并不知道master的runId，也不知道自己偏移量，这时候slave会传一个问号和-1，告诉master节点是`第一次同步`。
+   >
+   > 格式为`psync ? -1`
+
+2. 当`master`接收到 `psync ? -1` 时，知道slave是要`全量复制`，就会将自己的` runId `和` offset `告知` slave `，回复命令` fullresync {runId} {offset} `。同时，master会执行bgsave命令来生成rdb文件，期间的所有写命令将被写入缓冲区。
+
+   > slave接受到master的回复命令后，会保存master的runId和offset，slave此时处于同步状态。
+   > slave处于同步状态，如果此时收到请求，当配置参数`slave-server-stale-data yes`时，会响应当前请求；`slave-server-stale-data no`，返回错误。
+
+3. master `bgsave`执行完毕，向slave发送rdb文件。rdb文件发送完毕后，开始向slave发送缓冲区中的写命令。
+
+4. slave收到rdb文件，丢弃所有旧数据，开始载入rdb文件。
+
+5. rdb文件同步结束之后，slave执行从master缓冲区发送过来的所以写命令。
+
+6. 此后 master 每执行一个写命令，就向slave发送相同的写命令。
+
+#### 增量拷贝
+
+1. 如果出现网络闪断或者命令丢失异常情况时，当主从连接恢复后，由于从节点之前保存了自身已复制的偏移量和主节点的运行ID。因此会把它们当做psync参数发送给主节点，要求进行部分复制操作。格式为` pxync {runId} {offset}`。
+2. 主节点接到pxync命令后首先核对参数runId是否与自身一致。如果一致，说明之前复制的是当前主节点，之后根据参数offset在自身复制积压缓冲区查找，如果偏移量之后的数据存在缓冲区中，则对从节点发送 +continue响应，表示可以进行部分复制；否则进行全量复制。
+3. 主节点根据偏移量把复制积压缓冲区里的数据发送给从节点，保证主从复制进入正常状态。
+
+**同步故障处理**
+
+1. **拷贝超时**
+
+   对于数据量较大的主节点，比如生成的rdb文件超过6GB以上时要格外小心。传输文件这一步操作非常耗时，速度取决于主从节点之间网络带宽，通过细致分析 full resync和 master slave这两行日志的时间差，可以算出rdb文件从创建到传输完毕消耗的总时间。如果总时间超过了 repl-timeout 所配置的值（默认60秒），从节点将放弃接受rdb文件并清理已经下载的临时文件，导致全量复制失败。
+
+   针对数据量较大的节点，建议调大 repl-timeout 参数防止出现全量同步数据超时。
+
+2. **积压缓冲区拷贝溢出**
+
+   slave节点从开始接收rdb文件到接收完成期间，主节点仍然响应读写命令，因此主节点会把这期间写入命令保存在复制积压缓冲区内，当从节点加载完rdb文件后，主节点再把缓冲区的数据发送给从节点，保证主从数据一致性。
+
+   如果主节点创建和传输RDB的时间过长，对于高流量写入场景非常容易造成主节点复制客户端缓冲区溢出。默认配置为`client-output-buffer-limit slave 256MB 64MB 60`，如果60秒内缓冲区消耗持续大于64MB或者直接超过256MB时，主节点将直接关闭复制客户端连接，造成全量同步失败。
+
+   因此，运维人员需要根据主节点数据量和写命令并发量调整client-output-buffer-limit slave配置，避免全量复制期间客户端缓冲区溢出。对于主节点，当发送完所有的数据后就认为全量复制完成，打印成功日志：synchronization with slave127.0.0.1：6380 succeeded
+
+3. **slave全量同步的响应问题**
+
+   slave节点接收完主节点传送来的全部数据后会清空自身旧数据，执行flash old data，然后加载rdb文件。对于较大的rdb文件，这一步操作依然比较耗时。
+
+   对于线上做读写分离的场景，从节点也负责响应读命令，如果slave节点正出于全量复制阶段，那么slave节点在响应读命令可能拿到过期或错误的数据。对于这种场景，redis复制提供了slave-server-stale-data yes参数（默认开启），如果开启则slave节点依然响应所有命令。对于无法容忍不一致的应用场景可以设置no来关闭命令执行，此时从节点除了info和slaveof命令之外所有的命令只返回sync with master in progress信息。
+
+**节点运行Id**
+
+1. 每个Redis节点启动后，都会动态分配一个40位的十六进制字符串作为运行ID，即`{runId}`。
+
+   > 运行ID的主要作用是用来唯一识别Redis节点，比如从节点保存主节点的运行ID识别自己正在复制的是哪个主节点。
+
+2. 如果只使用ip+port的方式识别主节点，那么主节点重启变更了整体数据集（如替换rdb/aof文件），从节点再基于偏移量复制数据将是不安全的，因此当运行ID变化后从节点将做全量复制。
+
+3. 可以运行info server命令查看当前节点的运行ID。
+
+**偏移量拷贝**
+
+1. 参与复制的主从节点都会维护自身复制偏移量，即{offset}。
+2. 主节点（master）在处理完写入命令后，会把命令的字节长度做累加记录，统计信息在info relication中的 master_repl_offset 指标中。
+3. 从节点（slave）在接收到主节点发送的命令后，也会累加记录自身的偏移量，统计信息在info relication命令的slave_repl_offset指标中
+4. 从节点（slave）每秒钟上报自身的复制偏移量给主节点，因此主节点也会保存从节点的复制偏移量。
+
+**积压缓冲区拷贝**
+
+1. 存在于主节点（master），默认大小为1MB，可以通过参数rel_backlog_size来修改默认大小。
+2. 复制积压缓冲区是保存在主节点上的一个固定长度的队列。当从节点（slave）连接主节点时被创建，这时主节点（master）响应写命令时，不但会把命令发送给从节点，还会写入复制积压缓冲区。
+3. 由于缓冲区本质上是先进先出（FIFO）的定长队列，所以能实现保存最近已复制数据的功能，用于部分复制和复制命令丢失的数据补救。复制缓冲区相关统计信息可以通过主节点的info replication命令查看。
+
 ## 十一、应用场景
 
 使用缓存大多的目的是为了提升响应效率和并发量，减轻数据库的压力。
