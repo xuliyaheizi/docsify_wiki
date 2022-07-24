@@ -209,6 +209,8 @@ li {
 
 .markdown-section code {
     background-color: #eaeaea !important;
+    color: #c7254e;
+    border-radius: 4px;
 }
 
 .markdown-section pre:after {
