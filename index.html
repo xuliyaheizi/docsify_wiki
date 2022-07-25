@@ -57,18 +57,18 @@
           });
         }
       ],//编辑按钮
-      themeColor: '#2185d5',  // 主题颜色
-      coverpage: true,        //封面
-      // loadSidebar: true,   // 加载 _sidebar.md
-      onlyCover: true,       //只在访问主页时加载封面。
-      // subMaxLevel: 3,      //侧边栏展现目录
-      maxLevel: 3,            //最大的内容表级别
-      mergeNavbar: true,      //Navbar将在小屏幕上与侧边栏合并
-      loadNavbar: true,       //导航栏
-      auto2top: true,         //当路线改变时,滚动到屏幕的顶部
-      topMargin: 60,          //调整top
-      // hideSidebar: false,     //完全隐藏侧边栏，侧边栏的任何内容都不会被渲染
-      executeScript: true,    //执行文档里的 script 标签里的脚本，只执行第一个 script (demo)。
+      themeColor: '#2185d5',    // 主题颜色
+      coverpage: true,          //封面
+      // loadSidebar: true,     // 加载 _sidebar.md
+      onlyCover: true,          //只在访问主页时加载封面。
+      // subMaxLevel: 3,        //侧边栏展现目录
+      maxLevel: 3,              //最大的内容表级别
+      mergeNavbar: true,        //Navbar将在小屏幕上与侧边栏合并
+      loadNavbar: true,         //导航栏
+      auto2top: true,           //当路线改变时,滚动到屏幕的顶部
+      topMargin: 60,            //调整top
+      // hideSidebar: false,    //完全隐藏侧边栏，侧边栏的任何内容都不会被渲染
+      executeScript: true,      //执行文档里的 script 标签里的脚本，只执行第一个 script (demo)。
       count: {
         countable: true,
         fontsize: '0.9em',
@@ -84,6 +84,12 @@
         maxAge: 86400000, // 过期时间，单位毫秒，默认一天
       },//添加搜索框
 
+      //代码复制提示
+      copyCode: {
+        buttonText: '📃',
+        errorText: 'NO',
+        successText: 'OK'
+      },
     }
   </script>
   <!-- Docsify v4 -->
@@ -135,16 +141,16 @@
       });
     });
 
-    window.addEventListener("load", function (event) {
-      const buttons = document.getElementsByClassName("label");
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].innerHTML = '<i class="iconfont zhulin-fuzhi"></i>';
-      }
-      const bus = document.getElementsByClassName("success");
-      for (let i = 0; i < bus.length; i++) {
-        bus[i].innerHTML = "复制成功";
-      }
-    });
+    // window.addEventListener("load", function (event) {
+    //   const buttons = document.getElementsByClassName("label");
+    //   for (let i = 0; i < buttons.length; i++) {
+    //     buttons[i].innerHTML = '<i class="iconfont zhulin-fuzhi"></i>';
+    //   }
+    //   const bus = document.getElementsByClassName("success");
+    //   for (let i = 0; i < bus.length; i++) {
+    //     bus[i].innerHTML = "复制成功";
+    //   }
+    // });
 
   </script>
 </body>
