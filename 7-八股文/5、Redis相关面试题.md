@@ -15,10 +15,12 @@
 
 Redis 是一个开源（BSD 许可）、基于`内存`、支持`多种数据结构`的存储系统，可以作为`数据库`、`缓存`和`消息中间件`。它支持的数据结构有`字符串（strings）`、`哈希（hashes）`、`列表（lists）`、`集合（sets）`、`有序集合（sorted sets）`等，除此之外还支持 `bitmaps`、`hyperloglogs `和`地理空间（geospatial ）索引半径查询`等功能。它内置了主从复制（Replication）、LUA 脚本（Lua scripting）、LRU 驱动事件（LRU eviction）、事务（Transactions）和不同级别的磁盘持久化（persistence）功能，并通过 Redis 哨兵（哨兵）和集群（Cluster）保证缓存的高可用性（High availability）。
 
+Redis是一种基于`内存`的数据库，`对数据的读写操作都是在内存中完成的`，因此读写速度非常快，常用于`缓存`、`消息队列`、`分布式锁`等场景。
+
 ## 4、为什么使用Redis而不是Memcache呢？
 
 - `Redis`和`Memcache`都是将`数据存放在内存中`，都是`内存数据库`。不过Memcache还可用于缓存其他东西，例如图片、视频等。
-- Memcache仅支持`key-value结构的数据类型`；Redis不仅仅支持简单的key-value类型的数据，同时还提供list、set、hash等数据结构的存储。
+- Memcache仅支持`key-value结构的数据类型`；Redis不仅仅支持简单的`key-value类型的数据`，同时还提供list、set、hash等数据结构的存储。
 - `虚拟内存`：Redis当物理内存用完时，可以将一些很久没用到的value交换到磁盘。
 - `分布式`：设定Memcache集群，利用magent做一主多从；Redis可以做一主多从，也可以一主一从。
 - `存储数据安全`：Memcache挂掉后，数据没了；Redis可以定期保存到磁盘（持久化操作）。
@@ -385,3 +387,15 @@ maxmemory-policy volatile-lru
 - **allkeys-lru**：从数据集（server.db[i].dict）中挑选最近最少使用的数据淘汰 
 - **allkeys-random**：从数据集（server.db[i].dict）中任意选择数据淘汰
 - **no-enviction**（驱逐）：禁止驱逐数据，新写入操作会报错 ps：如果没有设置 expire 的key, 不满足先决条件(prerequisites); 那么 volatile-lru, volatile-random 和 volatile-ttl 策略的行为, 和 noeviction(不删除) 基本上一致。
+
+## 31、为什么用Redis作为MySQL的缓存？
+
+主要是因为Redis具备[高性能]和[高并发]两种特性。
+
+1. **Redis具备高性能**
+
+   用户第一次访问MySQL中的某些数据。这个过程会比较缓慢，因为是从硬盘上读取的。将该用户访问的数据缓存在Redis中，下次访问就可以直接从缓存中获取了，操作Redis缓存就是直接操作内存，所以速度相当快。
+
+2. **Redis具备高并发**
+
+   单台设备的Redis的QPS（每秒钟处理完请求的次数）是MySQL的10倍，Redis单机的QPS能轻松破10W，而MySQL单机的QPS很难破1W。所以，直接访问Redis能够承受的请求是远远大于直接访问MySQL的，可以考虑把数据库中的部分数据转移到缓存中，这样用户的一部分请求会直接命中缓存而不用经过数据库。
