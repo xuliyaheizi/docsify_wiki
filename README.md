@@ -8,7 +8,7 @@
 
 ### Java知识基础
 
-[基础](/1-Java/1、语法基础)  [相关集合](/1-Java/2、集合)  [Java中的实体对象Bean](/1-Java/3、实体对象(Bean))  [常用的设计模式](typora://app/1-Java/5、设计模式)
+[基础](/1-Java/1、语法基础)  [相关集合](/1-Java/2、集合)  [Java中的实体对象Bean](/1-Java/3、实体对象(Bean))  [常用的设计模式](/1-Java/5、设计模式)
 
 ### 线程知识
 
@@ -16,7 +16,7 @@
 
 ### 项目框架
 
-[项目架构](/1-Java/6、项目框架)  [Shiro权限验证](typora://app/1-Java/9、Shiro)  [如何整合Swagger&Kinfe4j接口文档](/1-Java/10、Swagger%26Kinfe4j)
+[项目架构](/1-Java/6、项目框架)  [Shiro权限验证](/1-Java/9、Shiro)  [如何整合Swagger&Kinfe4j接口文档](/1-Java/10、Swagger%26Kinfe4j)
 
 ### JVM
 

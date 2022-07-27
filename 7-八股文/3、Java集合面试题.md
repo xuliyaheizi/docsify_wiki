@@ -20,11 +20,13 @@ Java集合有Collection、Map；Java集合框架的内容：
 
 集合接口指定一组称为元素的对象。如何维护元素取决于 `Collection 的具体实现`。例如，某些 Collection 实现（如 List）允许重复元素，而其他实现（如 Set）则不允许。许多 Collection 实现都有一个公共的克隆方法。但是，将它包含在 Collection 的所有实现中并没有真正的意义。这是因为 Collection 是一种抽象表示。重要的是执行。在处理实际实现时，克隆或序列化的语义和含义会发挥作用；所以具体的实现应该决定它应该如何被克隆或序列化，或者即使它可以被克隆或序列化。因此，在所有实现中强制克隆和序列化实际上不太灵活且限制性更强。具体的实现应该决定它是否可以被克隆或序列化。
 
-List：无序、可重复；Set：有序、不可重复；
+`List：有序、可重复；Set：有序、不可重复；`
 
 ### 1.3、为什么 Map 接口不扩展 Collection 接口？
 
 尽管 Map 接口及其实现是 `Collections Framework` 的一部分，但 Map 不是集合，集合也不是 Map。因此 Map 扩展 Collection 没有意义，反之亦然。如果 Map 扩展了 Collection 接口，那么元素在哪里？Map 包含键值对，它提供了检索键或值列表作为集合的方法，但它不适合“元素组”范式。
+
+首先Map提供的是`键值对映射（即Key和value的映射）`，而collection提供的是`一组数据（并不是键值对映射）`。如果map继承了collection接口，那么所有实现了map接口的类到底是用map的键值对映射数据还是用collection的一组数据呢（就我们平常所用的hashMap、hashTable、treeMap等都是键值对，所以它继承collection完全没意义），而且map如果继承了collection接口的话还违反了面向对象的接口分离原则。
 
 ### 1.4、什么是迭代器？
 
@@ -70,8 +72,8 @@ Java 提供了 Comparable 接口，如果我们想使用 Arrays 或 Collections 
 
 ### 1.14、Comparable 和 Comparator 接口有什么区别？
 
-Comparable 和 Comparator 接口用于对对象的集合或数组进行排序。Comparable 接口用于提供对象的自然排序，我们可以使用它来提供基于单一逻辑的排序。
-Comparator 接口用于提供不同的排序算法，我们可以选择我们想要使用的比较器来对给定的对象集合进行排序。
+Comparable 和 Comparator 接口用于对`对象的集合或数组进行排序`。**Comparable 接口用于提供对象的自然排序**，我们可以使用它来提供基于单一逻辑的排序。
+**Comparator 接口用于提供不同的排序算法**，我们可以选择我们想要使用的比较器来对给定的对象集合进行排序。
 
 ### 1.15、我们如何对对象列表进行排序？
 
@@ -123,7 +125,7 @@ Iterator替代了Enumeration，Enumeration是一个旧的迭代器了。
 
 fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错误检测机制**。`多线程`下用`迭代器遍历一个集合对象时`，如果遍历过程中对集合对象的内容进行了`修改（增加、删除）`，则会抛出`Concurrent Modification Exception`。fail-fast机制并不保证在不同步的修改下一定会抛出异常，这种机制一般仅用于检测bug。
 
-原理：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 `modCount `变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测`modCount变量是否为expectedmodCount值`，是的话就返回遍历；否则抛出异常，终止遍历。
+**原理：**迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 `modCount `变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测`modCount变量是否为expectedmodCount值`，是的话就返回遍历；否则抛出异常，终止遍历。
 
 例如：当某一个线程A通过iterator去遍历某集合的过程中，若集合的内容被其他的线程所改变了，那么线程A访问集合时，就会抛出ConcurrentModifificationException异常，产生fail-fast事件。这里的操作主要是指add、remove和clear，对集合元素个数进行修改。
 
@@ -135,7 +137,7 @@ fail-fast机制，即`快速失败机制`，是java集合框架中的一种**错
 
 ### 2.1、HashMap 在 Java 中是如何工作的？
 
-Map.EntryHashMap 在静态嵌套类实现中存储键值对。HashMap 做`散列算法`，在`put and get`方法中使用`hashCode()`和`equals()`方法。当我们通过传递键值对调用put方法时，HashMap使用Key hashCode()和散列来找出索引来存储键值对. 条目存储在 LinkedList（数组每个位置存储链表）中，因此如果已经存在条目，则使用 equals() 方法检查传递的键是否已存在，如果`存在则覆盖值`，否则创建新条目并存储此键值条目.当我们通过传递Key调用get方法时，它再次使用hashCode()来查找数组中的索引，然后使用equals()方法找到正确的Entry并返回它的值。下图将清楚地解释这些细节。
+Map.EntryHashMap 在**静态嵌套类实现中存储键值对**。HashMap 做`散列算法`，在`put and get`方法中使用`hashCode()`和`equals()`方法。当我们通过传递键值对调用put方法时，HashMap使用Key hashCode()和散列来找出索引来存储键值对，条目存储在` LinkedList（数组每个位置存储链表）`中，因此如果已经存在条目，则使用 equals() 方法检查传递的键是否已存在，如果`存在则覆盖值`，否则创建新条目并存储此键值条目.当我们通过传递Key调用get方法时，它再次使用hashCode()来查找数组中的索引，然后使用equals()方法找到正确的Entry并返回它的值。下图将清楚地解释这些细节。
 
 <img src="https://knowledgeimagebed.oss-cn-hangzhou.aliyuncs.com/img/202207131853000.png" alt="image-20220713185302133" style="width:50%;" />
 
@@ -273,15 +275,15 @@ JDK1.8 之前 HashMap 底层是`数组和链表`结合在一起使用也就是`�
 
 ### 3.4、ArrayList 和 LinkedList 有什么区别？
 
-**ArrayList**
+**ArrayList**（查询效率高，增删效率低）
 
-- 优点：ArrayList是实现了`基于动态数组`的数据结构，因为地址连续，一旦数据存储好了，查询效率会比较高（在内存里是连续的）
+- 优点：ArrayList是实现了`基于动态数组`的数据结构，因为地址连续，一旦数据存储好了，`查询效率会比较高`（在内存里是连续的）
 - 缺点：由于`地址连续，插入和删除操作后`，`ArrayList需要移动数据`，因此效率会比较低。
 
-**LinkedList**
+**LinkedList**（查询效率低，增删效率高）
 
-- 优点：LinkedList是`基于链表`的数据结构，`地址是任意`的，在开辟内存空间的时候不需要等一个连续的地址。对于新增和删除操作，LinkedList比较占优势。LinkedList适用于要头尾操作或插入指定位置的场景。
-- 缺点：由于LinkedList需要移动指针，查询操作性能比较低。
+- 优点：LinkedList是`基于双向链表`的数据结构，`地址是任意`的，在开辟内存空间的时候不需要等一个连续的地址。对于新增和删除操作，LinkedList比较占优势。LinkedList适用于`要头尾操作或插入指定位置`的场景。
+- 缺点：由于LinkedList需要`移动指针`，查询操作性能比较低。
 
 **使用场景分析**
 
@@ -339,7 +341,15 @@ ArrayList的默认初始容量为10，要插入大量数据的时候需要不断
   。由于LinkedList的消耗主要是在遍历上，ArrayList的消耗主要是在移动和复制上(底层调用的是arraycopy()方法，是native方法)。    
 
   -  LinkedList的遍历速度是要慢于ArrayList的复制移动速度的 
-  -  如果数据量有百万级的时，**还是ArrayList要快**。(我测试过)
+  -  如果数据量有百万级的时，**还是ArrayList要快**。
+
+### 3.8、ArrayList的扩容机制？
+
+ArrayList是基于数组的集合，数组的容量在定义的时候确定的。如果数组满了，再插入，就会数组溢出。在插入的时候，会先检查是否需要扩容，如果当前容量+1超过数组长度，就会进行扩容。创建一个1.5倍的新数组，然后把原数组的值拷贝过去。
+
+### 3.9、CopyOnWriteArraylList写时复制
+
+是线程安全版本的ArrayList。采用了一种读写分离的并发策略。CopyOnWriteArrayList容器允许并读，读操作是无锁的，性能较高。写操作，比如先容器中添加一个元素，则首先将当前容器复制一份，然后在新副本上执行写操作，结束之后，再将原容器的引用指向新容器。
 
 ## 四、队列Queue
 
