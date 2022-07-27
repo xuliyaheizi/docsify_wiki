@@ -85,3 +85,56 @@
 
 ## 11、反射安全吗？反射漏洞是什么？
 
+## 12、JavaSE和JavaEE的区别？
+
+- JavaSE是指Java平台标准版，用于开发和部署桌面、服务器以及嵌入设备和实时环境中的Java应用程序。
+- JavaEE是指Java平台企业版，用于开发和部署可移植、健壮、可伸缩且安全的服务器端Java应用程序。
+
+JAVA SE是指 Java Standard Edition，Java标准版，就是一般Java程序的开发就可以(如桌面程序)，可以看作是JavaEE的子集。它允许开发和部署在桌面、服务器、嵌入式环境和实施环境中使用的Java应用程序。JavaSE 包括支持Java　Ｗeb服务开发的类，并为Java Platform,Enterprise Edition(Java EE)提供基础。
+
+Java是一种可以撰写跨平台应用软件的面向对象的程序设计语言。Java 技术具有卓越的通用性、高效性、平台移植性和安全性，广泛应用于PC、数据中心、游戏控制台、科学超级计算机、移动电话和互联网，同时拥有全球最大的开发者专业社群。正式成立于1995年，广泛应用于人们的生活、工作、娱乐等等方面。
+
+## 13、Integer与int的区别？
+
+**基础：**
+
+1. int是java的一种基本数据类型，而Integer是int的一个封装类。
+2. Integer变量必须实例化之后才能使用，而int变量不需要。
+3. Integer实际是对象的引用，当new一个Integer对象时，实际上是生成一个指针指向该对象；而int是直接存储数据值。
+4. Integer的默认值是null；int的默认值是0；
+
+**延申：**
+
+1. Integer变量实际上是对integer对象的引用，new一个对象是存储在堆中。所以两个通过new的integer变量永远不相等（因为new 生成的是两个对象，其内存地址不一样）
+
+   ```java
+   Integer i = new Integer(100);
+   Integer j = new Integer(100);
+   System.out.print(i == j);//false
+   ```
+
+2. 当一个Integer变量和一个int变量比较时，只要两个变量的值相等，那么结果就是true。因为Integer本质是int的一个封装类，当两数比较时，java会自动将integer拆包。本质上就是两个int变量的比较。
+
+   ```java
+   Integer i = new Integer(100);
+   int j = 100;
+   System.out.print(i == j);//true
+   ```
+
+3. 当一个new创建Integer变量和一个非new创建的Integer变量比较时，结果为false。因为非new创建的变量存在java常量池中，而new创建的变量指向堆中新建的对象，两者的内存地址不同。
+
+   ```java
+   Integer i = new Integer(100);
+   Integer j = 100;
+   System.out.print(i == j);//false
+   ```
+
+4. 当两个非new的Integer变量比较时，如果两个变量的值在-128~127之间，那么结果就是true，否则就是false。
+
+   ```
+   Integer integer = 128;
+   Integer i = 128;
+   System.out.println(integer == i);//false
+   ```
+
+   
