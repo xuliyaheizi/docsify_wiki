@@ -28,7 +28,7 @@ Spring是一个**轻量的IOC和AOP容器框架**。是为Java应用程序提供
 - `事务管理`：Spring提供一个持续的事务管理接口，可用扩展到上至本地事务下至全局事务（JTA）。
 - `异常处理`：Spring提供方便的API把具体技术相关的异常（比如由JDBC，Hibernate or JDO抛出的）转化为一致的unchecked异常。
 
-### 1.3、Autowired和Resource关键字的区别？
+### 1.3、@Autowired和@Resource关键字的区别？
 
 @Resource和@Autowired都是做`bean的注入`时使用，且@Resource并不是Spring的注解，它的包是javax.annotation.Resource，需要导入，但是Spring支持该注解的注入。
 
@@ -194,9 +194,9 @@ springMVC是一个MVC的开源框架，springMVC=struts2+spring，springMVC就�
 
 ### 1.6、Spring常用的注解有哪些？
 
-- @RequestMapping：用于处理请求url映射的注解，可用于类或方法上。用于类上，则表示类中的所有响应请求的方法都是以该地址作为父路径。
-- @RequestBody：注解实现接收http请求的json数据，将json转换为java对象。
-- @ResponseBody：注解实现将controller方法返回对象转化为json对象响应给客户。
+- **@RequestMapping：**用于处理请求url映射的注解，可用于类或方法上。用于类上，则表示类中的所有响应请求的方法都是以该地址作为父路径。
+- **@RequestBody：**注解实现接收http请求的json数据，将json转换为java对象。
+- **@ResponseBody：**注解实现将controller方法返回对象转化为json对象响应给客户。
 
 ### 1.7、说说对Spring的AOP的理解？
 
