@@ -10,7 +10,7 @@
 - **列（column）：**表中的一个字段。所有表都是由一个或多个列组成的。
 - **数据类型（datatype）：**所容许的数据的类型。每个表列都有相应的数据类型，它限制（或容许）该列中存储的数据。
 - **行（row）：**表中的数据是按行存储的，所保存的每个记录存储在自己的行内。
-- **注解（primary key）：**一列（或一组列），其值能够唯一区分表中每个行。
+- **主键（primary key）：**一列（或一组列），其值能够唯一区分表中每个行。
 - **SQL：**结构化查询语言的缩写。SQL是一种专门用来与数据库通信的语言。
 
 ## 二、常用SQL语句
@@ -275,6 +275,83 @@ ORDER BY 排序时，需加上 LIMIT 进行结合。
     natural right join
 select info.id, info.name, info.stu_num, extra_info.hobby, extra_info.sex from info, extra_info where info.stu_num = extra_info.stu_id;
 ```
+
+### 2.8、函数
+
+> **1、汇总函数**
+
+|  函 数  |      说 明       |
+| :-----: | :--------------: |
+|  AVG()  | 返回某列的平均值 |
+| COUNT() |  返回某列的行数  |
+|  MAX()  | 返回某列的最大值 |
+|  MIN()  | 返回某列的最小值 |
+|  SUM()  |  返回某列值之和  |
+
+```sql
+SELECT AVG(DISTINCT col1) AS avg_col
+FROM mytable;
+```
+
+> **2、文本处理函数**
+
+|   函数    |      说明      |
+| :-------: | :------------: |
+|  LEFT()   |   左边的字符   |
+|  RIGHT()  |   右边的字符   |
+|  LOWER()  | 转换为小写字符 |
+|  UPPER()  | 转换为大写字符 |
+|  LTRIM()  | 去除左边的空格 |
+|  RTRIM()  | 去除右边的空格 |
+| LENGTH()  |      长度      |
+| SOUNDEX() |  转换为语音值  |
+
+```sql
+SELECT *
+FROM mytable
+WHERE SOUNDEX(col1) = SOUNDEX('apple')
+```
+
+> **3、日期和时间处理函数**
+
+- 日期格式: YYYY-MM-DD
+- 时间格式: HH:MM:SS
+
+|     函 数     |             说 明              |
+| :-----------: | :----------------------------: |
+|   AddDate()   |     增加一个日期(天、周等)     |
+|   AddTime()   |     增加一个时间(时、分等)     |
+|   CurDate()   |          返回当前日期          |
+|   CurTime()   |          返回当前时间          |
+|    Date()     |     返回日期时间的日期部分     |
+|  DateDiff()   |        计算两个日期之差        |
+|  Date_Add()   |     高度灵活的日期运算函数     |
+| Date_Format() |  返回一个格式化的日期或时间串  |
+|     Day()     |     返回一个日期的天数部分     |
+|  DayOfWeek()  | 对于一个日期，返回对应的星期几 |
+|    Hour()     |     返回一个时间的小时部分     |
+|   Minute()    |     返回一个时间的分钟部分     |
+|    Month()    |     返回一个日期的月份部分     |
+|     Now()     |       返回当前日期和时间       |
+|   Second()    |      返回一个时间的秒部分      |
+|    Time()     |   返回一个日期时间的时间部分   |
+|    Year()     |     返回一个日期的年份部分     |
+
+> **3、数值处理函数**
+
+|  函数  |  说明  |
+| :----: | :----: |
+| SIN()  |  正弦  |
+| COS()  |  余弦  |
+| TAN()  |  正切  |
+| ABS()  | 绝对值 |
+| SQRT() | 平方根 |
+| MOD()  |  余数  |
+| EXP()  |  指数  |
+|  PI()  | 圆周率 |
+| RAND() | 随机数 |
+
+- [更多SQL语句参考](https://www.pdai.tech/md/db/sql-lan/sql-lan.html)
 
 ## 三、数据类型
 
@@ -624,3 +701,125 @@ FROM payment;
 - 对于非常小的表、大部分情况下简单的全表扫描比建立索引更高效。
 - 对于中到大型的表，索引就非常有效。
 - 但是对于特大型的表、建立和维护索引的代价将随之增长。这种情况下，需要用到一种技术可以直接区分出需要查询的一组数据，而不是一条记录一条记录地匹配。可以使用分区技术。
+
+## 六、性能优化
+
+### 6.1、使用 Explain 进行分析
+
+Explain可用来分析 Select 查询语句
+
+重要的字段有：
+
+- select_type：查询类型、有简单类型、联合查询、子查询等。
+- key：使用的索引。
+- rows：扫描的行数。
+
+### 6.2、优化数据访问
+
+> **1、减少请求的数据量**
+
+- 只返回必要的列：最好不要使用 Select * 语句。
+- 只返回必要的行：使用 LIMIT 语句来限制返回的数据。
+- 缓存重复查询的语句：使用缓存可以避免在数据库中进行查询，特别在要查询的数据库经常被重复查询时，缓存带来的查询性能提升将会是非常明显的。
+
+> **2、减少服务端扫描的行数**
+
+最有效的方式是**使用索引来覆盖查询**
+
+### 6.3、重构查询方式
+
+> **1、切分大查询**
+
+一个大查询如果一次性执行的话，可能一次锁住很多数据、占满整个事务日志、耗尽系统资源、阻塞很小的但重要的查询。
+
+```sql
+DELEFT FROM messages WHERE create < DATE_SUB(NOW(), INTERVAL 3 MONTH);
+```
+
+```sql
+rows_affected = 0
+do {
+    rows_affected = do_query(
+    "DELETE FROM messages WHERE create  < DATE_SUB(NOW(), INTERVAL 3 MONTH) LIMIT 10000")
+} while rows_affected > 0
+```
+
+> **2、分解大连接查询**
+
+将一个大连接查询分解成对每一个表进行一次单表查询，然后将结果在应用程序中进行关联。好处有：
+
+- 让缓存更高效：对于连接查询，如果其中一个表发生变化，那么整个查询缓存就无法使用。而分解后的多个查询，即使其中一个表发生变化，对其它表的查询缓存依然可以使用。
+
+- 分解成多个单表查询：单表查询的缓存结果更可能被其他查询使用到，从而减少冗余记录的查询。
+
+- 减少锁竞争
+
+- 在应用层进行连接：可以更容易对数据库进行拆分，从而更容易做到高性能和可伸缩。
+
+- 查询本身效率也可能会有所提升。下面的例子中，使用IN()代替连接查询，可以让 MySQL 按照 ID 顺序进行查询。可能比随机的连接要更高效。
+
+  ```sql
+  SELECT * FROM tab
+  JOIN tag_post ON tag_post.tag_id=tag.id
+  JOIN post ON tag_post.post_id=post.id
+  WHERE tag.tag='mysql';
+  ```
+
+  ```sql
+  SELECT * FROM tag WHERE tag='mysql';
+  SELECT * FROM tag_post WHERE tag_id=1234;
+  SELECT * FROM post WHERE post.id IN (123,456,567,9098,8904);
+  ```
+
+## 七、MySQL重点
+
+### 7.1、MySQL分页方法
+
+> **1、直接使用数据库提供的SQL语句**
+
+```sql
+SELECT * FROM tableName LIMIT M,N;
+```
+
+**适应场景：**适用于数据量较少的情况（元组百/千级）
+
+**原因/缺点：**全表扫描，速度会很慢且有的数据库结果集返回不稳定（如某次返回1、2、3，另外返回的一次2、1、3）。Limit限制的是从结果集M位置处取出N条输出，其余抛弃。
+
+> **2、建立主键或唯一索引，利用索引（假设每页10条）**
+
+```sql
+SELECT * FROM tableName WHERE id_pk > (pageNum*10) LIMIT M;
+```
+
+**适应场景：**适用于数据量多的情况（元组数上万）。
+
+**原因：**索引扫描，速度很快。数据查询出来可能并不是按照 pk_id 排序的。可能出现漏掉数据的情况。
+
+> **3、基于索引再排序**
+
+```sql
+SELECT * FROM tableName WHERE id_pk > (pageNum*10) ORDER BY id_pk ASC LIMIT M;
+```
+
+**适应场景：**适用于数据量多的情况（元组数上万）。ORDER BY后的列对象是主键或唯一索引，使得ORDER BY操作能利用索引被消除但结果集是稳定的。
+
+**原因：**索引扫描，速度很快。
+
+> **4、基于索引使用 prepare**
+
+```sql
+PREPARE stmt_name FROM SELECT * FROM tableName WHERE id_pk > (pageNum*10) ORDER BY id_pk ASC LIMIT M;
+```
+
+**适应场景：**大数据量
+
+**原因：**索引扫描，速度会很快。prepare语句又比一般的查询语句快一点。
+
+> **5、利用MySQL支持ORDER BY操作可以利用索引快速定位部分元组，避免全表扫描**
+
+例如：读取第1000到1019行元组（pk是主键/唯一键）
+
+```sql
+SELECT * FROM tableName WHERE pk_id >= 1000 ORDER BY pk_id ASC LIMIT 0,20;
+```
+
