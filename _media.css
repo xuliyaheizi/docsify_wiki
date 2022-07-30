@@ -238,7 +238,11 @@ li {
 
 /* 引用块 */
 .markdown-section blockquote {
-    border-left: 4px solid #42b983;
+    border-left: 0.5rem solid #42b983;
+    background-color: #f3f5f7;
+    color: #2c3e50;
+    margin: 1rem 0;
+    padding: 1rem;
 }
 
 .docsify-copy-code-button .success {
