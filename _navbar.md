@@ -37,4 +37,5 @@
     * [线程相关](/7-八股文/4、线程相关面试题)
     * [Spring框架相关](/7-八股文/5、Spring相关面试题)
     * [Redis相关](/7-八股文/6、Redis相关面试题)
-    <!-- * [<i class="iconfont zhulin-zuozhe"></i>关于作者](/简历.md) -->
+    * [MySQL相关](/7-八股文/7、MySQL相关面试题)
+* <!-- * [<i class="iconfont zhulin-zuozhe"></i>关于作者](/简历.md) -->
