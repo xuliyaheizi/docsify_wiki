@@ -30,7 +30,7 @@
 
 ### 数据库
 
-[MySQL数据库](/1-Java/13、MySQL)  [分布式锁](/1-Java/12、分布式锁)  [Mybatis](/1-Java/11、Mybatis)  [Redis缓存数据库](/2-框架/8、Redis.md)
+[MySQL数据库](/1-Java/13、Mysql)  [分布式锁](/1-Java/12、分布式锁)  [Mybatis](/1-Java/11、Mybatis)  [Redis缓存数据库](/2-框架/8、Redis.md)
 
 ### 项目部署
 
