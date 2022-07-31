@@ -242,7 +242,7 @@ li {
     background-color: #f3f5f7;
     color: #2c3e50;
     margin: 1rem 0;
-    padding: 0.2rem;
+    padding: 0.2rem 0 0.2rem 20px;
 }
 
 .docsify-copy-code-button .success {
